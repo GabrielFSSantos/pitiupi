@@ -1,0 +1,57 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package pitiupi.chat.net;
+
+import pitiupi.net.Message;
+import pitiupi.net.Message;
+
+/**
+ *
+ * @author flavio
+ */
+public class ChatMessage extends Message{
+
+    private String text;
+    private String name;
+
+
+    public ChatMessage(){
+        
+    }
+
+    public ChatMessage(String name, String text){
+        this.name = name;
+        this.text = text;
+    }
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the text
+     */
+    public String getText() {
+        return text;
+    }
+
+    /**
+     * @param text the text to set
+     */
+    public void setText(String text) {
+        this.text = text;
+    }
+
+}
