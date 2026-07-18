@@ -11,10 +11,12 @@ import java.util.List;
 import javax.swing.JMenu;
 import pitiupi.control.PluginLoader;
 import pitiupi.plugin.Plugin;
+import pitiupi.control.HeartbeatManager;
 
 /**
  *
  * @author flavio
+ * @author tony
  */
 public class MainWindow extends javax.swing.JFrame {
 
@@ -23,6 +25,10 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JLabel status;
     private javax.swing.JPanel statusPanel;
     private javax.swing.JTabbedPane tabbedPane;
+
+    private HeartbeatManager heartbeatManager;
+    private OnlineUsersPanel onlineUsersPanel;
+
 
     private Socket socket;
 
@@ -64,6 +70,12 @@ public class MainWindow extends javax.swing.JFrame {
         this.socket = new Socket(this);
         this.socket.start();
 
+        this.heartbeatManager = new HeartbeatManager(this);
+        this.onlineUsersPanel = new OnlineUsersPanel();
+        this.heartbeatManager.addPeerListener(this.onlineUsersPanel);
+        this.getContentPane().add(this.onlineUsersPanel, java.awt.BorderLayout.LINE_END);
+        this.heartbeatManager.start();
+
         this.setSize(new java.awt.Dimension(1024, 768));
         this.pluginManager = new PluginLoader(this);
         this.pluginManager.loadPlugins();
@@ -74,6 +86,10 @@ public class MainWindow extends javax.swing.JFrame {
         this.setVisible(false);
         this.dispose();
         System.exit(0);
+    }
+
+    public HeartbeatManager getHeartbeatManager() {
+        return heartbeatManager;
     }
 
     public String getUserName(){
