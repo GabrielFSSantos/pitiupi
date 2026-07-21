@@ -1,0 +1,10 @@
+# NetBeans
+/build/
+/dist/
+/nbproject/private/
+
+# Java compilado
+*.class
+
+# JARs gerados
+*.jar

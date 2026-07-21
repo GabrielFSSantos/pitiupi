@@ -17,10 +17,12 @@ import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import pitiupi.plugin.Plugin;
+import pitiupi.net.HeartbeatMessage;
 
 /**
  *
  * @author flavio
+ * @author tony
  */
 public class Socket extends Thread {
 
@@ -53,17 +55,34 @@ public class Socket extends Thread {
         msgPacket = new DatagramPacket(msg, msg.length, this.address, this.main.getPort());
         multicastSocket.send(msgPacket);
     }
-
+    
     public void receive() throws UnknownHostException, IOException, ClassNotFoundException {
         byte[] buf = new byte[256000];
         while (true) {
-            // Receive the information and print it.
             DatagramPacket msgPacket = new DatagramPacket(buf, buf.length);
             multicastSocket.receive(msgPacket);
+
+            HeartbeatMessage heartbeat = tryParseHeartbeat(msgPacket.getData());
+            if (heartbeat != null) {
+                main.getHeartbeatManager().receiveHeartbeat(heartbeat, msgPacket.getAddress());
+                continue;
+            }
+
             for (Plugin plugin : main.getPlugins()) {
                 System.out.println(msgPacket.getAddress().toString());
                 plugin.receiveMessage(msgPacket.getData());
             }
+        }
+    }
+     
+    private HeartbeatMessage tryParseHeartbeat(byte[] data) {
+        try {
+            ByteArrayInputStream bais = new ByteArrayInputStream(data);
+            ObjectInput in = new ObjectInputStream(bais);
+            Object obj = in.readObject();
+            return (obj instanceof HeartbeatMessage) ? (HeartbeatMessage) obj : null;
+        } catch (IOException | ClassNotFoundException | ClassCastException ex) {
+            return null; 
         }
     }
 
