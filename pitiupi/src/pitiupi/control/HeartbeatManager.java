@@ -15,6 +15,11 @@ import java.util.logging.Logger;
 import pitiupi.GUI.MainWindow;
 import pitiupi.net.HeartbeatMessage;
 /**
+ * Gerencia o mecanismo de heartbeat da aplicação.
+ *
+ * <p>Responsável por anunciar a presença da aplicação na rede, receber
+ * heartbeats de outros usuários, controlar o tempo desde a última atividade
+ * dos peers e notificar listeners quando a lista de usuários ativos muda.</p>
  *
  * @author tony
  */
@@ -54,6 +59,17 @@ public class HeartbeatManager {
     }
 
     // Chamado pelo Socket quando um pacote é identificado como heartbeat
+    /**
+     * Processa uma mensagem de heartbeat recebida de outro usuário.
+     *
+     * <p>Atualiza a informação do peer correspondente e notifica os listeners
+     * caso um novo usuário seja identificado.</p>
+     *
+     * <p>Mensagens de heartbeat enviadas pela própria aplicação são ignoradas.</p>
+     *
+     * @param msg mensagem de heartbeat recebida.
+     * @param from endereço de rede do usuário que enviou a mensagem.
+     */
     public void receiveHeartbeat(HeartbeatMessage msg, InetAddress from) {
         // ignora o próprio heartbeat 
         if (msg.getUserName().equals(mainWindow.getUserName())) {
@@ -86,6 +102,14 @@ public class HeartbeatManager {
         }
     }
 
+    /**
+     * Adiciona um listener para receber atualizações sobre os peers conhecidos.
+     *
+     * <p>O listener recebe imediatamente o estado atual dos peers ao ser
+     * registrado.</p>
+     *
+     * @param l listener que será notificado sobre alterações.
+     */
     public void addPeerListener(PeerListener l) {
         listeners.add(l);
         l.onPeersChanged(new ArrayList<>(peers.values()));

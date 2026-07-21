@@ -14,7 +14,6 @@ import java.util.logging.Logger;
  * @author flavio
  */
 public class Main {
-
     /**
      * @param args the command line arguments
      */

@@ -20,6 +20,10 @@ import pitiupi.plugin.Plugin;
 import pitiupi.net.HeartbeatMessage;
 
 /**
+ * Responsável pela comunicação multicast entre a aplicação e os plugins.
+ *
+ * <p>Esta classe gerencia o envio e o recebimento de mensagens, além de
+ * manter a conexão com o grupo multicast utilizado pela aplicação.</p>
  *
  * @author flavio
  * @author tony
@@ -31,6 +35,11 @@ public class Socket extends Thread {
     private MainWindow main;
     public final static String INET_ADDR = "224.0.0.3";
 
+    /**
+     * Cria e inicializa a conexão multicast utilizada pela aplicação.
+     *
+     * @param main janela principal da aplicação.
+     */
     public Socket(MainWindow main) {
         this.main = main;
         try {
@@ -50,12 +59,29 @@ public class Socket extends Thread {
         }
     }
 
+    /**
+     * Envia uma mensagem para o grupo multicast da aplicação.
+     *
+     * @param msg mensagem serializada a ser enviada.
+     * @throws IOException caso ocorra um erro durante o envio da mensagem.
+     */
     public void send(byte[] msg) throws IOException {
         DatagramPacket msgPacket;
         msgPacket = new DatagramPacket(msg, msg.length, this.address, this.main.getPort());
         multicastSocket.send(msgPacket);
     }
-    
+
+    /**
+     * Inicia o loop de recepção de mensagens da aplicação.
+     *
+     * <p>As mensagens recebidas são verificadas inicialmente para identificar
+     * mensagens de heartbeat. Caso não sejam heartbeats, seu conteúdo é
+     * encaminhado para todos os plugins carregados, que decidem se devem ou
+     * não processá-lo.</p>
+     *
+     * @throws IOException caso ocorra um erro durante a recepção da mensagem.
+     * @throws ClassNotFoundException caso a desserialização de uma mensagem falhe.
+     */
     public void receive() throws UnknownHostException, IOException, ClassNotFoundException {
         byte[] buf = new byte[256000];
         while (true) {
@@ -74,7 +100,14 @@ public class Socket extends Thread {
             }
         }
     }
-     
+
+    /**
+     * Tenta desserializar os dados recebidos como uma {@code HeartbeatMessage}.
+     *
+     * @param data dados serializados da mensagem.
+     * @return a mensagem desserializada caso os dados representem uma
+     * {@code HeartbeatMessage}; caso contrário, {@code null}.
+     */
     private HeartbeatMessage tryParseHeartbeat(byte[] data) {
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(data);

@@ -8,6 +8,8 @@ package pitiupi.GUI;
 import javax.swing.*;
 
 /**
+ * Janela que exibe informações sobre a aplicação, incluindo versão,
+ * descrição e autores.
  *
  * @author gustavo
  */

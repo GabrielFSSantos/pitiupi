@@ -11,7 +11,10 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import pitiupi.control.PeerInfo;
 import pitiupi.control.PeerListener;
+
 /**
+ * Painel da interface gráfica responsável por exibir os usuários ativos
+ * na rede.
  *
  * @author tony
  */
@@ -30,6 +33,11 @@ public class OnlineUsersPanel extends JPanel implements PeerListener {
         add(new JScrollPane(userList), BorderLayout.CENTER);
     }
 
+    /**
+     * Atualiza a lista de usuários exibida no painel.
+     *
+     * @param peers lista atualizada de usuários ativos na rede.
+     */
     @Override
     public void onPeersChanged(List<PeerInfo> peers) {
         SwingUtilities.invokeLater(() -> {

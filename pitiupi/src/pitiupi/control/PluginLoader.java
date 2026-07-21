@@ -17,7 +17,12 @@ import pitiupi.Main;
 import pitiupi.plugin.Plugin;
 
 /**
+ * Responsável por localizar, carregar e registrar os plugins
+ * presentes no diretório {@code plugins}.
  *
+ * <p>Os plugins são descobertos utilizando {@link java.util.ServiceLoader}
+ * e devem estar empacotados como arquivos JAR contendo a configuração
+ * {@code META-INF/services} correspondente.</p>
  * @author flavio
  */
 public class PluginLoader {

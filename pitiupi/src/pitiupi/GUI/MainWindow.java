@@ -14,9 +14,18 @@ import pitiupi.plugin.Plugin;
 import pitiupi.control.HeartbeatManager;
 
 /**
+ * Janela principal da aplicação.
+ *
+ * <p>Responsável por inicializar a interface gráfica e coordenar os
+ * principais componentes da aplicação, incluindo comunicação de rede,
+ * gerenciamento de heartbeat e carregamento de plugins.</p>
+ *
+ * <p>A instância desta classe é compartilhada com os plugins para permitir
+ * integração com a aplicação principal.</p>
  *
  * @author flavio
  * @author tony
+ * @author Gustavo
  */
 public class MainWindow extends javax.swing.JFrame {
 
@@ -38,7 +47,12 @@ public class MainWindow extends javax.swing.JFrame {
     private PluginLoader pluginManager;
     private final List<Plugin> plugins;
 
-    
+    /**
+     * Cria a janela principal da aplicação.
+     *
+     * @param userName nome utilizado para identificação na rede.
+     * @param port porta utilizada na comunicação multicast.
+     */
     public MainWindow(String userName, int port) {
         this.userName = userName;
         this.port = port;
@@ -48,6 +62,14 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private void initComponents() {
+        initGUI();
+        initSocket();
+        initHeartbeat();
+        initPlugins();
+        this.setSize(new java.awt.Dimension(1024, 768));
+    }
+
+    private void initGUI() {
         this.setJMenuBar(menuBar);
         this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         this.setTitle("Share My Sheet");
@@ -66,21 +88,25 @@ public class MainWindow extends javax.swing.JFrame {
         this.getContentPane().add(statusPanel, java.awt.BorderLayout.PAGE_END);
 
         this.pack();
+    }
 
+    private void initSocket() {
         this.socket = new Socket(this);
         this.socket.start();
+    }
 
+    private void initHeartbeat() {
         this.heartbeatManager = new HeartbeatManager(this);
         this.onlineUsersPanel = new OnlineUsersPanel();
         this.heartbeatManager.addPeerListener(this.onlineUsersPanel);
         this.getContentPane().add(this.onlineUsersPanel, java.awt.BorderLayout.LINE_END);
         this.heartbeatManager.start();
+    }
 
-        this.setSize(new java.awt.Dimension(1024, 768));
+    private void initPlugins() {
         this.pluginManager = new PluginLoader(this);
         this.pluginManager.loadPlugins();
     }
-
 
     public void exit() {
         this.setVisible(false);

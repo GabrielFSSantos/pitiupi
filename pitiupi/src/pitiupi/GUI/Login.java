@@ -20,6 +20,10 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 
 /**
+ * Janela de preferencias da aplicação.
+ *
+ * <p>Permite ao usuário informar o nome utilizado na rede e a porta
+ * multicast que será utilizada pela comunicação.</p>
  *
  * @author flavio
  */

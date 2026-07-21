@@ -9,8 +9,13 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
 /**
+ * Barra de menus principal da aplicação.
+ *
+ * <p>Gerencia os menus padrões da interface e disponibiliza um espaço
+ * para que plugins adicionem seus próprios menus.</p>
  *
  * @author flavio
+ * @author Gustavo
  */
 public class MenuBar extends JMenuBar {
 
@@ -58,8 +63,6 @@ public class MenuBar extends JMenuBar {
         this.add(helpMenu);
     }
 
-
-
     private void exitMenuActionPerformed(java.awt.event.ActionEvent evt) {
         mainWindow.exit();
     }
@@ -74,7 +77,13 @@ public class MenuBar extends JMenuBar {
         About about = new About();
         about.setVisible(true);
     }
-    
+
+    /**
+     * Adiciona um menu fornecido por um plugin à seção de plugins da barra
+     * de menus.
+     *
+     * @param menu menu criado pelo plugin.
+     */
     public void addPlugin(JMenu menu){
      this.pluginMenu.add(menu);
     }
