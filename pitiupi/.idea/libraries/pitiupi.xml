@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="pitiupi">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/pitiupi.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

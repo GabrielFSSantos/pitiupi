@@ -15,6 +15,7 @@ import javax.swing.JMenuBar;
 public class MenuBar extends JMenuBar {
 
     private javax.swing.JMenuItem setupMenu;
+    private javax.swing.JMenuItem aboutMenu;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenu pluginMenu;
@@ -32,6 +33,7 @@ public class MenuBar extends JMenuBar {
         helpMenu = new javax.swing.JMenu();
         pluginMenu = new javax.swing.JMenu();
         setupMenu = new javax.swing.JMenuItem();
+        aboutMenu = new javax.swing.JMenuItem();
 
         fileMenu.setText("File");
         exitMenu.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
@@ -44,9 +46,15 @@ public class MenuBar extends JMenuBar {
         this.add(pluginMenu);
 
         helpMenu.setText("Help");
+
         setupMenu.setText("Preferences");
         setupMenu.addActionListener(this::setupMenuActionPerformed);
         helpMenu.add(setupMenu);
+
+        aboutMenu.setText("About");
+        aboutMenu.addActionListener(this::aboutMenuActionPerformed);
+        helpMenu.add(aboutMenu);
+
         this.add(helpMenu);
     }
 
@@ -60,6 +68,11 @@ public class MenuBar extends JMenuBar {
         Login login = new Login();
         login.setVisible(true);
         login.dispose();
+    }
+
+    private void aboutMenuActionPerformed(java.awt.event.ActionEvent evt) {
+        About about = new About();
+        about.setVisible(true);
     }
     
     public void addPlugin(JMenu menu){
