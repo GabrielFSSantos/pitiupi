@@ -22,6 +22,7 @@ import javax.swing.JTextField;
 /**
  *
  * @author flavio
+ * @author tony
  */
 public final class Login extends JDialog {
 
@@ -82,9 +83,16 @@ public final class Login extends JDialog {
         this.add(topPanel);
         this.add(buttonPanel, BorderLayout.SOUTH);
 
+
         okButton.addActionListener((ActionEvent e) -> {
+            try {
+                portField.commitEdit();
+            } catch (java.text.ParseException ex) {
+                return;
+            }
             Login.this.setVisible(false);
         });
+
 
         cancelButton.addActionListener((ActionEvent e) -> {
             System.exit(0);

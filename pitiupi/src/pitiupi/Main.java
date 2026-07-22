@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 /**
  *
  * @author flavio
+ * @author tony
  */
 public class Main {
 
@@ -40,16 +41,17 @@ public class Main {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(pitiupi.GUI.MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
 
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
+                pitiupi.GUI.Login login = new pitiupi.GUI.Login();
+                login.setVisible(true); 
+
                 pitiupi.GUI.MainWindow main;
-                main = new pitiupi.GUI.MainWindow(System.getProperty("user.name"), 8000);
+                main = new pitiupi.GUI.MainWindow(login.getName(), login.getPort());
                 main.setVisible(true);
-            }
+            }   
         });
     }
 

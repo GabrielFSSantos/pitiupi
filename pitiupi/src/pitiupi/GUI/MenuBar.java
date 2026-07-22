@@ -11,6 +11,8 @@ import javax.swing.JMenuBar;
 /**
  *
  * @author flavio
+ * @author tony
+ * 
  */
 public class MenuBar extends JMenuBar {
 
@@ -56,9 +58,14 @@ public class MenuBar extends JMenuBar {
         mainWindow.exit();
     }
 
-    private void setupMenuActionPerformed(java.awt.event.ActionEvent evt) {
+    
+   private void setupMenuActionPerformed(java.awt.event.ActionEvent evt) {
         Login login = new Login();
         login.setVisible(true);
+
+        mainWindow.setUserName(login.getName());
+        mainWindow.setPort(login.getPort());
+
         login.dispose();
     }
     
