@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import pitiupi.GUI.MainWindow;
 import pitiupi.net.HeartbeatMessage;
+import java.util.UUID;
 /**
  *
  * @author tony
@@ -27,6 +28,7 @@ public class HeartbeatManager {
     private final Map<String, PeerInfo> peers = new ConcurrentHashMap<>();
     private final List<PeerListener> listeners = new CopyOnWriteArrayList<>();
     private ScheduledExecutorService scheduler;
+    private final String instanceId = UUID.randomUUID().toString();
 
     public HeartbeatManager(MainWindow mainWindow) {
         this.mainWindow = mainWindow;
@@ -46,21 +48,21 @@ public class HeartbeatManager {
 
     private void announce() {
         try {
-            HeartbeatMessage msg = new HeartbeatMessage(mainWindow.getUserName());
+            HeartbeatMessage msg = new HeartbeatMessage(mainWindow.getUserName(), instanceId);
             mainWindow.getSocket().send(msg.toByteArray());
         } catch (IOException ex) {
             Logger.getLogger(HeartbeatManager.class.getName()).log(Level.WARNING, "Falha ao enviar heartbeat", ex);
         }
     }
 
-    // Chamado pelo Socket quando um pacote é identificado como heartbeat
+    
     public void receiveHeartbeat(HeartbeatMessage msg, InetAddress from) {
         // ignora o próprio heartbeat 
-        if (msg.getUserName().equals(mainWindow.getUserName())) {
+        if (msg.getInstanceId().equals(instanceId) ) {
             return;
         }
 
-        String key = from.getHostAddress() + "#" + msg.getUserName();
+        String key =  msg.getInstanceId();
         boolean isNew = !peers.containsKey(key);
 
         PeerInfo peer = peers.computeIfAbsent(key, k -> new PeerInfo(msg.getUserName(), from, msg.getTimestamp()));
