@@ -94,7 +94,7 @@ public class ChatWindow extends javax.swing.JDialog {
         if (jTextArea1.getText().trim().length() == 0) {
             return;
         }
-        ChatMessage message = new ChatMessage(mainWindow.getName(), jTextArea1.getText());
+        ChatMessage message = new ChatMessage(mainWindow.getUserName(), jTextArea1.getText());
         this.sendChatMessage(message);
         jTextArea1.setText("");
     }
