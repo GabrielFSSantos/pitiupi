@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="083e72ce-fa9b-4ddf-a0ef-24105aa3eabb" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../pitiupi.quiz/src/META-INF/services/pitiupi.plugin.Plugin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../pitiupi.quiz/src/pitiupi/GUI/QuizWindow.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../pitiupi.quiz/src/pitiupi/control/Pergunta.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../pitiupi.quiz/src/pitiupi/control/Quiz.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../pitiupi.quiz/src/pitiupi/net/QuizMessage.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../pitiupi.quiz/src/pitiupi/plugin/Quiz.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pitiupi/screenCast/net/ScreenCastMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pitiupi/screenCast/net/ScreenCastMessage.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 7
+}]]></component>
+  <component name="ProjectId" id="3Gs0wFaRD4HyhP9VXLUWBeq0qTL" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "QuizPlugin",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/extre/OneDrive/Documentos/Faculdade/2026_02/Monitoria/Pitiupi/pitiupi.screenCast",
+    "settings.editor.selected.configurable": "preferences.keymap"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.28539.54" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="083e72ce-fa9b-4ddf-a0ef-24105aa3eabb" name="Changes" comment="" />
+      <created>1784745206049</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1784745206049</updated>
+    </task>
+    <servers />
+  </component>
+</project>

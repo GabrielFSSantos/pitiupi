@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pitiupi.GUI;
 
 import java.awt.BorderLayout;
@@ -11,6 +6,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -26,8 +22,13 @@ import javax.swing.JTextField;
  * multicast que será utilizada pela comunicação.</p>
  *
  * @author flavio
+ * @author tony
  */
 public final class Login extends JDialog {
+
+    private static final Preferences prefs = Preferences.userNodeForPackage(Login.class);
+    private static final String PREF_NOME = "lastUserName";
+    private static final String PREF_PORTA = "lastPort";
 
     JLabel nameLabel = new JLabel("Name: ");
     JLabel portLabel = new JLabel("Port: ");
@@ -47,8 +48,12 @@ public final class Login extends JDialog {
     public void initComponents() {
         this.setTitle("Login");
 
-        portField.setModel(new javax.swing.SpinnerNumberModel(8000, 8000, 9000, 1));
-        nameField.setText(System.getProperty("user.name"));
+
+        String nomeSalvo = prefs.get(PREF_NOME, System.getProperty("user.name"));
+        int portaSalva = prefs.getInt(PREF_PORTA, 8000);
+
+        portField.setModel(new javax.swing.SpinnerNumberModel(portaSalva, 8000, 9000, 1));
+        nameField.setText(nomeSalvo);
 
         JPanel topPanel = new JPanel(new GridBagLayout());
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -87,6 +92,15 @@ public final class Login extends JDialog {
         this.add(buttonPanel, BorderLayout.SOUTH);
 
         okButton.addActionListener((ActionEvent e) -> {
+            try {
+                portField.commitEdit();
+            } catch (java.text.ParseException ex) {
+                return;
+            }
+
+            prefs.put(PREF_NOME, nameField.getText());
+            prefs.putInt(PREF_PORTA, (Integer) portField.getValue());
+
             Login.this.setVisible(false);
         });
 

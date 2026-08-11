@@ -33,6 +33,7 @@ public class Socket extends Thread {
     private MulticastSocket multicastSocket;
     private InetAddress address;
     private MainWindow main;
+    private volatile boolean running = true;
     public final static String INET_ADDR = "224.0.0.3";
 
     /**
@@ -71,6 +72,19 @@ public class Socket extends Thread {
         multicastSocket.send(msgPacket);
     }
 
+    public void close() {
+        running = false;
+        if (multicastSocket != null) {
+            try {
+                multicastSocket.leaveGroup(address);
+            } catch (IOException ex) {
+
+            }
+            multicastSocket.close();
+        }
+    }
+
+
     /**
      * Inicia o loop de recepção de mensagens da aplicação.
      *
@@ -84,16 +98,21 @@ public class Socket extends Thread {
      */
     public void receive() throws UnknownHostException, IOException, ClassNotFoundException {
         byte[] buf = new byte[256000];
-        while (true) {
+        while (running) {
             DatagramPacket msgPacket = new DatagramPacket(buf, buf.length);
-            multicastSocket.receive(msgPacket);
-
+            try {
+                multicastSocket.receive(msgPacket);
+            } catch (IOException ex) {
+                if (!running) {
+                    break;
+                }
+                throw ex;
+            }
             HeartbeatMessage heartbeat = tryParseHeartbeat(msgPacket.getData());
             if (heartbeat != null) {
                 main.getHeartbeatManager().receiveHeartbeat(heartbeat, msgPacket.getAddress());
                 continue;
             }
-
             for (Plugin plugin : main.getPlugins()) {
                 System.out.println(msgPacket.getAddress().toString());
                 plugin.receiveMessage(msgPacket.getData());

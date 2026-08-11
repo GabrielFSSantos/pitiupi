@@ -41,8 +41,8 @@ public class MainWindow extends javax.swing.JFrame {
 
     private Socket socket;
 
-    private final String userName;
-    private final int port;
+    private String userName;
+    private  int port;
 
     private PluginLoader pluginManager;
     private final List<Plugin> plugins;
@@ -137,4 +137,28 @@ public class MainWindow extends javax.swing.JFrame {
     public List<Plugin> getPlugins() {
         return plugins;
     }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+        updateStatus();
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+        reconnect();
+        updateStatus();
+    }
+
+    private void updateStatus() {
+        this.status.setText("Connected on port " + this.port + " name " + this.userName);
+    }
+
+    private void reconnect() {
+        if (this.socket != null) {
+            this.socket.close();
+        }
+        this.socket = new Socket(this);
+        this.socket.start();
+    }
+
 }
