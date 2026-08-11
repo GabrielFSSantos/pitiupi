@@ -20,7 +20,7 @@ import pitiupi.plugin.Plugin;
 import pitiupi.net.HeartbeatMessage;
 
 /**
- * Responsável pela comunicação multicast entre a aplicação e os plugins.
+ * "Responsável pela comunicação multicast da aplicação e pelo encaminhamento de mensagens aos plugins."
  *
  * <p>Esta classe gerencia o envio e o recebimento de mensagens, além de
  * manter a conexão com o grupo multicast utilizado pela aplicação.</p>
@@ -72,6 +72,9 @@ public class Socket extends Thread {
         multicastSocket.send(msgPacket);
     }
 
+    /**
+     * Encerra a comunicação multicast e interrompe a recepção de mensagens.
+     */
     public void close() {
         running = false;
         if (multicastSocket != null) {

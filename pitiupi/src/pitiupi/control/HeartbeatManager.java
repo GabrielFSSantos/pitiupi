@@ -35,16 +35,28 @@ public class HeartbeatManager {
     private ScheduledExecutorService scheduler;
     private final String instanceId = UUID.randomUUID().toString();
 
+    /**
+     * Cria um gerenciador de heartbeat associado à janela principal da aplicação.
+     *
+     * @param mainWindow janela principal utilizada para obter o nome do usuário
+     * e o socket de comunicação.
+     */
     public HeartbeatManager(MainWindow mainWindow) {
         this.mainWindow = mainWindow;
     }
 
+    /**
+     * Inicia o mecanismo de heartbeat.
+     */
     public void start() {
         scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(this::announce, 0, HEARTBEAT_INTERVAL_MS, TimeUnit.MILLISECONDS);
         scheduler.scheduleAtFixedRate(this::checkTimeouts, HEARTBEAT_INTERVAL_MS, HEARTBEAT_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Para o mecanismo de heartbeat e encerra as tarefas agendadas.
+     */
     public void stop() {
         if (scheduler != null) {
             scheduler.shutdownNow();
@@ -64,8 +76,8 @@ public class HeartbeatManager {
     /**
      * Processa uma mensagem de heartbeat recebida de outro usuário.
      *
-     * <p>Atualiza a informação do peer correspondente e notifica os listeners
-     * caso um novo usuário seja identificado.</p>
+     * <p>Atualiza o momento da última atividade do peer correspondente e notifica os listeners
+     * caso outra instância da aplicação seja identificada.</p>
      *
      * <p>Mensagens de heartbeat enviadas pela própria aplicação são ignoradas.</p>
      *
@@ -118,10 +130,20 @@ public class HeartbeatManager {
         l.onPeersChanged(new ArrayList<>(peers.values()));
     }
 
+    /**
+     * Remove um listener previamente registrado.
+     *
+     * @param l listener que deixará de receber atualizações.
+     */
     public void removePeerListener(PeerListener l) {
         listeners.remove(l);
     }
 
+    /**
+     * Retorna uma cópia da lista atual de peers conhecidos.
+     *
+     * @return lista contendo os peers atualmente conhecidos.
+     */
     public List<PeerInfo> getPeers() {
         return new ArrayList<>(peers.values());
     }

@@ -29,6 +29,11 @@ public class MenuBar extends JMenuBar {
     private javax.swing.JMenuItem exitMenu;
     private final MainWindow mainWindow;
 
+    /**
+     * Cria a barra de menus principal da aplicação.
+     *
+     * @param mainWindow mainWindow janela principal da aplicação utilizada para executar
+     */
     public MenuBar(MainWindow mainWindow) {
         this.mainWindow = mainWindow;
         this.initComponents();

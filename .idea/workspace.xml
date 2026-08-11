@@ -5,27 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="62118a1b-608f-4144-b29c-cf46419ca676" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pitiupi/Documentation.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pitiupi/PluginTutorial.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi.chat/build/built-jar.properties" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi.chat/build/built-jar.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi.chat/dist/pitiupi.chat.jar" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi.chat/dist/pitiupi.chat.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi.screenCast/build/built-jar.properties" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi.screenCast/build/built-jar.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi.screenCast/dist/pitiupi.screenCast.jar" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi.screenCast/dist/pitiupi.screenCast.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/build/classes/.netbeans_automatic_build" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/build/classes/.netbeans_update_resources" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/GUI/Login.class" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/GUI/Login.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/GUI/MainWindow.class" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/GUI/MainWindow.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/GUI/MenuBar.class" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/GUI/MenuBar.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/Main$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/Main$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/control/PluginLoader.class" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/control/PluginLoader.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/net/Socket.class" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/net/Socket.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/plugin/Plugin.class" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/build/classes/pitiupi/plugin/Plugin.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/dist/README.TXT" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/dist/pitiupi.jar" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/dist/pitiupi.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/plugins/pitiupi.chat.jar" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/plugins/pitiupi.chat.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/plugins/pitiupi.screenCast.jar" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/plugins/pitiupi.screenCast.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pitiupi/src/pitiupi/GUI/MenuBar.java" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/src/pitiupi/GUI/MenuBar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pitiupi/src/pitiupi/control/HeartbeatManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/src/pitiupi/control/HeartbeatManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pitiupi/src/pitiupi/net/Socket.java" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/src/pitiupi/net/Socket.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,20 +26,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.Main.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "feature/help-and-documentation",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/extre/OneDrive/Documentos/Faculdade/2026_02/Monitoria/Pitiupi",
-    "settings.editor.selected.configurable": "preferences.keymap"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/help-and-documentation&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/extre/OneDrive/Documentos/Faculdade/2026_02/Monitoria/Pitiupi&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\extre\OneDrive\Documentos\Faculdade\2026_02\Monitoria\Pitiupi\pitiupi\plugins" />
