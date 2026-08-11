@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="62118a1b-608f-4144-b29c-cf46419ca676" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/src/pitiupi/GUI/MenuBar.java" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/src/pitiupi/GUI/MenuBar.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/src/pitiupi/control/HeartbeatManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/src/pitiupi/control/HeartbeatManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pitiupi/src/pitiupi/net/Socket.java" beforeDir="false" afterPath="$PROJECT_DIR$/pitiupi/src/pitiupi/net/Socket.java" afterDir="false" />
-    </list>
+    <list default="true" id="62118a1b-608f-4144-b29c-cf46419ca676" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

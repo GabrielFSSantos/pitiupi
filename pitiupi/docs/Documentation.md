@@ -60,7 +60,7 @@ O método `send()` recebe uma mensagem já serializada em bytes e cria um
 
 De forma geral, o socket atua apenas como mecanismo de transporte das mensagens. 
 A única exceção é o tratamento de HeartbeatMessage, utilizado pela infraestrutura
-da aplicação para manter a lista de usuários ativos.
+da aplicação para manter a lista de peers ativos.
 
 #### Recepção de mensagens
 
@@ -98,9 +98,15 @@ comportamentos necessários para cada funcionalidade.
 O mecanismo de heartbeat é utilizado para identificar quais usuários estão
 ativos na rede.
 
-A aplicação envia periodicamente uma `HeartbeatMessage` contendo informações
-do usuário e um timestamp. Quando outra instância recebe essa mensagem, o
-`HeartbeatManager` atualiza o registro do usuário correspondente.
+A aplicação envia periodicamente uma `HeartbeatMessage` contendo
+informações do usuário, um identificador único da instância da aplicação
+e um timestamp. Quando outra instância recebe essa mensagem, o `HeartbeatManager`
+registra ou atualiza o peer correspondente, utilizando o identificador
+da instância para diferenciá-lo das demais.
+
+Um peer é considerado inativo quando permanece mais de 15 segundos
+sem receber um novo heartbeat. O `HeartbeatManager` então remove o peer
+da lista e notifica os listeners sobre a alteração.
 
 O fluxo de heartbeat é independente das mensagens dos plugins:
 
@@ -109,7 +115,7 @@ O fluxo de heartbeat é independente das mensagens dos plugins:
 3. O `Socket` transmite a mensagem pela rede multicast.
 4. O `Socket` identifica mensagens de heartbeat recebidas e encaminha ao
    `HeartbeatManager`.
-5. O `HeartbeatManager` atualiza a lista de usuários ativos e notifica os
+5. O `HeartbeatManager` atualiza a lista de peers ativos e notifica os
    listeners.
 
 ## Sistema de plugins
