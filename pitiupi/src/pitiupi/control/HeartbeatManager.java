@@ -66,7 +66,7 @@ public class HeartbeatManager {
     private void announce() {
         try {
             HeartbeatMessage msg = new HeartbeatMessage(mainWindow.getUserName(), instanceId);
-            mainWindow.getSocket().send(msg.toByteArray());
+            mainWindow.getSocket().sendMulticast(msg.toByteArray());
         } catch (IOException ex) {
             Logger.getLogger(HeartbeatManager.class.getName()).log(Level.WARNING, "Falha ao enviar heartbeat", ex);
         }

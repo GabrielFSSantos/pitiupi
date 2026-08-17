@@ -5,7 +5,8 @@
  */
 package pitiupi.GUI;
 
-import pitiupi.net.Socket;
+import pitiupi.net.SocketTCP;
+import pitiupi.net.SocketUDP;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JMenu;
@@ -39,7 +40,8 @@ public class MainWindow extends javax.swing.JFrame {
     private OnlineUsersPanel onlineUsersPanel;
 
 
-    private Socket socket;
+    private SocketUDP socketUDP;
+    private SocketTCP socketTCP;
 
     private String userName;
     private  int port;
@@ -91,8 +93,11 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private void initSocket() {
-        this.socket = new Socket(this);
-        this.socket.start();
+        this.socketUDP = new SocketUDP(this);
+        this.socketTCP = new SocketTCP(this);
+
+        this.socketUDP.start();
+        this.socketTCP.start();
     }
 
     private void initHeartbeat() {
@@ -130,8 +135,8 @@ public class MainWindow extends javax.swing.JFrame {
         return this.port;
     }
 
-    public Socket getSocket() {
-        return this.socket;
+    public SocketUDP getSocket() {
+        return this.socketUDP;
     }
 
     public List<Plugin> getPlugins() {
@@ -154,11 +159,17 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private void reconnect() {
-        if (this.socket != null) {
-            this.socket.close();
+        if (this.socketUDP != null) {
+            this.socketUDP.close();
         }
-        this.socket = new Socket(this);
-        this.socket.start();
-    }
+        if (this.socketTCP != null) {
+            this.socketTCP.close();
+        }
 
+        this.socketUDP = new SocketUDP(this);
+        this.socketTCP = new SocketTCP(this);
+
+        this.socketUDP.start();
+        this.socketTCP.start();
+    }
 }

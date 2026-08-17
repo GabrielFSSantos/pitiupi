@@ -10,43 +10,48 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import pitiupi.plugin.Plugin;
-import pitiupi.net.HeartbeatMessage;
 
 /**
- * "Responsável pela comunicação multicast da aplicação e pelo encaminhamento de mensagens aos plugins."
+ * Gerencia a comunicação UDP multicast e unicast da aplicação.
  *
- * <p>Esta classe gerencia o envio e o recebimento de mensagens, além de
- * manter a conexão com o grupo multicast utilizado pela aplicação.</p>
+ * <p>Mantém a conexão com o grupo multicast da aplicação e permite o envio
+ * de mensagens tanto para o grupo quanto diretamente para um peer.</p>
+ *
+ * <p>As mensagens recebidas são verificadas para identificar mensagens de
+ * heartbeat. As demais mensagens são encaminhadas aos plugins, que são
+ * responsáveis por interpretá-las.</p>
  *
  * @author flavio
  * @author tony
+ * @author Gustavo
  */
-public class Socket extends Thread {
+public class SocketUDP extends Thread {
 
     private MulticastSocket multicastSocket;
+
     private InetAddress address;
     private MainWindow main;
     private volatile boolean running = true;
     public final static String INET_ADDR = "224.0.0.3";
 
     /**
-     * Cria e inicializa a conexão multicast utilizada pela aplicação.
+     * Cria e inicializa o socket UDP utilizado pela aplicação.
+     *
+     * <p>O socket é associado à porta da aplicação e ingressa no grupo
+     * multicast configurado.</p>
      *
      * @param main janela principal da aplicação.
      */
-    public Socket(MainWindow main) {
+    public SocketUDP(MainWindow main) {
         this.main = main;
         try {
-            this.address = InetAddress.getByName(Socket.INET_ADDR);
+            this.address = InetAddress.getByName(SocketUDP.INET_ADDR);
         } catch (UnknownHostException ex) {
-            System.getLogger(Socket.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(SocketUDP.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
         try {
             multicastSocket = new MulticastSocket(this.main.getPort());
@@ -56,7 +61,7 @@ public class Socket extends Thread {
             multicastSocket.joinGroup(address);
         } catch (IOException ex) {
             System.out.println("There is no socket connection. Sorry.");
-            System.out.println(ex.toString());
+            System.out.println(ex);
         }
     }
 
@@ -64,11 +69,33 @@ public class Socket extends Thread {
      * Envia uma mensagem para o grupo multicast da aplicação.
      *
      * @param msg mensagem serializada a ser enviada.
-     * @throws IOException caso ocorra um erro durante o envio da mensagem.
+     * @throws IOException caso ocorra um erro durante o envio.
      */
-    public void send(byte[] msg) throws IOException {
+    public void sendMulticast(byte[] msg)  throws IOException {
+        send(msg, this.address);
+    }
+
+    /**
+     * Envia uma mensagem diretamente para um peer utilizando UDP.
+     *
+     * @param msg mensagem serializada a ser enviada.
+     * @param destinationAddress endereço IP do peer destinatário.
+     * @throws IOException caso ocorra um erro durante o envio.
+     */
+    public void sendUnicast(byte[] msg, InetAddress destinationAddress)  throws IOException {
+        send(msg, destinationAddress);
+    }
+
+    /**
+     * Envia uma mensagem UDP para o endereço especificado.
+     *
+     * @param msg mensagem serializada a ser enviada.
+     * @param destinationAddress endereço de destino.
+     * @throws IOException caso ocorra um erro durante o envio.
+     */
+    private void send(byte[] msg, InetAddress destinationAddress) throws IOException {
         DatagramPacket msgPacket;
-        msgPacket = new DatagramPacket(msg, msg.length, this.address, this.main.getPort());
+        msgPacket = new DatagramPacket(msg, msg.length, destinationAddress, this.main.getPort());
         multicastSocket.send(msgPacket);
     }
 
@@ -81,7 +108,7 @@ public class Socket extends Thread {
             try {
                 multicastSocket.leaveGroup(address);
             } catch (IOException ex) {
-
+                System.out.println(ex);
             }
             multicastSocket.close();
         }
@@ -89,15 +116,17 @@ public class Socket extends Thread {
 
 
     /**
-     * Inicia o loop de recepção de mensagens da aplicação.
+     * Recebe e processa mensagens UDP.
      *
-     * <p>As mensagens recebidas são verificadas inicialmente para identificar
-     * mensagens de heartbeat. Caso não sejam heartbeats, seu conteúdo é
-     * encaminhado para todos os plugins carregados, que decidem se devem ou
-     * não processá-lo.</p>
+     * <p>Mensagens de heartbeat são encaminhadas ao gerenciador de heartbeat.
+     * As demais mensagens são encaminhadas aos plugins carregados pela
+     * aplicação.</p>
      *
-     * @throws IOException caso ocorra um erro durante a recepção da mensagem.
-     * @throws ClassNotFoundException caso a desserialização de uma mensagem falhe.
+     * @throws UnknownHostException caso não seja possível resolver o endereço
+     *         utilizado pela comunicação.
+     * @throws IOException caso ocorra um erro durante a recepção.
+     * @throws ClassNotFoundException caso ocorra um erro ao verificar uma
+     *         mensagem de heartbeat.
      */
     public void receive() throws UnknownHostException, IOException, ClassNotFoundException {
         byte[] buf = new byte[256000];
@@ -124,11 +153,11 @@ public class Socket extends Thread {
     }
 
     /**
-     * Tenta desserializar os dados recebidos como uma {@code HeartbeatMessage}.
+     * Tenta identificar os dados recebidos como uma mensagem de heartbeat.
      *
-     * @param data dados serializados da mensagem.
-     * @return a mensagem desserializada caso os dados representem uma
-     * {@code HeartbeatMessage}; caso contrário, {@code null}.
+     * @param data dados serializados recebidos.
+     * @return a mensagem de heartbeat caso os dados correspondam a uma;
+     *         {@code null} caso contrário.
      */
     private HeartbeatMessage tryParseHeartbeat(byte[] data) {
         try {
@@ -141,12 +170,15 @@ public class Socket extends Thread {
         }
     }
 
+    /**
+     * Inicia a recepção de mensagens UDP.
+     */
     @Override
     public void run() {
         try {
             this.receive();
         } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(Socket.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SocketUDP.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
