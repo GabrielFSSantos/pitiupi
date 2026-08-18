@@ -135,8 +135,12 @@ public class MainWindow extends javax.swing.JFrame {
         return this.port;
     }
 
-    public SocketUDP getSocket() {
+    public SocketUDP getSocketUDP() {
         return this.socketUDP;
+    }
+
+    public  SocketTCP getSocketTCP() {
+        return this.socketTCP;
     }
 
     public List<Plugin> getPlugins() {

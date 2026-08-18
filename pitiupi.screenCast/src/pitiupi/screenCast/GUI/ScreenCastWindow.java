@@ -98,7 +98,7 @@ public class ScreenCastWindow extends javax.swing.JFrame {
         }
         if (msg != null) {
             try {
-                this.mainWindow.getSocket().send(msg);
+                this.mainWindow.getSocketUDP().sendMulticast(msg);
             } catch (IOException ex) {
                 System.out.println(ex.toString());
                 this.compressRatio -= 0.1f;

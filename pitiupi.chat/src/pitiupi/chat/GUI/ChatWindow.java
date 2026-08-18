@@ -91,7 +91,7 @@ public class ChatWindow extends javax.swing.JDialog {
     }
 
     private void sendMessage() {
-        if (jTextArea1.getText().trim().length() == 0) {
+        if (jTextArea1.getText().trim().isEmpty()) {
             return;
         }
         ChatMessage message = new ChatMessage(mainWindow.getUserName(), jTextArea1.getText());
@@ -101,7 +101,7 @@ public class ChatWindow extends javax.swing.JDialog {
 
     public void sendChatMessage(Message message) {
         try {
-            mainWindow.getSocket().send(message.toByteArray());
+            mainWindow.getSocketUDP().sendMulticast(message.toByteArray());
         } catch (IOException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }

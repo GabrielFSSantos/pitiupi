@@ -5,14 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="083e72ce-fa9b-4ddf-a0ef-24105aa3eabb" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../pitiupi.quiz/src/META-INF/services/pitiupi.plugin.Plugin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../pitiupi.quiz/src/pitiupi/GUI/QuizWindow.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../pitiupi.quiz/src/pitiupi/control/Pergunta.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../pitiupi.quiz/src/pitiupi/control/Quiz.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../pitiupi.quiz/src/pitiupi/net/QuizMessage.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../pitiupi.quiz/src/pitiupi/plugin/Quiz.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/vcs.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pitiupi/screenCast/net/ScreenCastMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pitiupi/screenCast/net/ScreenCastMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pitiupi.chat/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi.chat/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pitiupi.chat/build/built-jar.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi.chat/build/built-jar.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pitiupi.chat/build/classes/pitiupi/chat/GUI/ChatWindow.class" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi.chat/build/classes/pitiupi/chat/GUI/ChatWindow.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pitiupi.chat/dist/pitiupi.chat.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pitiupi.chat/pitiupi.chat.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi.chat/pitiupi.chat.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pitiupi.chat/src/pitiupi/chat/GUI/ChatWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi.chat/src/pitiupi/chat/GUI/ChatWindow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/built-jar.properties" beforeDir="false" afterPath="$PROJECT_DIR$/build/built-jar.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/pitiupi/screenCast/GUI/ScreenCastWindow.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/pitiupi/screenCast/GUI/ScreenCastWindow.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/pitiupi.screenCast.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pitiupi/screenCast/GUI/ScreenCastWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pitiupi/screenCast/GUI/ScreenCastWindow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pitiupi/plugins/pitiupi.chat.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi/plugins/pitiupi.chat.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pitiupi/plugins/pitiupi.screenCast.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi/plugins/pitiupi.screenCast.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pitiupi/src/pitiupi/GUI/MainWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi/src/pitiupi/GUI/MainWindow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pitiupi/src/pitiupi/control/HeartbeatManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi/src/pitiupi/control/HeartbeatManager.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,9 +32,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 7
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
   <component name="ProjectId" id="3Gs0wFaRD4HyhP9VXLUWBeq0qTL" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -34,13 +44,65 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "QuizPlugin",
+    "git-widget-placeholder": "feature/unicast",
+    "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/extre/OneDrive/Documentos/Faculdade/2026_02/Monitoria/Pitiupi/pitiupi.screenCast",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "preferences.keymap"
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="pitiupi.screenCast" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="pitiupi.screenCast" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="pitiupi.screenCast" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="pitiupi.screenCast" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <method v="2" />
+    </configuration>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
