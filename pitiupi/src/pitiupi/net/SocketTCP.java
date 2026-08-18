@@ -35,6 +35,7 @@ public class SocketTCP extends Thread implements PeerListener {
     private final ExecutorService connectionExecutor = Executors.newCachedThreadPool();
     private final Map<InetAddress, TcpConnection> connections;
     private ServerSocket serverSocket;
+    private InetAddress address;
 
     private final MainWindow main;
 
@@ -54,6 +55,7 @@ public class SocketTCP extends Thread implements PeerListener {
         connections = new ConcurrentHashMap<>();
         try {
             serverSocket = new ServerSocket(main.getPort());
+            address = InetAddress.getByName(InetAddress.getLocalHost().getHostAddress());
         } catch (IOException ex) {
             System.out.println("There is no socket connection. Sorry.");
             System.out.println(ex);
@@ -72,10 +74,13 @@ public class SocketTCP extends Thread implements PeerListener {
      */
     public void send(byte[] msg, InetAddress destinationAddress) {
         try {
-            TcpConnection connection;
+            if (destinationAddress.equals(address)) {
+                throw new IllegalArgumentException("Destination address cannot be the same as the original address.");
+            }
+            TcpConnection connec tion;
 
             synchronized (connections) {
-                connection= connections.get(destinationAddress);
+                connection = connections.get(destinationAddress);
 
                 if (connection == null || connection.isClosed()) {
                     Socket socket = new Socket(destinationAddress, main.getPort());
