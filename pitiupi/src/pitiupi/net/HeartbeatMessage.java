@@ -1,4 +1,5 @@
 package pitiupi.net;
+
 /**
  * Mensagem utilizada para sinalizar a presença de um usuário na rede.
  *

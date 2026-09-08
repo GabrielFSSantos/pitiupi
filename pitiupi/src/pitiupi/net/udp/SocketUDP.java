@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pitiupi.net;
+package pitiupi.net.udp;
 
 import pitiupi.GUI.MainWindow;
 import java.io.ByteArrayInputStream;
@@ -13,6 +13,8 @@ import java.io.ObjectInputStream;
 import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import pitiupi.net.HeartbeatMessage;
 import pitiupi.plugin.Plugin;
 
 /**

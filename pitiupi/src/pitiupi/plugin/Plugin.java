@@ -4,9 +4,9 @@
  */
 package pitiupi.plugin;
 
-import javax.swing.JMenu;
 import pitiupi.GUI.MainWindow;
 import pitiupi.net.Message;
+import pitiupi.net.tcp.TcpConnection;
 
 /**
  * Interface base para plugins da aplicação.
@@ -21,6 +21,7 @@ public interface Plugin {
     public String getName();
     public String getAuthor();
     public String getVersion();
+    public String getIdentifier();
 
     /**
      * Inicializa o plugin.
@@ -46,5 +47,6 @@ public interface Plugin {
      *
      * @param message mensagem serializada recebida.
      */
-    public void receiveMessage(byte[] message);
+    public void receiveMessage(Message message);
+
 }

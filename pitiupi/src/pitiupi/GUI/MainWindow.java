@@ -5,8 +5,8 @@
  */
 package pitiupi.GUI;
 
-import pitiupi.net.SocketTCP;
-import pitiupi.net.SocketUDP;
+import pitiupi.net.tcp.SocketTCP;
+import pitiupi.net.udp.SocketUDP;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JMenu;
@@ -44,7 +44,9 @@ public class MainWindow extends javax.swing.JFrame {
     private SocketTCP socketTCP;
 
     private String userName;
-    private  int port;
+    private int port;
+
+    private String pitiupiIdentifier;
 
     private PluginLoader pluginManager;
     private final List<Plugin> plugins;
@@ -58,6 +60,7 @@ public class MainWindow extends javax.swing.JFrame {
     public MainWindow(String userName, int port) {
         this.userName = userName;
         this.port = port;
+        this.pitiupiIdentifier = "Pitiupi.Alice.2026";
         this.menuBar = new MenuBar(this);
         this.plugins = new ArrayList<>();
         this.initComponents();
@@ -125,6 +128,10 @@ public class MainWindow extends javax.swing.JFrame {
 
     public String getUserName(){
         return this.userName;
+    }
+
+    public String getIdentifier(){
+        return this.pitiupiIdentifier;
     }
     
     public void addMenu(JMenu menu) {
