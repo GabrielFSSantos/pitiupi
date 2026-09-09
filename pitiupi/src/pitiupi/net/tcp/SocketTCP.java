@@ -47,11 +47,12 @@ public class SocketTCP extends Thread {
     /**
      * Cria o servidor TCP da aplicação.
      *
-     * <p>O servidor utiliza a porta definida pela aplicação e inicia sem
-     * estabelecer conexões com os peers. As conexões são criadas conforme
-     * necessário durante o envio ou recebidas de outros peers.</p>
+     * <p>O servidor é criado na porta definida pela aplicação. As conexões
+     * com os peers são estabelecidas sob demanda durante o envio ou aceitas
+     * quando iniciadas por outros peers.</p>
      *
-     * @param main janela principal da aplicação.
+     * @param main janela principal da aplicação, usada para obter a porta,
+     *             o identificador local e os plugins disponíveis.
      */
     public SocketTCP(MainWindow main) {
         this.main = main;
@@ -66,6 +67,17 @@ public class SocketTCP extends Thread {
         }
     }
 
+    /**
+     * Envia uma mensagem por meio de uma conexão TCP pública com o peer de destino.
+     *
+     * <p>A conexão pública existente para o endereço informado é reutilizada.
+     * Caso não exista uma conexão válida, uma nova conexão é estabelecida antes
+     * do envio. Falhas durante o estabelecimento ou envio são registradas na
+     * saída padrão e não são propagadas ao chamador.</p>
+     *
+     * @param msg mensagem serializada em bytes que será enviada.
+     * @param destinationAddress endereço IP do peer que receberá a mensagem.
+     */
     public void send(byte[] msg, InetAddress destinationAddress) {
         try {
             TcpConnection connection = getPublicConnection(destinationAddress, main.getIdentifier(), main.getIdentifier());
@@ -80,10 +92,44 @@ public class SocketTCP extends Thread {
         }
     }
 
+    /**
+     * Estabelece uma conexão TCP privada com um plugin específico do peer de destino.
+     *
+     * <p>A conexão é criada como privada e passa a ser gerenciada pelo
+     * {@link ConnectionManager}. O método também inicia a tarefa responsável
+     * por receber os dados dessa conexão.</p>
+     *
+     * @param destinationAddress endereço IP do peer de destino.
+     * @param senderId identificador do remetente da conexão.
+     * @param receiverId identificador do plugin que receberá os dados.
+     * @return a conexão privada estabelecida ou {@code null} quando a criação
+     *         da conexão falhar.
+     * @throws IllegalArgumentException se o endereço de destino for o endereço
+     *         local desta instância.
+     */
     public TcpConnection createPrivateConnection(InetAddress destinationAddress, String senderId, String receiverId) {
         return establishOutgoingConnection(destinationAddress, senderId, receiverId, true);
     }
 
+    /**
+     * Obtém uma conexão TCP pública existente com o peer de destino ou estabelece
+     * uma nova caso não exista uma conexão válida.
+     *
+     * <p>As conexões públicas são gerenciadas pelo {@link ConnectionManager}.
+     * O método primeiro verifica se já existe uma conexão pública registrada
+     * para o endereço de destino e, caso ela exista e não esteja fechada,
+     * reutiliza-a. Caso contrário, uma nova conexão pública é estabelecida,
+     * registrada no {@link ConnectionManager} e disponibilizada para uso.</p>
+     *
+     * <p>O acesso ao método é sincronizado para evitar que múltiplas threads
+     * estabeleçam simultaneamente conexões públicas para o mesmo peer.</p>
+     *
+     * @param destinationAddress endereço IP do peer de destino.
+     * @param senderId identificador usado como remetente no estabelecimento da conexão.
+     * @param receiverId identificador usado como destinatário no estabelecimento da conexão.
+     * @return uma conexão pública válida ou {@code null} caso não seja possível
+     * estabelecê-la.
+     */
     private synchronized TcpConnection getPublicConnection(InetAddress destinationAddress, String senderId, String receiverId) {
         TcpConnection connection;
 
@@ -98,9 +144,9 @@ public class SocketTCP extends Thread {
     /**
      * Aguarda e aceita novas conexões TCP.
      *
-     * <p>Cada conexão aceita é associada ao endereço do peer e registrada para
-     * que possa ser utilizada tanto para recepção quanto para envio de
-     * mensagens.</p>
+     * <p>Cada socket aceito é encaminhado para processamento assíncrono,
+     * interpretado como uma {@link TcpConnection}, registrado pelo
+     * {@link ConnectionManager} e associado ao receptor adequado.</p>
      */
     private void receive() {
         while (running) {
@@ -120,6 +166,22 @@ public class SocketTCP extends Thread {
         }
     }
 
+    /**
+     * Estabelece uma conexão TCP de saída com outro peer.
+     *
+     * <p>O método impede conexões com o próprio endereço local, cria a conexão
+     * por meio da {@link ConnectionFactory}, registra-a no gerenciador de
+     * conexões e inicia uma tarefa para receber dados continuamente.</p>
+     *
+     * @param destinationAddress endereço IP do peer de destino.
+     * @param sender identificador do remetente.
+     * @param receiver identificador do destinatário.
+     * @param isPrivate {@code true} para uma conexão destinada a um plugin
+     *                  específico; {@code false} para uma conexão pública.
+     * @return a conexão estabelecida ou {@code null} se a
+     *         {@link ConnectionFactory} não conseguir criá-la.
+     * @throws IllegalArgumentException se o destino for o endereço desta máquina.
+     */
     private TcpConnection establishOutgoingConnection(InetAddress destinationAddress, String sender, String receiver, boolean isPrivate) {
         if (address.equals(destinationAddress)) {
             System.out.println("Failed to get socket.");
@@ -138,6 +200,15 @@ public class SocketTCP extends Thread {
         return connection;
     }
 
+    /**
+     * Agenda o processamento de uma conexão TCP recebida.
+     *
+     * <p>A conexão é interpretada pela {@link ConnectionFactory}, registrada
+     * no gerenciador e associada a uma tarefa de recepção. O processamento é
+     * executado de forma assíncrona pelo executor compartilhado.</p>
+     *
+     * @param socket socket aceito pelo {@link ServerSocket}.
+     */
     private void acceptIncomingConnection(Socket socket) {
         connectionExecutor.submit(() -> {
             TcpConnection connection = ConnectionFactory.receiveConnection(socket);
@@ -148,40 +219,67 @@ public class SocketTCP extends Thread {
         });
     }
 
+    /**
+     * Registra uma conexão no gerenciador de acordo com seu tipo.
+     *
+     * <p>Conexões privadas são armazenadas na coleção de conexões privadas;
+     * as demais são armazenadas na coleção de conexões públicas.</p>
+     *
+     * @param connection conexão que será registrada.
+     */
     private void saveConnection(TcpConnection connection) {
         if (connection.isPrivate()) {
-            connectionManager.addPrivateConnection(connection.getAddress(), connection);
+            connectionManager.addPrivateConnection(connection);
         }
         else  {
-            connectionManager.addPublicConnection(connection.getAddress(), connection);
+            connectionManager.addPublicConnection(connection);
         }
     }
 
+    /**
+     * Seleciona e inicia o receptor adequado para uma conexão.
+     *
+     * <p>Conexões públicas são tratadas pelo receptor de mensagens públicas.
+     * Conexões privadas destinadas ao próprio sistema são tratadas
+     * separadamente; as demais são encaminhadas ao plugin identificado como
+     * destinatário. Quando solicitado, o plugin também é notificado sobre o
+     * estabelecimento da conexão.</p>
+     *
+     * @param connection conexão cujo fluxo de entrada será processado.
+     * @param notify indica se o plugin destinatário deve ser notificado sobre
+     *               o recebimento de uma nova conexão privada.
+     */
     private void startReceiver(TcpConnection connection, boolean notify) {
-        try {
-            if (!connection.isPrivate()) {
-                publicConnectionReceiver(connection);
-                return;
-            }
-
-            if (connection.getReceiver().equals(main.getIdentifier())) {
-                systemConnectionReceiver(connection);
-                return;
-            }
-
-            Plugin receiver = findConnectionReceiver(connection);
-            if (receiver instanceof PrivateConnectionPlugin plugin) {
-                if (notify) {
-                    plugin.receivePrivateConnection(connection);
-                }
-                privateConnectionReceiver(connection, plugin);
-            }
+        if (!connection.isPrivate()) {
+            publicConnectionReceiver(connection);
+            return;
         }
-        catch (IOException ex) {
-            logger.log(Level.SEVERE, null, ex);
+
+        if (connection.getReceiver().equals(main.getIdentifier())) {
+            systemConnectionReceiver(connection);
+            return;
+        }
+
+        Plugin receiver = findConnectionReceiver(connection);
+        if (receiver instanceof PrivateConnectionPlugin plugin) {
+            if (notify) {
+                plugin.receivePrivateConnection(connection);
+            }
+            privateConnectionReceiver(connection, plugin);
         }
     }
 
+    /**
+     * Localiza o plugin responsável por receber uma conexão privada.
+     *
+     * <p>A busca é feita pelo identificador do destinatário informado na
+     * própria conexão. Caso nenhum plugin correspondente seja encontrado,
+     * uma mensagem de erro é enviada ao peer remoto.</p>
+     *
+     * @param connection conexão privada cujo destinatário será localizado.
+     * @return o plugin com o identificador correspondente ao destinatário,
+     *         ou {@code null} se nenhum plugin for encontrado.
+     */
     private Plugin findConnectionReceiver(TcpConnection connection) {
         Plugin receiver = null;
         for(Plugin plugin : main.getPlugins()) {
@@ -201,6 +299,19 @@ public class SocketTCP extends Thread {
         return receiver;
     }
 
+    /**
+     * Processa continuamente as mensagens recebidas em uma conexão pública.
+     *
+     * <p>As mensagens são desserializadas e, quando são instâncias de
+     * {@link Message}, encaminhadas a todos os plugins da aplicação. Mensagens
+     * de controle do sistema podem encerrar a conexão ou registrar uma
+     * condição de erro.</p>
+     *
+     * <p>O método também trata timeouts e erros de I/O, removendo a conexão
+     * do {@link ConnectionManager} quando ela deixa de ser utilizável.</p>
+     *
+     * @param connection conexão pública da qual as mensagens serão recebidas.
+     */
     private void publicConnectionReceiver(TcpConnection connection) {
         while (running) {
             try {
@@ -260,6 +371,18 @@ public class SocketTCP extends Thread {
         }
     }
 
+    /**
+     * Processa os dados recebidos em uma conexão privada e os encaminha
+     * ao plugin destinatário.
+     *
+     * <p>Dados que não representam mensagens de controle são entregues
+     * diretamente ao {@link PrivateConnectionPlugin}. Mensagens de controle
+     * relacionadas ao encerramento ou a erros internos provocam a notificação
+     * do plugin e o fechamento da conexão.</p>
+     *
+     * @param connection conexão privada da qual os dados serão recebidos.
+     * @param plugin plugin responsável pelo processamento dos dados recebidos.
+     */
     private void privateConnectionReceiver(TcpConnection connection, Plugin plugin) {
         if (plugin instanceof PrivateConnectionPlugin privatePlugin) {
             while (running) {
@@ -295,7 +418,16 @@ public class SocketTCP extends Thread {
         }
     }
 
-    private void systemConnectionReceiver(TcpConnection connection) throws IOException {
+    /**
+     * Processa mensagens recebidas em uma conexão destinada ao próprio sistema.
+     *
+     * <p>Atualmente, mensagens destinadas ao sistema são apenas verificadas
+     * quanto ao seu formato de controle. Não há processamento adicional de
+     * mensagens de sistema neste método.</p>
+     *
+     * @param connection conexão destinada ao identificador da própria aplicação.
+     */
+    private void systemConnectionReceiver(TcpConnection connection) {
         while (running) {
             try {
                 byte[] message = connection.receive();
@@ -308,12 +440,25 @@ public class SocketTCP extends Thread {
                     //TODO: Ainda não existem mensagens trocadas entre o sistema.
                 }
 
-            } catch (SocketTimeoutException ex) {
+            }
+            catch (SocketTimeoutException ex) {
                 if (connection.hasTimedOut()) return;
+            }
+            catch (IOException ex) {
+                connectionManager.closeConnection(connection);
             }
         }
     }
 
+    /**
+     * Encerra uma conexão TCP e registra o motivo informado.
+     *
+     * <p>Quando nenhuma descrição é fornecida, é utilizado um motivo padrão.
+     * O fechamento efetivo da conexão é delegado ao {@link ConnectionManager}.</p>
+     *
+     * @param connection conexão que será encerrada.
+     * @param description motivo do encerramento; pode ser {@code null}.
+     */
     public void disconnect(TcpConnection connection, String description) {
         connectionManager.closeConnection(
                 connection,
@@ -321,11 +466,22 @@ public class SocketTCP extends Thread {
         );
     }
 
+
     @Override
     public void run() {
         receive();
     }
 
+    /**
+     * Encerra o servidor TCP e libera os recursos associados.
+     *
+     * <p>Interrompe o laço de aceitação de conexões, fecha o
+     * {@link ServerSocket}, encerra todas as conexões gerenciadas e interrompe
+     * as tarefas do executor.</p>
+     *
+     * <p>Após a chamada, esta instância não deve ser reutilizada para aceitar
+     * novas conexões.</p>
+     */
     public void close() {
         running = false;
 

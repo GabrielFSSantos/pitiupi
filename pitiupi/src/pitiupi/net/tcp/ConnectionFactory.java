@@ -11,10 +11,44 @@ import java.net.SocketTimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Fábrica responsável pela criação e configuração de conexões TCP.
+ *
+ * <p>Esta classe centraliza o estabelecimento de conexões de saída e a
+ * configuração de conexões recebidas. Antes de uma conexão ser considerada
+ * válida, é realizado um handshake entre os peers para identificar o remetente,
+ * o destinatário e se a conexão é privada.</p>
+ *
+ * <p>Durante o handshake é utilizado um timeout menor, definido por
+ * {@link #HANDSHAKE_TIMEOUT}. Após a validação bem-sucedida, a conexão passa
+ * a utilizar o timeout padrão definido por {@link #STANDARD_TIMEOUT}.</p>
+ */
 public class ConnectionFactory {
     private static final int HANDSHAKE_TIMEOUT = 5000;
     private static final int STANDARD_TIMEOUT = 300_000;
 
+    /**
+     *  Cria uma conexão TCP de saída com o peer de destino e realiza o handshake
+     *  necessário para validá-la.
+     *
+     *  <p>A conexão é configurada com os identificadores do remetente e do
+     *  destinatário e com o tipo indicado pelo parâmetro {@code isPrivate}.
+     *  Após o estabelecimento do socket, o método envia um
+     *  {@link HandshakeMessage} e aguarda uma resposta válida.</p>
+     *
+     *  <p>Se o handshake for validado com sucesso, o timeout da conexão é
+     *  alterado de {@link #HANDSHAKE_TIMEOUT} para {@link #STANDARD_TIMEOUT}
+     *  e a conexão é retornada. Caso contrário, {@code null} é retornado.</p>
+     *
+     *  @param address endereço IP do peer de destino.
+     *  @param port porta TCP na qual o peer de destino está aguardando conexões.
+     *  @param sender identificador do remetente da conexão.
+     *  @param receiver identificador do destinatário da conexão.
+     *  @param isPrivate {@code true} se a conexão deve ser privada;
+     *  {@code false} se deve ser pública.
+     *  @return a conexão TCP estabelecida e validada ou {@code null} caso
+     *  não seja possível estabelecer ou validar a conexão.
+     */
     public static TcpConnection createConnection(InetAddress address, int port, String sender, String receiver, boolean isPrivate) {
         try {
             TcpConnection connection;
@@ -42,6 +76,22 @@ public class ConnectionFactory {
         return null;
     }
 
+    /**
+     * Configura uma conexão TCP recebida e valida o handshake enviado pelo
+     * peer remoto.
+     *
+     * <p>O handshake recebido é utilizado para obter e configurar os
+     * identificadores do remetente e do destinatário, bem como o tipo da
+     * conexão. Após a validação bem-sucedida, o timeout da conexão é alterado
+     * para {@link #STANDARD_TIMEOUT}.</p>
+     *
+     * <p>O {@link Socket} recebido deve representar uma conexão TCP já aceita
+     * pelo servidor.</p>
+     *
+     * @param socket socket TCP correspondente à conexão recebida.
+     * @return a conexão TCP configurada e validada ou {@code null} caso
+     * o handshake seja inválido ou não possa ser processado.
+     */
     public static TcpConnection receiveConnection(Socket socket) {
         try {
             TcpConnection connection;
@@ -66,6 +116,27 @@ public class ConnectionFactory {
         return null;
     }
 
+    /**
+     * Aguarda e valida a mensagem de handshake de uma conexão TCP.
+     *
+     * <p>Durante a validação, a conexão utiliza {@link #HANDSHAKE_TIMEOUT}
+     * como limite para o recebimento do handshake. A mensagem recebida deve
+     * ser uma instância de {@link Message} e, especificamente, de
+     * {@link HandshakeMessage}. Mensagens de sistema ou mensagens de outros
+     * tipos são rejeitadas.</p>
+     *
+     * <p>Quando o handshake é recebido, seus campos de remetente e destinatário
+     * são validados por {@link #validateHandshake(HandshakeMessage, TcpConnection)}.
+     * Caso a validação seja bem-sucedida, o próprio handshake é retornado.</p>
+     *
+     * <p>Em caso de timeout, mensagem inválida ou erro durante o processamento,
+     * uma mensagem de sistema apropriada pode ser enviada ao peer e
+     * {@code null} é retornado.</p>
+     *
+     * @param connection conexão TCP da qual o handshake será recebido.
+     * @return o {@link HandshakeMessage} validado ou {@code null} caso o
+     * handshake não seja recebido ou seja inválido.
+     */
     private static HandshakeMessage validateConnection(TcpConnection connection) {
         try {
             connection.setTimeout(HANDSHAKE_TIMEOUT);
@@ -113,6 +184,20 @@ public class ConnectionFactory {
         return null;
     }
 
+    /**
+     * Valida os identificadores presentes em uma mensagem de handshake.
+     *
+     * <p>O remetente e o destinatário devem estar presentes e não podem ser
+     * vazios ou conter apenas espaços em branco. Quando um dos identificadores
+     * é inválido, uma mensagem de rejeição é enviada ao peer e a validação
+     * falha.</p>
+     *
+     * @param handshake mensagem de handshake a ser validada.
+     * @param connection conexão associada ao handshake, utilizada para enviar
+     * uma mensagem de rejeição quando necessário.
+     * @return {@code true} se os identificadores do remetente e do destinatário
+     * forem válidos; {@code false} caso contrário.
+     */
     private static boolean validateHandshake(HandshakeMessage handshake, TcpConnection connection) {
         String sender = handshake.getSender();
         String receiver = handshake.getReceiver();

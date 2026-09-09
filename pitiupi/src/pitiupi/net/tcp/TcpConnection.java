@@ -8,16 +8,15 @@ import java.net.Socket;
 import java.net.SocketException;
 
 /**
- * Representa uma conexão TCP persistente com um peer.
+ * Representa uma conexão TCP ativa com um peer remoto.
  *
- * <p>Encapsula o socket e os streams utilizados para enviar e receber
- * mensagens. Também é responsável pelo framing das mensagens, permitindo
- * que várias mensagens sejam transmitidas pela mesma conexão.</p>
+ * <p>A conexão permite o envio e recebimento de mensagens, além de manter
+ * informações sobre o endereço remoto e metadados da conexão, como remetente,
+ * destinatário e se a conexão é privada.</p>
  *
  * @author Gustavo
  */
 public class TcpConnection {
-    private static final long TIMEOUT = 300_000; // 5 minutos
 
     private final Socket socket;
     private final DataInputStream input;
@@ -25,19 +24,35 @@ public class TcpConnection {
     private final InetAddress address;
     private String sender;
     private String receiver;
-
     private boolean isPrivate;
-
     private volatile long lastActivity;
+    private long timeout;
 
+    /**
+     * Cria uma conexão TCP a partir de um socket existente.
+     *
+     * @param socket socket utilizado para a comunicação
+     * @throws IOException se não for possível obter os fluxos de entrada ou saída
+     * do socket
+     */
     TcpConnection(Socket socket) throws IOException {
         this.socket = socket;
         this.input = new DataInputStream(socket.getInputStream());
         this.output = new DataOutputStream(socket.getOutputStream());
         this.address = socket.getInetAddress();
         this.lastActivity = System.currentTimeMillis();
+        this.timeout = 300_000; // 5 minutos
     }
 
+    /**
+     * Envia uma mensagem pela conexão.
+     *
+     * <p>A mensagem é enviada precedida pelo seu tamanho, permitindo que o
+     * receptor determine quantos bytes devem ser lidos.</p>
+     *
+     * @param message mensagem a ser enviada
+     * @throws IOException se ocorrer um erro durante o envio
+     */
     public synchronized void send(byte[] message) throws IOException {
         output.writeInt(message.length);
         output.write(message);
@@ -45,6 +60,16 @@ public class TcpConnection {
         updateLastActivity();
     }
 
+    /**
+     * Recebe uma mensagem da conexão.
+     *
+     * <p>Primeiro lê o tamanho da mensagem e, em seguida, lê aquantidade
+     * correspondente de bytes.</p>
+     *
+     * @return mensagem recebida
+     * @throws IOException se o tamanho da mensagem for inválido ou se a conexão
+     * for encerrada antes que a mensagem seja completamente recebida
+     */
     byte[] receive() throws IOException {
         int length = input.readInt();
 
@@ -61,28 +86,63 @@ public class TcpConnection {
         return message;
     }
 
+    /**
+     * Verifica se o socket da conexão está fechado.
+     *
+     * @return {@code true} se o socket estiver fechado;
+     * {@code false} caso contrário
+     */
     public boolean isClosed() {
         return socket.isClosed();
     }
 
+    /**
+     * Fecha o socket da conexão.
+     *
+     * @throws IOException se ocorrer um erro ao fechar o socket
+     */
     void close() throws IOException {
         socket.close();
     }
 
+    /**
+     * Retorna o endereço do peer remoto conectado.
+     *
+     * @return endereço IP do peer remoto
+     */
     public InetAddress getAddress() {
         return address;
     }
 
+    /**
+     * Atualiza o instante da última atividade da conexão.
+     */
     private void updateLastActivity() {
         lastActivity = System.currentTimeMillis();
     }
 
+    /**
+     * Define o tempo limite de leitura do socket.
+     *
+     * @param timeout tempo limite, em milissegundos
+     * @throws SocketException se ocorrer um erro ao definir o tempo limite
+     */
     void setTimeout(int timeout) throws SocketException {
         socket.setSoTimeout(timeout);
+        this.timeout = timeout;
     }
 
+    /**
+     * Verifica se a conexão ficou inativa pelo tempo limite configurado.
+     *
+     * <p>A verificação é baseada no instante da última atividade registrada
+     * durante o envio ou recebimento de uma mensagem.</p>
+     *
+     * @return {@code true} se a conexão estiver inativa há pelo menos 5 minutos;
+     * {@code false} caso contrário
+     */
     boolean hasTimedOut() {
-        return System.currentTimeMillis() - lastActivity >= TIMEOUT;
+        return System.currentTimeMillis() - lastActivity >= timeout;
     }
 
     public String getReceiver() {
