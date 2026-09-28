@@ -80,7 +80,7 @@ public class MenuBar extends JMenuBar {
         login.setVisible(true);
 
         mainWindow.setUserName(login.getName());
-        mainWindow.setPort(login.getPort());
+        mainWindow.getConnectionManager().setPort(login.getPort());
 
         login.dispose();
     }

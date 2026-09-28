@@ -30,6 +30,7 @@ public class HeartbeatManager {
     private static final long PEER_TIMEOUT_MS = 15000; // ~3 batimentos perdidos
 
     private final MainWindow mainWindow;
+    private final ConnectionManager connectionManager;
     private final Map<String, PeerInfo> peers = new ConcurrentHashMap<>();
     private final List<PeerListener> listeners = new CopyOnWriteArrayList<>();
     private ScheduledExecutorService scheduler;
@@ -41,8 +42,9 @@ public class HeartbeatManager {
      * @param mainWindow janela principal utilizada para obter o nome do usuário
      * e o socket de comunicação.
      */
-    public HeartbeatManager(MainWindow mainWindow) {
+    public HeartbeatManager(MainWindow mainWindow, ConnectionManager connectionManager) {
         this.mainWindow = mainWindow;
+        this.connectionManager = connectionManager;
     }
 
     /**
@@ -64,12 +66,8 @@ public class HeartbeatManager {
     }
 
     private void announce() {
-        try {
-            HeartbeatMessage msg = new HeartbeatMessage(mainWindow.getUserName(), instanceId);
-            mainWindow.getSocketUDP().sendMulticast(msg.toByteArray());
-        } catch (IOException ex) {
-            Logger.getLogger(HeartbeatManager.class.getName()).log(Level.WARNING, "Falha ao enviar heartbeat", ex);
-        }
+        HeartbeatMessage msg = new HeartbeatMessage(mainWindow.getUserName(), instanceId);
+        connectionManager.sendUdpMulticast(msg);
     }
 
     // Chamado pelo Socket quando um pacote é identificado como heartbeat

@@ -5,13 +5,11 @@
  */
 package pitiupi.GUI;
 
-import pitiupi.net.tcp.SocketTCP;
-import pitiupi.net.udp.SocketUDP;
-import java.util.ArrayList;
-import java.util.List;
+import pitiupi.control.ConnectionManager;
+import pitiupi.control.PluginManager;
+
 import javax.swing.JMenu;
-import pitiupi.control.PluginLoader;
-import pitiupi.plugin.Plugin;
+
 import pitiupi.control.HeartbeatManager;
 
 /**
@@ -36,20 +34,12 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JPanel statusPanel;
     private javax.swing.JTabbedPane tabbedPane;
 
-    private HeartbeatManager heartbeatManager;
     private OnlineUsersPanel onlineUsersPanel;
 
-
-    private SocketUDP socketUDP;
-    private SocketTCP socketTCP;
-
     private String userName;
-    private int port;
 
-    private String pitiupiIdentifier;
-
-    private PluginLoader pluginManager;
-    private final List<Plugin> plugins;
+    private ConnectionManager connectionManager;
+    private PluginManager pluginManager;
 
     /**
      * Cria a janela principal da aplicação.
@@ -59,22 +49,18 @@ public class MainWindow extends javax.swing.JFrame {
      */
     public MainWindow(String userName, int port) {
         this.userName = userName;
-        this.port = port;
-        this.pitiupiIdentifier = "Pitiupi.Alice.2026";
-        this.menuBar = new MenuBar(this);
-        this.plugins = new ArrayList<>();
-        this.initComponents();
+
+        pluginManager = new PluginManager(this);
+        loadPlugins();
+
+        connectionManager = new ConnectionManager(this, pluginManager, port);
+
+        menuBar = new MenuBar(this);
+
+        initComponents();
     }
 
     private void initComponents() {
-        initGUI();
-        initSocket();
-        initHeartbeat();
-        initPlugins();
-        this.setSize(new java.awt.Dimension(1024, 768));
-    }
-
-    private void initGUI() {
         this.setJMenuBar(menuBar);
         this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         this.setTitle("Share My Sheet");
@@ -86,34 +72,19 @@ public class MainWindow extends javax.swing.JFrame {
 
         jScrollPane1.setViewportView(tabbedPane);
         statusPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
-        status.setText("Connected on port " + this.port + " name " + this.userName);
+        updateStatus();
         statusPanel.add(status);
 
         this.getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
         this.getContentPane().add(statusPanel, java.awt.BorderLayout.PAGE_END);
 
-        this.pack();
-    }
-
-    private void initSocket() {
-        this.socketUDP = new SocketUDP(this);
-        this.socketTCP = new SocketTCP(this);
-
-        this.socketUDP.start();
-        this.socketTCP.start();
-    }
-
-    private void initHeartbeat() {
-        this.heartbeatManager = new HeartbeatManager(this);
         this.onlineUsersPanel = new OnlineUsersPanel();
-        this.heartbeatManager.addPeerListener(this.onlineUsersPanel);
+        this.connectionManager.addPeerListener(onlineUsersPanel);
         this.getContentPane().add(this.onlineUsersPanel, java.awt.BorderLayout.LINE_END);
-        this.heartbeatManager.start();
-    }
 
-    private void initPlugins() {
-        this.pluginManager = new PluginLoader(this);
-        this.pluginManager.loadPlugins();
+        this.pack();
+
+        this.setSize(new java.awt.Dimension(1024, 768));
     }
 
     public void exit() {
@@ -122,36 +93,20 @@ public class MainWindow extends javax.swing.JFrame {
         System.exit(0);
     }
 
-    public HeartbeatManager getHeartbeatManager() {
-        return heartbeatManager;
-    }
-
     public String getUserName(){
         return this.userName;
     }
 
-    public String getIdentifier(){
-        return this.pitiupiIdentifier;
+    public ConnectionManager getConnectionManager() {
+        return connectionManager;
+    }
+
+    public void loadPlugins() {
+        pluginManager.loadPlugins();
     }
     
     public void addMenu(JMenu menu) {
         this.menuBar.addPlugin(menu);
-    }
-
-    public int getPort() {
-        return this.port;
-    }
-
-    public SocketUDP getSocketUDP() {
-        return this.socketUDP;
-    }
-
-    public  SocketTCP getSocketTCP() {
-        return this.socketTCP;
-    }
-
-    public List<Plugin> getPlugins() {
-        return plugins;
     }
 
     public void setUserName(String userName) {
@@ -159,28 +114,8 @@ public class MainWindow extends javax.swing.JFrame {
         updateStatus();
     }
 
-    public void setPort(int port) {
-        this.port = port;
-        reconnect();
-        updateStatus();
-    }
-
     private void updateStatus() {
-        this.status.setText("Connected on port " + this.port + " name " + this.userName);
+        this.status.setText("Connected on port " + connectionManager + " name " + this.userName);
     }
 
-    private void reconnect() {
-        if (this.socketUDP != null) {
-            this.socketUDP.close();
-        }
-        if (this.socketTCP != null) {
-            this.socketTCP.close();
-        }
-
-        this.socketUDP = new SocketUDP(this);
-        this.socketTCP = new SocketTCP(this);
-
-        this.socketUDP.start();
-        this.socketTCP.start();
-    }
 }

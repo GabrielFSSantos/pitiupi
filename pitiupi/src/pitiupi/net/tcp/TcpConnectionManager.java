@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  *  peers ativos para encerrar conexões associadas a peers que deixaram de
  *  estar disponíveis.</p>
  */
-class ConnectionManager implements PeerListener {
+class TcpConnectionManager implements PeerListener {
     private final Logger logger;
     private final Map<InetAddress, TcpConnection> publicConnections;
     private final Map<InetAddress, List<TcpConnection>> privateConnections;
@@ -35,7 +35,7 @@ class ConnectionManager implements PeerListener {
     /**
      * Cria um gerenciador de conexões TCP vazio.
      */
-    public ConnectionManager() {
+    public TcpConnectionManager() {
         publicConnections = new ConcurrentHashMap<>();
         privateConnections = new ConcurrentHashMap<>();
 

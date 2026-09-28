@@ -1,11 +1,12 @@
 package pitiupi.net.tcp;
 
 import pitiupi.GUI.MainWindow;
+import pitiupi.control.ConnectionManager;
+import pitiupi.control.PluginManager;
 import pitiupi.net.Message;
 import pitiupi.plugin.Plugin;
 import pitiupi.plugin.PrivateConnectionPlugin;
 
-import javax.swing.*;
 import java.io.*;
 import java.net.*;
 import java.util.Objects;
@@ -35,12 +36,13 @@ public class SocketTCP extends Thread {
 
     private final ExecutorService connectionExecutor = Executors.newCachedThreadPool();
 
-    private final ConnectionManager connectionManager;
+    private final TcpConnectionManager tcpConnectionManager;
 
     private ServerSocket serverSocket;
     private InetAddress address;
 
-    private final MainWindow main;
+    private final ConnectionManager connectionManager;
+    private final PluginManager pluginManager;
 
     private volatile boolean running = true;
 
@@ -51,15 +53,18 @@ public class SocketTCP extends Thread {
      * com os peers são estabelecidas sob demanda durante o envio ou aceitas
      * quando iniciadas por outros peers.</p>
      *
-     * @param main janela principal da aplicação, usada para obter a porta,
-     *             o identificador local e os plugins disponíveis.
+     * @param connectionManager interface de conexão da aplicação, usada para obter a porta,
+     * o identificador local e os plugins disponíveis.
      */
-    public SocketTCP(MainWindow main) {
-        this.main = main;
+    public SocketTCP(ConnectionManager connectionManager, PluginManager pluginManager) {
+        this.connectionManager = connectionManager;
+        this.pluginManager = pluginManager;
+
         logger = Logger.getLogger(getClass().getName());
-        connectionManager = new ConnectionManager();
+        tcpConnectionManager = new TcpConnectionManager();
+
         try {
-            serverSocket = new ServerSocket(main.getPort());
+            serverSocket = new ServerSocket(connectionManager.getPort());
             address = InetAddress.getByName(InetAddress.getLocalHost().getHostAddress());
         } catch (IOException ex) {
             System.out.println("There is no socket connection. Sorry.");
@@ -75,28 +80,36 @@ public class SocketTCP extends Thread {
      * do envio. Falhas durante o estabelecimento ou envio são registradas na
      * saída padrão e não são propagadas ao chamador.</p>
      *
-     * @param msg mensagem serializada em bytes que será enviada.
+     * @param msg mensagem que será enviada.
      * @param destinationAddress endereço IP do peer que receberá a mensagem.
      */
-    public void send(byte[] msg, InetAddress destinationAddress) {
+    public boolean send(Message msg, InetAddress destinationAddress) {
         try {
-            TcpConnection connection = getPublicConnection(destinationAddress, main.getIdentifier(), main.getIdentifier());
+            TcpConnection connection = getPublicConnection(
+                    destinationAddress,
+                    connectionManager.getIdentifier(),
+                    connectionManager.getIdentifier()
+            );
+
             if (connection == null) {
                 System.out.println("Could not establish TCP connection.");
-                return;
+                return false;
             }
-            connection.send(msg);
+
+            connection.send(msg.toByteArray());
         }  catch (Exception ex) {
             System.out.println("Could not send TCP message.");
             System.out.println(ex.toString());
+            return false;
         }
+        return true;
     }
 
     /**
      * Estabelece uma conexão TCP privada com um plugin específico do peer de destino.
      *
      * <p>A conexão é criada como privada e passa a ser gerenciada pelo
-     * {@link ConnectionManager}. O método também inicia a tarefa responsável
+     * {@link TcpConnectionManager}. O método também inicia a tarefa responsável
      * por receber os dados dessa conexão.</p>
      *
      * @param destinationAddress endereço IP do peer de destino.
@@ -115,11 +128,11 @@ public class SocketTCP extends Thread {
      * Obtém uma conexão TCP pública existente com o peer de destino ou estabelece
      * uma nova caso não exista uma conexão válida.
      *
-     * <p>As conexões públicas são gerenciadas pelo {@link ConnectionManager}.
+     * <p>As conexões públicas são gerenciadas pelo {@link TcpConnectionManager}.
      * O método primeiro verifica se já existe uma conexão pública registrada
      * para o endereço de destino e, caso ela exista e não esteja fechada,
      * reutiliza-a. Caso contrário, uma nova conexão pública é estabelecida,
-     * registrada no {@link ConnectionManager} e disponibilizada para uso.</p>
+     * registrada no {@link TcpConnectionManager} e disponibilizada para uso.</p>
      *
      * <p>O acesso ao método é sincronizado para evitar que múltiplas threads
      * estabeleçam simultaneamente conexões públicas para o mesmo peer.</p>
@@ -133,7 +146,7 @@ public class SocketTCP extends Thread {
     private synchronized TcpConnection getPublicConnection(InetAddress destinationAddress, String senderId, String receiverId) {
         TcpConnection connection;
 
-        connection = connectionManager.getPublicConnection(destinationAddress);
+        connection = tcpConnectionManager.getPublicConnection(destinationAddress);
         if (connection != null && !connection.isClosed()) return connection;
 
         connection = establishOutgoingConnection(destinationAddress, senderId, receiverId, false);
@@ -146,7 +159,7 @@ public class SocketTCP extends Thread {
      *
      * <p>Cada socket aceito é encaminhado para processamento assíncrono,
      * interpretado como uma {@link TcpConnection}, registrado pelo
-     * {@link ConnectionManager} e associado ao receptor adequado.</p>
+     * {@link TcpConnectionManager} e associado ao receptor adequado.</p>
      */
     private void receive() {
         while (running) {
@@ -188,7 +201,7 @@ public class SocketTCP extends Thread {
             throw new IllegalArgumentException("Connections to the local host are forbidden.");
         }
 
-        TcpConnection connection = ConnectionFactory.createConnection(destinationAddress, main.getPort(), sender, receiver, isPrivate);
+        TcpConnection connection = ConnectionFactory.createConnection(destinationAddress, connectionManager.getPort(), sender, receiver, isPrivate);
         if (connection == null) return null;
 
         saveConnection(connection);
@@ -229,10 +242,10 @@ public class SocketTCP extends Thread {
      */
     private void saveConnection(TcpConnection connection) {
         if (connection.isPrivate()) {
-            connectionManager.addPrivateConnection(connection);
+            tcpConnectionManager.addPrivateConnection(connection);
         }
         else  {
-            connectionManager.addPublicConnection(connection);
+            tcpConnectionManager.addPublicConnection(connection);
         }
     }
 
@@ -255,48 +268,21 @@ public class SocketTCP extends Thread {
             return;
         }
 
-        if (connection.getReceiver().equals(main.getIdentifier())) {
+        if (connection.getReceiver().equals(connectionManager.getIdentifier())) {
             systemConnectionReceiver(connection);
             return;
         }
 
-        Plugin receiver = findConnectionReceiver(connection);
-        if (receiver instanceof PrivateConnectionPlugin plugin) {
-            if (notify) {
-                plugin.receivePrivateConnection(connection);
-            }
-            privateConnectionReceiver(connection, plugin);
-        }
-    }
-
-    /**
-     * Localiza o plugin responsável por receber uma conexão privada.
-     *
-     * <p>A busca é feita pelo identificador do destinatário informado na
-     * própria conexão. Caso nenhum plugin correspondente seja encontrado,
-     * uma mensagem de erro é enviada ao peer remoto.</p>
-     *
-     * @param connection conexão privada cujo destinatário será localizado.
-     * @return o plugin com o identificador correspondente ao destinatário,
-     *         ou {@code null} se nenhum plugin for encontrado.
-     */
-    private Plugin findConnectionReceiver(TcpConnection connection) {
-        Plugin receiver = null;
-        for(Plugin plugin : main.getPlugins()) {
-            if (plugin.getIdentifier().equals(connection.getReceiver())) {
-                receiver = plugin;
-                break;
-            }
-        }
-
-        if (receiver == null) {
+        if (pluginManager.handleConnection(connection, connection.getReceiver()))
+            privateConnectionReceiver(connection);
+        else {
             SysInfoMessage.sendSystemInfo(
                     connection,
                     SysInfoType.RECEIVER_NOT_FOUND,
                     "This peer does not have the plugin: " + connection.getReceiver()
             );
         }
-        return receiver;
+
     }
 
     /**
@@ -308,7 +294,7 @@ public class SocketTCP extends Thread {
      * condição de erro.</p>
      *
      * <p>O método também trata timeouts e erros de I/O, removendo a conexão
-     * do {@link ConnectionManager} quando ela deixa de ser utilizável.</p>
+     * do {@link TcpConnectionManager} quando ela deixa de ser utilizável.</p>
      *
      * @param connection conexão pública da qual as mensagens serão recebidas.
      */
@@ -324,15 +310,13 @@ public class SocketTCP extends Thread {
                         SysInfoMessage sysMessage = SysInfoMessage.parseSystemInfo(message);
 
                         if (sysMessage == null) {
-                            for (Plugin plugin : main.getPlugins()) {
-                                plugin.receiveMessage(message);
-                            }
+                            pluginManager.handlePublicMessage(message);
                             continue;
                         }
 
                         switch (sysMessage.getType()) {
                             case CONNECTION_CLOSED, INTERNAL_ERROR -> {
-                                connectionManager.closeConnection(connection);
+                                tcpConnectionManager.closeConnection(connection);
                                 return;
                             }
                             case MESSAGE_REJECTED -> {
@@ -356,17 +340,17 @@ public class SocketTCP extends Thread {
                             "class Message not found."
                     );
                     logger.log(Level.SEVERE, null, ex);
-                    connectionManager.closeConnection(connection);
+                    tcpConnectionManager.closeConnection(connection);
                 }
             }
             catch (SocketTimeoutException ex) {
                 if (connection.hasTimedOut()) {
-                    connectionManager.closeConnection(connection, "Connection timeout");
+                    tcpConnectionManager.closeConnection(connection, "Connection timeout");
                     return;
                 }
             }
             catch (IOException ex) {
-                connectionManager.closeConnection(connection);
+                tcpConnectionManager.closeConnection(connection);
             }
         }
     }
@@ -381,39 +365,36 @@ public class SocketTCP extends Thread {
      * do plugin e o fechamento da conexão.</p>
      *
      * @param connection conexão privada da qual os dados serão recebidos.
-     * @param plugin plugin responsável pelo processamento dos dados recebidos.
      */
-    private void privateConnectionReceiver(TcpConnection connection, Plugin plugin) {
-        if (plugin instanceof PrivateConnectionPlugin privatePlugin) {
-            while (running) {
-                try {
-                    byte[] message = connection.receive();
-                    SysInfoMessage sysMessage = SysInfoMessage.parseSystemInfo(message);
+    private void privateConnectionReceiver(TcpConnection connection) {
+        while (running) {
+            try {
+                byte[] message = connection.receive();
+                SysInfoMessage sysMessage = SysInfoMessage.parseSystemInfo(message);
 
-                    if (sysMessage == null) {
-                        privatePlugin.receiveBytes(message);
+                if (sysMessage == null) {
+                    pluginManager.handlePrivateMessage(message, connection.getReceiver());
+                    continue;
+                }
+
+                switch (sysMessage.getType()) {
+                    case CONNECTION_CLOSED, INTERNAL_ERROR -> {
+                        pluginManager.handleDisconnection(connection, connection.getReceiver());
+                        tcpConnectionManager.closeConnection(connection);
+                    }
+                    default -> {
                         continue;
                     }
-
-                    switch (sysMessage.getType()) {
-                        case CONNECTION_CLOSED, INTERNAL_ERROR -> {
-                            privatePlugin.onSocketClosed(connection);
-                            connectionManager.closeConnection(connection);
-                        }
-                        default -> {
-                            continue;
-                        }
-                    }
                 }
-                catch (SocketTimeoutException ex) {
-                    if (connection.hasTimedOut()) {
-                        connectionManager.closeConnection(connection, "Connection timeout");
-                        return;
-                    }
+            }
+            catch (SocketTimeoutException ex) {
+                if (connection.hasTimedOut()) {
+                    tcpConnectionManager.closeConnection(connection, "Connection timeout");
+                    return;
                 }
-                catch (IOException ex) {
-                    connectionManager.closeConnection(connection);
-                }
+            }
+            catch (IOException ex) {
+                tcpConnectionManager.closeConnection(connection);
             }
         }
     }
@@ -445,7 +426,7 @@ public class SocketTCP extends Thread {
                 if (connection.hasTimedOut()) return;
             }
             catch (IOException ex) {
-                connectionManager.closeConnection(connection);
+                tcpConnectionManager.closeConnection(connection);
             }
         }
     }
@@ -454,13 +435,13 @@ public class SocketTCP extends Thread {
      * Encerra uma conexão TCP e registra o motivo informado.
      *
      * <p>Quando nenhuma descrição é fornecida, é utilizado um motivo padrão.
-     * O fechamento efetivo da conexão é delegado ao {@link ConnectionManager}.</p>
+     * O fechamento efetivo da conexão é delegado ao {@link TcpConnectionManager}.</p>
      *
      * @param connection conexão que será encerrada.
      * @param description motivo do encerramento; pode ser {@code null}.
      */
     public void disconnect(TcpConnection connection, String description) {
-        connectionManager.closeConnection(
+        tcpConnectionManager.closeConnection(
                 connection,
                 Objects.requireNonNullElse(description, "No reason provided")
         );
@@ -493,7 +474,7 @@ public class SocketTCP extends Thread {
             }
         }
 
-        connectionManager.closeAllConnections("The peer must have closed the application or changed ports");
+        tcpConnectionManager.closeAllConnections("The peer must have closed the application or changed ports");
 
         connectionExecutor.shutdownNow();
     }

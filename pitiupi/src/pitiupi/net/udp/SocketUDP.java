@@ -14,6 +14,8 @@ import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import pitiupi.control.ConnectionManager;
+import pitiupi.control.PluginManager;
 import pitiupi.net.HeartbeatMessage;
 import pitiupi.net.Message;
 import pitiupi.plugin.Plugin;
@@ -37,7 +39,10 @@ public class SocketUDP extends Thread {
     private MulticastSocket multicastSocket;
 
     private InetAddress address;
-    private MainWindow main;
+
+    private ConnectionManager connectionManager;
+    private PluginManager pluginManager;
+
     private volatile boolean running = true;
     public final static String INET_ADDR = "224.0.0.3";
 
@@ -47,22 +52,26 @@ public class SocketUDP extends Thread {
      * <p>O socket é associado à porta da aplicação e ingressa no grupo
      * multicast configurado.</p>
      *
-     * @param main janela principal da aplicação.
+     * @param connectionManager interface que gerencia toda conexão da aplicação.
+     * @param pluginManager interface que gerencia os plugins da conexão.
      */
-    public SocketUDP(MainWindow main) {
-        this.main = main;
+    public SocketUDP(ConnectionManager connectionManager, PluginManager pluginManager) {
+        this.connectionManager = connectionManager;
+        this.pluginManager = pluginManager;
+
         try {
             this.address = InetAddress.getByName(SocketUDP.INET_ADDR);
-        } catch (UnknownHostException ex) {
-            System.getLogger(SocketUDP.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
-        try {
-            multicastSocket = new MulticastSocket(this.main.getPort());
+
+            multicastSocket = new MulticastSocket(connectionManager.getPort());
             multicastSocket.setSendBufferSize(256000);
             multicastSocket.setReceiveBufferSize(256000);
             multicastSocket.setReuseAddress(true);
             multicastSocket.joinGroup(address);
-        } catch (IOException ex) {
+        }
+        catch (UnknownHostException ex) {
+            System.getLogger(SocketUDP.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        catch (IOException ex) {
             System.out.println("There is no socket connection. Sorry.");
             System.out.println(ex);
         }
@@ -71,22 +80,22 @@ public class SocketUDP extends Thread {
     /**
      * Envia uma mensagem para o grupo multicast da aplicação.
      *
-     * @param msg mensagem serializada a ser enviada.
+     * @param msg mensagem a ser enviada.
      * @throws IOException caso ocorra um erro durante o envio.
      */
-    public void sendMulticast(byte[] msg)  throws IOException {
-        send(msg, this.address);
+    public void sendMulticast(Message msg)  throws IOException {
+        send(msg.toByteArray(), this.address);
     }
 
     /**
      * Envia uma mensagem diretamente para um peer utilizando UDP.
      *
-     * @param msg mensagem serializada a ser enviada.
+     * @param msg mensagem a ser enviada.
      * @param destinationAddress endereço IP do peer destinatário.
      * @throws IOException caso ocorra um erro durante o envio.
      */
-    public void sendUnicast(byte[] msg, InetAddress destinationAddress)  throws IOException {
-        send(msg, destinationAddress);
+    public void sendUnicast(Message msg, InetAddress destinationAddress)  throws IOException {
+        send(msg.toByteArray(), destinationAddress);
     }
 
     /**
@@ -98,7 +107,7 @@ public class SocketUDP extends Thread {
      */
     private void send(byte[] msg, InetAddress destinationAddress) throws IOException {
         DatagramPacket msgPacket;
-        msgPacket = new DatagramPacket(msg, msg.length, destinationAddress, this.main.getPort());
+        msgPacket = new DatagramPacket(msg, msg.length, destinationAddress, connectionManager.getPort());
         multicastSocket.send(msgPacket);
     }
 
@@ -145,7 +154,7 @@ public class SocketUDP extends Thread {
             }
             HeartbeatMessage heartbeat = tryParseHeartbeat(msgPacket.getData());
             if (heartbeat != null) {
-                main.getHeartbeatManager().receiveHeartbeat(heartbeat, msgPacket.getAddress());
+                connectionManager.receiveHeartbeat(heartbeat, msgPacket.getAddress());
                 continue;
             }
 
@@ -154,10 +163,8 @@ public class SocketUDP extends Thread {
                 continue;
             }
 
-            for (Plugin plugin : main.getPlugins()) {
-                System.out.println(msgPacket.getAddress().toString());
-                plugin.receiveMessage(message);
-            }
+            System.out.println(msgPacket.getAddress().toString());
+            pluginManager.handlePublicMessage(message);
         }
     }
 
