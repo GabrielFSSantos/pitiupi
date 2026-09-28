@@ -75,17 +75,17 @@ public class SocketTCP extends Thread {
      * do envio. Falhas durante o estabelecimento ou envio são registradas na
      * saída padrão e não são propagadas ao chamador.</p>
      *
-     * @param msg mensagem serializada em bytes que será enviada.
+     * @param msg mensagem que será enviada.
      * @param destinationAddress endereço IP do peer que receberá a mensagem.
      */
-    public void send(byte[] msg, InetAddress destinationAddress) {
+    public void send(Message msg, InetAddress destinationAddress) {
         try {
             TcpConnection connection = getPublicConnection(destinationAddress, main.getIdentifier(), main.getIdentifier());
             if (connection == null) {
                 System.out.println("Could not establish TCP connection.");
                 return;
             }
-            connection.send(msg);
+            connection.send(msg.toByteArray());
         }  catch (Exception ex) {
             System.out.println("Could not send TCP message.");
             System.out.println(ex.toString());
@@ -391,7 +391,7 @@ public class SocketTCP extends Thread {
                     SysInfoMessage sysMessage = SysInfoMessage.parseSystemInfo(message);
 
                     if (sysMessage == null) {
-                        privatePlugin.receiveBytes(message);
+                        privatePlugin.receiveBytes(connection, message);
                         continue;
                     }
 
