@@ -8,7 +8,7 @@ public class SocketTestMenu extends JMenu {
 
     public SocketTestMenu(SocketTestWindow socketTestWindow) {
         this.socketTestWindow = socketTestWindow;
-        this.setText("Chat");
+        this.setText("MP-Chat");
         JMenuItem menuItem = new JMenuItem();
         menuItem.setText("Show Chat Window");
         menuItem.addActionListener(this::showTestWindow);

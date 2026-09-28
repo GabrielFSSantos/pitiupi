@@ -316,47 +316,25 @@ public class SocketTCP extends Thread {
         while (running) {
             try {
                 byte[] bytes = connection.receive();
-                try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-                    ObjectInputStream ois = new ObjectInputStream(bis)) {
 
-                    Object object = ois.readObject();
-                    if (object instanceof Message message) {
-                        SysInfoMessage sysMessage = SysInfoMessage.parseSystemInfo(message);
+                SysInfoMessage sysMessage = SysInfoMessage.parseSystemInfo(bytes);
 
-                        if (sysMessage == null) {
-                            for (Plugin plugin : main.getPlugins()) {
-                                plugin.receiveMessage(message);
-                            }
-                            continue;
-                        }
-
-                        switch (sysMessage.getType()) {
-                            case CONNECTION_CLOSED, INTERNAL_ERROR -> {
-                                connectionManager.closeConnection(connection);
-                                return;
-                            }
-                            case MESSAGE_REJECTED -> {
-                                logger.log(Level.SEVERE, "Somehow sent something that was not an Message");
-                            }
-                            default -> {}
-                        }
+                if (sysMessage == null) {
+                    for (Plugin plugin : main.getPlugins()) {
+                        plugin.receiveMessage(bytes);
                     }
-                    else {
-                        SysInfoMessage.sendSystemInfo(
-                            connection,
-                            SysInfoType.MESSAGE_REJECTED,
-                            "Public messages must be instances of Message"
-                        );
-                    }
+                    continue;
                 }
-                catch (ClassNotFoundException ex) {
-                    SysInfoMessage.sendSystemInfo(
-                            connection,
-                            SysInfoType.INTERNAL_ERROR,
-                            "class Message not found."
-                    );
-                    logger.log(Level.SEVERE, null, ex);
-                    connectionManager.closeConnection(connection);
+
+                switch (sysMessage.getType()) {
+                    case CONNECTION_CLOSED, INTERNAL_ERROR -> {
+                        connectionManager.closeConnection(connection);
+                        return;
+                    }
+                    case MESSAGE_REJECTED -> {
+                        logger.log(Level.SEVERE, "Somehow sent something that was not an Message");
+                    }
+                    default -> {}
                 }
             }
             catch (SocketTimeoutException ex) {

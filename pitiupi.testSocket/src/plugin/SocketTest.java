@@ -5,13 +5,14 @@ import GUI.SocketTestWindow;
 import net.TestMessage;
 import pitiupi.GUI.MainWindow;
 import pitiupi.net.Message;
-import pitiupi.plugin.Plugin;
+import pitiupi.net.tcp.TcpConnection;
+import pitiupi.plugin.PrivateConnectionPlugin;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-public class SocketTest implements Plugin{
+public class SocketTest implements PrivateConnectionPlugin{
     SocketTestWindow socketTestWindow;
 
     @Override
@@ -30,6 +31,11 @@ public class SocketTest implements Plugin{
     }
 
     @Override
+    public String getIdentifier() {
+        return "Socket.Test.123456";
+    }
+
+    @Override
     public void createPlugin(MainWindow mainWindow) {
         this.socketTestWindow = new SocketTestWindow(mainWindow);
         mainWindow.addMenu(new SocketTestMenu(socketTestWindow));
@@ -41,8 +47,8 @@ public class SocketTest implements Plugin{
     }
 
     @Override
-    public void receiveMessage(byte[] bytes) {
-        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+    public void receiveMessage(byte[] message) {
+        ByteArrayInputStream bis = new ByteArrayInputStream(message);
         ObjectInputStream ois;
         try {
             ois = new ObjectInputStream(bis);
@@ -52,5 +58,20 @@ public class SocketTest implements Plugin{
         } catch (IOException | ClassNotFoundException ex) {
             System.out.println(ex.toString());
         }
+    }
+
+    @Override
+    public void receivePrivateConnection(TcpConnection tcpConnection) {
+
+    }
+
+    @Override
+    public void receiveBytes(TcpConnection connection, byte[] bytes) {
+
+    }
+
+    @Override
+    public void onSocketClosed(TcpConnection tcpConnection) {
+
     }
 }

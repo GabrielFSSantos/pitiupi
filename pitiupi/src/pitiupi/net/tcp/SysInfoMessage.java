@@ -48,11 +48,4 @@ public class SysInfoMessage extends Message {
         }
         return null;
     }
-
-    public static SysInfoMessage parseSystemInfo(Message message) {
-        if (message instanceof SysInfoMessage) {
-            return (SysInfoMessage) message;
-        }
-        return null;
-    }
 }

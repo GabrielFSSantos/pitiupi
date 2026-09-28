@@ -96,7 +96,7 @@ public class SocketTestWindow extends JFrame {
         try {
             TestMessage msg = createMessage("TCP Unicast");
             InetAddress ip = InetAddress.getByName(ipField.getText());
-            mainWindow.getSocketTCP().send(msg.toByteArray(), ip);
+            mainWindow.getSocketTCP().send(msg, ip);
         } catch (Exception ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -106,7 +106,7 @@ public class SocketTestWindow extends JFrame {
         try {
             TestMessage msg = createMessage("UDP Unicast");
             InetAddress ip = InetAddress.getByName(ipField.getText());
-            mainWindow.getSocketUDP().sendUnicast(msg.toByteArray(), ip);
+            mainWindow.getSocketUDP().sendUnicast(msg, ip);
         } catch (Exception ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -114,7 +114,7 @@ public class SocketTestWindow extends JFrame {
     public void sendMulticast() {
         try {
             TestMessage msg = createMessage("UDP Multicast");
-            mainWindow.getSocketUDP().sendMulticast(msg.toByteArray());
+            mainWindow.getSocketUDP().sendMulticast(msg);
         } catch (Exception ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }

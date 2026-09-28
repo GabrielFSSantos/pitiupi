@@ -74,7 +74,7 @@ public class SocketUDP extends Thread {
      * @param msg mensagem serializada a ser enviada.
      * @throws IOException caso ocorra um erro durante o envio.
      */
-    public void sendMulticast(byte[] msg)  throws IOException {
+    public void sendMulticast(Message msg)  throws IOException {
         send(msg, this.address);
     }
 
@@ -85,7 +85,7 @@ public class SocketUDP extends Thread {
      * @param destinationAddress endereço IP do peer destinatário.
      * @throws IOException caso ocorra um erro durante o envio.
      */
-    public void sendUnicast(byte[] msg, InetAddress destinationAddress)  throws IOException {
+    public void sendUnicast(Message msg, InetAddress destinationAddress)  throws IOException {
         send(msg, destinationAddress);
     }
 
@@ -96,9 +96,10 @@ public class SocketUDP extends Thread {
      * @param destinationAddress endereço de destino.
      * @throws IOException caso ocorra um erro durante o envio.
      */
-    private void send(byte[] msg, InetAddress destinationAddress) throws IOException {
+    private void send(Message msg, InetAddress destinationAddress) throws IOException {
         DatagramPacket msgPacket;
-        msgPacket = new DatagramPacket(msg, msg.length, destinationAddress, this.main.getPort());
+        byte[] buf = msg.toByteArray();
+        msgPacket = new DatagramPacket(buf, buf.length, destinationAddress, this.main.getPort());
         multicastSocket.send(msgPacket);
     }
 
@@ -149,14 +150,9 @@ public class SocketUDP extends Thread {
                 continue;
             }
 
-            Message message = tryParseMessage(msgPacket.getData());
-            if (message == null) {
-                continue;
-            }
-
             for (Plugin plugin : main.getPlugins()) {
                 System.out.println(msgPacket.getAddress().toString());
-                plugin.receiveMessage(message);
+                plugin.receiveMessage(msgPacket.getData());
             }
         }
     }
@@ -176,20 +172,6 @@ public class SocketUDP extends Thread {
             return (obj instanceof HeartbeatMessage) ? (HeartbeatMessage) obj : null;
         } catch (IOException | ClassNotFoundException | ClassCastException ex) {
             return null; 
-        }
-    }
-
-    private Message tryParseMessage(byte[] data) {
-        try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(data);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-
-            Object object = ois.readObject();
-
-            if (object instanceof Message message) return message;
-            return null;
-        } catch (IOException | ClassNotFoundException ex) {
-            return null;
         }
     }
 
