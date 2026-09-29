@@ -64,9 +64,14 @@ public class ConnectionFactory {
             connection.send(handshake.toByteArray());
             System.out.println("Enviou handhsake");
             HandshakeMessage handshakeResponse = validateConnection(connection);
+            System.out.println("Recebeu resposta");
 
-            if (handshakeResponse == null) return null;
+            if (handshakeResponse == null) {
+                System.out.println("Conexao falhou");
+                return null;
+            }
 
+            System.out.println("Sucesso na conexao");
             connection.setTimeout(STANDARD_TIMEOUT);
 
             return connection;
@@ -101,7 +106,12 @@ public class ConnectionFactory {
 
             HandshakeMessage handshake = validateConnection(connection);
 
-            if (handshake == null) return null;
+            if (handshake == null) {
+                System.out.println("Conexao falhou");
+                return null;
+            }
+
+            connection.send(handshake.createResponse().toByteArray());
 
             connection.setSender(handshake.getSender());
             connection.setReceiver(handshake.getReceiver());
@@ -109,6 +119,7 @@ public class ConnectionFactory {
 
             connection.setTimeout(STANDARD_TIMEOUT);
 
+            System.out.println("Sucesso na conexao");
             return connection;
         }
         catch (IOException ex) {
@@ -149,8 +160,9 @@ public class ConnectionFactory {
             Object object = ois.readObject();
 
             if (object instanceof Message message) {
-                if (SysInfoMessage.parseSystemInfo(bytes) != null) {
-                    //TODO: Tratar erros
+                SysInfoMessage sysInfo = SysInfoMessage.parseSystemInfo(bytes);
+                if (sysInfo != null) {
+                    System.out.println(sysInfo.getMessage());
                     return null;
                 }
 
@@ -210,6 +222,7 @@ public class ConnectionFactory {
                     SysInfoType.CONNECTION_REJECTED,
                     "Invalid Sender: " + sender + "."
             );
+            System.out.println("Handshake invalido");
             return false;
         }
         if (receiver == null || receiver.isBlank()) {
@@ -218,8 +231,11 @@ public class ConnectionFactory {
                     SysInfoType.CONNECTION_REJECTED,
                     "Invalid Receiver: " + receiver + "."
             );
+            System.out.println("Handshake invalido");
             return false;
         }
+
+        System.out.println("Handshake valido");
         return true;
     }
 }

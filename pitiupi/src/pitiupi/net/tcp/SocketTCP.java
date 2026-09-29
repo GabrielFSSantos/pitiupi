@@ -135,6 +135,7 @@ public class SocketTCP extends Thread {
 
         connection = connectionManager.getPublicConnection(destinationAddress);
         if (connection != null && !connection.isClosed()) return connection;
+        System.out.println("Trying to Establish TCP connection.");
 
         connection = establishOutgoingConnection(destinationAddress, senderId, receiverId, false);
 
