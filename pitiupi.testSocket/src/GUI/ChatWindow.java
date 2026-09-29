@@ -2,6 +2,7 @@ package GUI;
 
 import net.TestChatMessage;
 import pitiupi.GUI.MainWindow;
+import pitiupi.control.ConnectionManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,13 +11,13 @@ import java.net.UnknownHostException;
 
 public abstract class ChatWindow extends JFrame {
 
-    protected final MainWindow mainWindow;
+    protected final ConnectionManager connectionManager;
 
     private JTextArea receivedMessagesArea;
     protected JTextField messageField;
 
-    public ChatWindow(MainWindow mainWindow) {
-        this.mainWindow = mainWindow;
+    public ChatWindow(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
         initComponents();
     }
 
@@ -65,7 +66,7 @@ public abstract class ChatWindow extends JFrame {
 
     protected TestChatMessage createMessage(String tipoMensagem) {
         try {
-            String nome = mainWindow.getUserName();
+            String nome = connectionManager.getUserName();
             String ip = InetAddress.getLocalHost().getHostAddress();
             String message = messageField.getText();
 

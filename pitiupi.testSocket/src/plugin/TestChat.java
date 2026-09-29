@@ -3,7 +3,8 @@ package plugin;
 import GUI.ChatMenu;
 import control.ChatController;
 import net.TestChatMessage;
-import pitiupi.GUI.MainWindow;
+import pitiupi.control.ConnectionManager;
+import pitiupi.control.GuiManager;
 import pitiupi.net.Message;
 import pitiupi.net.tcp.TcpConnection;
 import pitiupi.plugin.PrivateConnectionPlugin;
@@ -16,7 +17,8 @@ import java.net.InetAddress;
 
 public class TestChat implements PrivateConnectionPlugin{
     ChatController chatController;
-    MainWindow mainWindow;
+    ConnectionManager connectionManager;
+    GuiManager guiManager;
 
     @Override
     public String getName() {
@@ -39,12 +41,13 @@ public class TestChat implements PrivateConnectionPlugin{
     }
 
     @Override
-    public void createPlugin(MainWindow mainWindow) {
-        this.mainWindow = mainWindow;
+    public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager) {
+        this.connectionManager = connectionManager;
+        this.guiManager = guiManager;
 
         ChatMenu chatMenu = new ChatMenu(this);
-        chatController = new ChatController(mainWindow, chatMenu);
-        mainWindow.addMenu(chatMenu);
+        chatController = new ChatController(connectionManager, chatMenu);
+        guiManager.addMenu(chatMenu);
     }
 
     @Override
@@ -79,7 +82,7 @@ public class TestChat implements PrivateConnectionPlugin{
 
     public boolean openConnection(String ip) {
         try {
-            mainWindow.getSocketTCP().createPrivateConnection(InetAddress.getByName(ip), getIdentifier(), getIdentifier());
+            connectionManager.connectPluginTcp(InetAddress.getByName(ip), getIdentifier(), getIdentifier());
             return true;
         }
         catch (Exception e) {

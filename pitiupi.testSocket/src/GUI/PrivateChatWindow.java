@@ -2,6 +2,7 @@ package GUI;
 
 import net.TestChatMessage;
 import pitiupi.GUI.MainWindow;
+import pitiupi.control.ConnectionManager;
 import pitiupi.net.tcp.TcpConnection;
 
 import javax.swing.*;
@@ -13,10 +14,10 @@ public class PrivateChatWindow extends ChatWindow {
 
     private final TcpConnection connection;
 
-    public PrivateChatWindow(MainWindow mainWindow, TcpConnection connection) {
+    public PrivateChatWindow(ConnectionManager ConnectionManager, TcpConnection connection) {
         this.connection = connection;
 
-        super(mainWindow);
+        super(ConnectionManager);
     }
 
     @Override
@@ -38,9 +39,7 @@ public class PrivateChatWindow extends ChatWindow {
             connection.send(msg.toByteArray());
 
         } catch (Exception ex) {
-            Logger.getLogger(
-                    PrivateChatWindow.class.getName()
-            ).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PrivateChatWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

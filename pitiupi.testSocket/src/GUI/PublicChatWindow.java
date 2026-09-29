@@ -2,6 +2,7 @@ package GUI;
 
 import net.TestChatMessage;
 import pitiupi.GUI.MainWindow;
+import pitiupi.control.ConnectionManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,8 +14,8 @@ public class PublicChatWindow extends ChatWindow {
 
     private JTextField ipField;
 
-    public PublicChatWindow(MainWindow mainWindow) {
-        super(mainWindow);
+    public PublicChatWindow(ConnectionManager connectionManager) {
+        super(connectionManager);
     }
 
     @Override
@@ -60,7 +61,7 @@ public class PublicChatWindow extends ChatWindow {
 
             InetAddress ip = InetAddress.getByName(ipField.getText());
 
-            mainWindow.getSocketTCP().send(msg, ip);
+            connectionManager.sendTcp(msg, ip);
 
         } catch (Exception ex) {
             Logger.getLogger(PublicChatWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -73,7 +74,7 @@ public class PublicChatWindow extends ChatWindow {
 
             InetAddress ip = InetAddress.getByName(ipField.getText());
 
-            mainWindow.getSocketUDP().sendUnicast(msg, ip);
+            connectionManager.sendUdpUnicast(msg, ip);
 
         } catch (Exception ex) {
             Logger.getLogger(PublicChatWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -84,7 +85,7 @@ public class PublicChatWindow extends ChatWindow {
         try {
             TestChatMessage msg = createMessage("UDP Multicast");
 
-            mainWindow.getSocketUDP().sendMulticast(msg);
+            connectionManager.sendUdpMulticast(msg);
 
         } catch (Exception ex) {
             Logger.getLogger(PublicChatWindow.class.getName()).log(Level.SEVERE, null, ex);

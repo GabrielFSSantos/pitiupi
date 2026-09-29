@@ -6,13 +6,14 @@ import GUI.PrivateChatWindow;
 import GUI.PublicChatWindow;
 import net.TestChatMessage;
 import pitiupi.GUI.MainWindow;
+import pitiupi.control.ConnectionManager;
 import pitiupi.net.tcp.TcpConnection;
 
 import javax.swing.*;
 import java.util.HashMap;
 
 public class ChatController {
-    MainWindow mainWindow;
+    ConnectionManager connectionManager;
     ChatMenu chatMenu;
 
     PublicChatWindow publicChatWindow;
@@ -20,9 +21,9 @@ public class ChatController {
     private final HashMap<TcpConnection, JMenuItem> chatMenus;
     private final HashMap<TcpConnection, ChatWindow>  chatWindows;
 
-    public ChatController(MainWindow mainWindow, ChatMenu chatMenu) {
-        this.mainWindow = mainWindow;
-        publicChatWindow = new PublicChatWindow(mainWindow);
+    public ChatController(ConnectionManager connectionManager, ChatMenu chatMenu) {
+        this.connectionManager = connectionManager;
+        publicChatWindow = new PublicChatWindow(connectionManager);
 
         chatMenus = new HashMap<>();
         chatWindows = new HashMap<>();
@@ -35,7 +36,7 @@ public class ChatController {
     public void addChatWindow(TcpConnection tcpConnection) {
         if (chatWindows.containsKey(tcpConnection)) return;
 
-        PrivateChatWindow newChat = new PrivateChatWindow(mainWindow, tcpConnection);
+        PrivateChatWindow newChat = new PrivateChatWindow(connectionManager, tcpConnection);
         chatWindows.put(tcpConnection, newChat);
         JMenuItem newMenuItem = new JMenuItem();
         chatMenus.put(tcpConnection, newMenuItem);
