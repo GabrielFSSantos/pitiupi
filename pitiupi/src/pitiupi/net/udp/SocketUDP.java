@@ -75,7 +75,7 @@ public class SocketUDP extends Thread {
      * @throws IOException caso ocorra um erro durante o envio.
      */
     public void sendMulticast(Message msg)  throws IOException {
-        send(msg, this.address);
+        send(msg, address);
     }
 
     /**
@@ -144,6 +144,8 @@ public class SocketUDP extends Thread {
                 }
                 throw ex;
             }
+            System.out.println("Message! it is from: " + msgPacket.getSocketAddress());
+
             HeartbeatMessage heartbeat = tryParseHeartbeat(msgPacket.getData());
             if (heartbeat != null) {
                 main.getHeartbeatManager().receiveHeartbeat(heartbeat, msgPacket.getAddress());

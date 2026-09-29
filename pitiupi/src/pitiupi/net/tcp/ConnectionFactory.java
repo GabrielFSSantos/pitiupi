@@ -62,6 +62,7 @@ public class ConnectionFactory {
             HandshakeMessage handshake = new HandshakeMessage(isPrivate, sender, receiver);
 
             connection.send(handshake.toByteArray());
+            System.out.println("Enviou handhsake");
             HandshakeMessage handshakeResponse = validateConnection(connection);
 
             if (handshakeResponse == null) return null;
@@ -148,12 +149,13 @@ public class ConnectionFactory {
             Object object = ois.readObject();
 
             if (object instanceof Message message) {
-                if (SysInfoMessage.parseSystemInfo(message) != null) {
+                if (SysInfoMessage.parseSystemInfo(bytes) != null) {
                     //TODO: Tratar erros
                     return null;
                 }
 
                 if (message instanceof HandshakeMessage handshake) {
+                    System.out.println("Recebeu handshake");
                     return (validateHandshake(handshake, connection)) ? handshake : null;
                 }
             }

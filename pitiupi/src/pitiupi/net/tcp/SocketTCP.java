@@ -211,6 +211,7 @@ public class SocketTCP extends Thread {
      */
     private void acceptIncomingConnection(Socket socket) {
         connectionExecutor.submit(() -> {
+            System.out.println("Accepted TCP connection.");
             TcpConnection connection = ConnectionFactory.receiveConnection(socket);
             if (connection == null) return;
 
