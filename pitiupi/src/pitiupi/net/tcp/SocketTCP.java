@@ -135,7 +135,6 @@ public class SocketTCP extends Thread {
 
         connection = connectionManager.getPublicConnection(destinationAddress);
         if (connection != null && !connection.isClosed()) return connection;
-        System.out.println("Trying to Establish TCP connection.");
 
         connection = establishOutgoingConnection(destinationAddress, senderId, receiverId, false);
 
@@ -195,7 +194,7 @@ public class SocketTCP extends Thread {
         saveConnection(connection);
 
         connectionExecutor.submit(() -> {
-            startReceiver(connection, false);
+            startReceiver(connection);
         });
 
         return connection;
@@ -212,12 +211,11 @@ public class SocketTCP extends Thread {
      */
     private void acceptIncomingConnection(Socket socket) {
         connectionExecutor.submit(() -> {
-            System.out.println("Accepted TCP connection.");
             TcpConnection connection = ConnectionFactory.receiveConnection(socket);
             if (connection == null) return;
 
             saveConnection(connection);
-            startReceiver(connection, true);
+            startReceiver(connection);
         });
     }
 
@@ -248,10 +246,9 @@ public class SocketTCP extends Thread {
      * estabelecimento da conexão.</p>
      *
      * @param connection conexão cujo fluxo de entrada será processado.
-     * @param notify indica se o plugin destinatário deve ser notificado sobre
-     *               o recebimento de uma nova conexão privada.
      */
-    private void startReceiver(TcpConnection connection, boolean notify) {
+    private void startReceiver(TcpConnection connection) {
+
         if (!connection.isPrivate()) {
             publicConnectionReceiver(connection);
             return;
@@ -264,9 +261,8 @@ public class SocketTCP extends Thread {
 
         Plugin receiver = findConnectionReceiver(connection);
         if (receiver instanceof PrivateConnectionPlugin plugin) {
-            if (notify) {
-                plugin.receivePrivateConnection(connection);
-            }
+            plugin.receivePrivateConnection(connection);
+
             privateConnectionReceiver(connection, plugin);
         }
     }
