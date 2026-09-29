@@ -152,19 +152,17 @@ public class SocketUDP extends Thread {
                 }
                 throw ex;
             }
+
             HeartbeatMessage heartbeat = tryParseHeartbeat(msgPacket.getData());
             if (heartbeat != null) {
                 connectionManager.receiveHeartbeat(heartbeat, msgPacket.getAddress());
                 continue;
             }
 
-            Message message = tryParseMessage(msgPacket.getData());
-            if (message == null) {
-                continue;
+            for (Plugin plugin : main.getPlugins()) {
+                System.out.println(msgPacket.getAddress().toString());
+                pluginManager.handlePublicMessage(msgPacket.getData());
             }
-
-            System.out.println(msgPacket.getAddress().toString());
-            pluginManager.handlePublicMessage(message);
         }
     }
 
@@ -183,20 +181,6 @@ public class SocketUDP extends Thread {
             return (obj instanceof HeartbeatMessage) ? (HeartbeatMessage) obj : null;
         } catch (IOException | ClassNotFoundException | ClassCastException ex) {
             return null; 
-        }
-    }
-
-    private Message tryParseMessage(byte[] data) {
-        try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(data);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-
-            Object object = ois.readObject();
-
-            if (object instanceof Message message) return message;
-            return null;
-        } catch (IOException | ClassNotFoundException ex) {
-            return null;
         }
     }
 

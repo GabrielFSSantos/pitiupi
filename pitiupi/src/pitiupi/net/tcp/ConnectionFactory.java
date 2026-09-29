@@ -102,6 +102,9 @@ public class ConnectionFactory {
 
             if (handshake == null) return null;
 
+
+            connection.send(handshake.createResponse().toByteArray());
+
             connection.setSender(handshake.getSender());
             connection.setReceiver(handshake.getReceiver());
             connection.setPrivate(handshake.isPrivate());
@@ -148,10 +151,9 @@ public class ConnectionFactory {
             Object object = ois.readObject();
 
             if (object instanceof Message message) {
-                if (SysInfoMessage.parseSystemInfo(message) != null) {
-                    //TODO: Tratar erros
-                    return null;
-                }
+                SysInfoMessage sysInfo = SysInfoMessage.parseSystemInfo(bytes);
+                if (sysInfo != null) return null;
+
 
                 if (message instanceof HandshakeMessage handshake) {
                     return (validateHandshake(handshake, connection)) ? handshake : null;
@@ -218,6 +220,7 @@ public class ConnectionFactory {
             );
             return false;
         }
+
         return true;
     }
 }

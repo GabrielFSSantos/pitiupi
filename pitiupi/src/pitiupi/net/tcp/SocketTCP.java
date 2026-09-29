@@ -36,7 +36,7 @@ public class SocketTCP extends Thread {
 
     private final ExecutorService connectionExecutor = Executors.newCachedThreadPool();
 
-    private final TcpConnectionManager tcpConnectionManager;
+    private final ConnectionManager connectionManager;
 
     private ServerSocket serverSocket;
     private InetAddress address;
@@ -95,7 +95,6 @@ public class SocketTCP extends Thread {
                 System.out.println("Could not establish TCP connection.");
                 return false;
             }
-
             connection.send(msg.toByteArray());
         }  catch (Exception ex) {
             System.out.println("Could not send TCP message.");
@@ -207,7 +206,7 @@ public class SocketTCP extends Thread {
         saveConnection(connection);
 
         connectionExecutor.submit(() -> {
-            startReceiver(connection, false);
+            startReceiver(connection);
         });
 
         return connection;
@@ -228,7 +227,7 @@ public class SocketTCP extends Thread {
             if (connection == null) return;
 
             saveConnection(connection);
-            startReceiver(connection, true);
+            startReceiver(connection);
         });
     }
 
@@ -259,10 +258,9 @@ public class SocketTCP extends Thread {
      * estabelecimento da conexão.</p>
      *
      * @param connection conexão cujo fluxo de entrada será processado.
-     * @param notify indica se o plugin destinatário deve ser notificado sobre
-     *               o recebimento de uma nova conexão privada.
      */
-    private void startReceiver(TcpConnection connection, boolean notify) {
+    private void startReceiver(TcpConnection connection) {
+
         if (!connection.isPrivate()) {
             publicConnectionReceiver(connection);
             return;
@@ -302,12 +300,8 @@ public class SocketTCP extends Thread {
         while (running) {
             try {
                 byte[] bytes = connection.receive();
-                try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-                    ObjectInputStream ois = new ObjectInputStream(bis)) {
 
-                    Object object = ois.readObject();
-                    if (object instanceof Message message) {
-                        SysInfoMessage sysMessage = SysInfoMessage.parseSystemInfo(message);
+                SysInfoMessage sysMessage = SysInfoMessage.parseSystemInfo(bytes);
 
                         if (sysMessage == null) {
                             pluginManager.handlePublicMessage(message);

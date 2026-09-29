@@ -48,7 +48,6 @@ public final class Login extends JDialog {
     public void initComponents() {
         this.setTitle("Login");
 
-
         String nomeSalvo = prefs.get(PREF_NOME, System.getProperty("user.name"));
         int portaSalva = prefs.getInt(PREF_PORTA, 8000);
 

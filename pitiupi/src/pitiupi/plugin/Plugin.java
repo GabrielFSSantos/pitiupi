@@ -47,6 +47,6 @@ public interface Plugin {
      *
      * @param message mensagem serializada recebida.
      */
-    public void receiveMessage(Message message);
+    public void receiveMessage(byte[] message);
 
 }
