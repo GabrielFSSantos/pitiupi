@@ -2,20 +2,20 @@ package net;
 
 import pitiupi.net.Message;
 
-public class TestMessage extends Message {
+public class TestChatMessage extends Message {
     private String nome;
     private String ip;
     private String tipoMensagem;
     private String message;
 
-    public TestMessage(String nome, String ip, String tipoMensagem, String message) {
+    public TestChatMessage(String nome, String ip, String tipoMensagem, String message) {
         this.nome = nome;
         this.ip = ip;
         this.tipoMensagem = tipoMensagem;
         this.message = message;
     }
 
-    public TestMessage(){}
+    public TestChatMessage(){}
 
     public String getNome() {
         return nome;
