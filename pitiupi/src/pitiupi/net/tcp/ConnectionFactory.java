@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * a utilizar o timeout padrão definido por {@link #STANDARD_TIMEOUT}.</p>
  */
 public class ConnectionFactory {
-    private static final int HANDSHAKE_TIMEOUT = 5000;
+    private static final int HANDSHAKE_TIMEOUT = 1000;
     private static final int STANDARD_TIMEOUT = 300_000;
 
     /**
@@ -64,7 +64,9 @@ public class ConnectionFactory {
             connection.send(handshake.toByteArray());
             HandshakeMessage handshakeResponse = validateConnection(connection);
 
-            if (handshakeResponse == null) return null;
+            if (handshakeResponse == null) {
+                return null;
+            }
 
             connection.setTimeout(STANDARD_TIMEOUT);
 
@@ -101,7 +103,6 @@ public class ConnectionFactory {
             HandshakeMessage handshake = validateConnection(connection);
 
             if (handshake == null) return null;
-
 
             connection.send(handshake.createResponse().toByteArray());
 

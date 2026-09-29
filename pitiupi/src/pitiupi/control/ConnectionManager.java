@@ -52,12 +52,14 @@ public class ConnectionManager {
         }
     }
 
-    public void sendUdpMulticast(Message message) {
+    public boolean sendUdpMulticast(Message message) {
         try {
             socketUDP.sendMulticast(message);
+            return true;
         } catch (Exception _) {
             System.err.println("Error sending UDP Multicast");
         }
+        return false;
     }
 
     public void broadcastLocal(byte[] message) {
