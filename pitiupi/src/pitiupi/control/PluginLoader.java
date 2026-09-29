@@ -31,7 +31,7 @@ public class PluginLoader {
         this.mainWindow = main;
     }
 
-    public void loadPlugins(List<Plugin> plugins, HashSet<String> loadedJars) {
+    public void loadPlugins(List<Plugin> plugins, HashSet<String> loadedJars, ConnectionManager connectionManager, GuiManager guiManager) {
         File pluginDir = new File("plugins");
         File[] jarFiles = pluginDir.listFiles((dir, name) -> name.endsWith(".jar"));
 
@@ -59,7 +59,7 @@ public class PluginLoader {
                 for (Plugin plugin : serviceLoader) {
                     System.out.println("Loading: " + plugin.getName());
 
-                    plugin.createPlugin(this.mainWindow);
+                    plugin.createPlugin(connectionManager, guiManager);
                     plugins.add(plugin);
                     loadedJars.add(file.getName());
                 }

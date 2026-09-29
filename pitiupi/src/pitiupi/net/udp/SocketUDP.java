@@ -40,8 +40,8 @@ public class SocketUDP extends Thread {
 
     private InetAddress address;
 
-    private ConnectionManager connectionManager;
-    private PluginManager pluginManager;
+    private final ConnectionManager connectionManager;
+    private final PluginManager pluginManager;
 
     private volatile boolean running = true;
     public final static String INET_ADDR = "224.0.0.3";
@@ -159,10 +159,7 @@ public class SocketUDP extends Thread {
                 continue;
             }
 
-            for (Plugin plugin : main.getPlugins()) {
-                System.out.println(msgPacket.getAddress().toString());
-                pluginManager.handlePublicMessage(msgPacket.getData());
-            }
+            pluginManager.handlePublicMessage(msgPacket.getData());
         }
     }
 

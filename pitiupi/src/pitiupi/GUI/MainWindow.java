@@ -6,6 +6,7 @@
 package pitiupi.GUI;
 
 import pitiupi.control.ConnectionManager;
+import pitiupi.control.GuiManager;
 import pitiupi.control.PluginManager;
 
 import javax.swing.JMenu;
@@ -28,18 +29,13 @@ import pitiupi.control.HeartbeatManager;
  */
 public class MainWindow extends javax.swing.JFrame {
 
-    private final MenuBar menuBar;
-    private javax.swing.JScrollPane jScrollPane1;
+    private MenuBar menuBar;
     private javax.swing.JLabel status;
-    private javax.swing.JPanel statusPanel;
-    private javax.swing.JTabbedPane tabbedPane;
 
-    private OnlineUsersPanel onlineUsersPanel;
+    private final ConnectionManager connectionManager;
+    private final PluginManager pluginManager;
+    private final GuiManager guiManager;
 
-    private String userName;
-
-    private ConnectionManager connectionManager;
-    private PluginManager pluginManager;
 
     /**
      * Cria a janela principal da aplicação.
@@ -48,43 +44,53 @@ public class MainWindow extends javax.swing.JFrame {
      * @param port porta utilizada na comunicação multicast.
      */
     public MainWindow(String userName, int port) {
-        this.userName = userName;
+        initMenu();
 
         pluginManager = new PluginManager(this);
+
+        connectionManager = new ConnectionManager(this, userName, pluginManager, port);
+        guiManager = new GuiManager(this);
+
+        initUserPanel();
+        initStatusPanel();
+
         loadPlugins();
-
-        connectionManager = new ConnectionManager(this, pluginManager, port);
-
-        menuBar = new MenuBar(this);
-
-        initComponents();
-    }
-
-    private void initComponents() {
-        this.setJMenuBar(menuBar);
-        this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        this.setTitle("Share My Sheet");
-
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tabbedPane = new javax.swing.JTabbedPane();
-        statusPanel = new javax.swing.JPanel();
-        status = new javax.swing.JLabel();
-
-        jScrollPane1.setViewportView(tabbedPane);
-        statusPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
-        updateStatus();
-        statusPanel.add(status);
-
-        this.getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
-        this.getContentPane().add(statusPanel, java.awt.BorderLayout.PAGE_END);
-
-        this.onlineUsersPanel = new OnlineUsersPanel();
-        this.connectionManager.addPeerListener(onlineUsersPanel);
-        this.getContentPane().add(this.onlineUsersPanel, java.awt.BorderLayout.LINE_END);
 
         this.pack();
 
         this.setSize(new java.awt.Dimension(1024, 768));
+    }
+
+    private void initMenu() {
+        menuBar = new MenuBar(this);
+
+        this.setJMenuBar(menuBar);
+        this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        this.setTitle("Share My Sheet");
+
+        javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
+        javax.swing.JTabbedPane tabbedPane = new javax.swing.JTabbedPane();
+
+        jScrollPane1.setViewportView(tabbedPane);
+
+        this.getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
+    }
+
+    private void initUserPanel() {
+        OnlineUsersPanel onlineUsersPanel = new OnlineUsersPanel();
+        this.connectionManager.addPeerListener(onlineUsersPanel);
+        this.getContentPane().add(onlineUsersPanel, java.awt.BorderLayout.LINE_END);
+    }
+
+    private void initStatusPanel() {
+        javax.swing.JPanel statusPanel = new javax.swing.JPanel();
+        status = new javax.swing.JLabel();
+
+        statusPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
+        updateStatus();
+        statusPanel.add(status);
+
+        this.getContentPane().add(statusPanel, java.awt.BorderLayout.PAGE_END);
     }
 
     public void exit() {
@@ -93,29 +99,24 @@ public class MainWindow extends javax.swing.JFrame {
         System.exit(0);
     }
 
-    public String getUserName(){
-        return this.userName;
-    }
-
     public ConnectionManager getConnectionManager() {
         return connectionManager;
     }
 
     public void loadPlugins() {
-        pluginManager.loadPlugins();
+        pluginManager.loadPlugins(connectionManager, guiManager);
     }
-    
+
     public void addMenu(JMenu menu) {
         this.menuBar.addPlugin(menu);
     }
-
     public void setUserName(String userName) {
-        this.userName = userName;
+        connectionManager.setUserName(userName);
         updateStatus();
     }
 
     private void updateStatus() {
-        this.status.setText("Connected on port " + connectionManager + " name " + this.userName);
+        this.status.setText("Connected on port " + connectionManager + " name " + connectionManager.getUserName());
     }
 
 }

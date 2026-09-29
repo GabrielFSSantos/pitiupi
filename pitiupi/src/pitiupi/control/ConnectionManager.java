@@ -12,23 +12,26 @@ import java.net.InetAddress;
 public class ConnectionManager {
     private final String pitiupiIdentifier;
 
-    private PluginManager pluginManager;
+    private final PluginManager pluginManager;
 
-    private HeartbeatManager heartbeatManager;
+    private final HeartbeatManager heartbeatManager;
 
     private SocketTCP socketTCP;
     private SocketUDP socketUDP;
+    private String username;
     private int port;
 
-    public ConnectionManager(MainWindow main, PluginManager pluginManager, int port) {
+    public ConnectionManager(MainWindow main, String username, PluginManager pluginManager, int port) {
         this.pluginManager = pluginManager;
+
+        this.username = username;
         this.port = port;
 
         pitiupiIdentifier = "Pitiupi.Alice.2026";
 
         reconnect();
 
-        heartbeatManager = new HeartbeatManager(main, this);
+        heartbeatManager = new HeartbeatManager(this);
         heartbeatManager.start();
     }
 
@@ -49,21 +52,16 @@ public class ConnectionManager {
         }
     }
 
-    public boolean sendUdpMulticast(Message message) {
+    public void sendUdpMulticast(Message message) {
         try {
             socketUDP.sendMulticast(message);
-            return true;
-        } catch (Exception ex) {
-            return false;
+        } catch (Exception _) {
+            System.err.println("Error sending UDP Multicast");
         }
     }
 
-    public void broadcastLocal(Message message) {
+    public void broadcastLocal(byte[] message) {
         pluginManager.handlePublicMessage(message);
-    }
-
-    public boolean sendLocal(byte[] message, String receiverId) {
-        return pluginManager.handlePrivateMessage(message, receiverId);
     }
 
     public void addPeerListener(PeerListener peerListener) {
@@ -100,5 +98,13 @@ public class ConnectionManager {
 
         this.socketUDP.start();
         this.socketTCP.start();
+    }
+
+    public String getUserName() {
+        return this.username;
+    }
+
+    public void setUserName(String userName) {
+        this.username = userName;
     }
 }

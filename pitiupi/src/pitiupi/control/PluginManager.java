@@ -1,7 +1,6 @@
 package pitiupi.control;
 
 import pitiupi.GUI.MainWindow;
-import pitiupi.net.Message;
 import pitiupi.net.tcp.TcpConnection;
 import pitiupi.plugin.Plugin;
 import pitiupi.plugin.PrivateConnectionPlugin;
@@ -11,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public class PluginManager {
-    private PluginLoader pluginLoader;
+    private final PluginLoader pluginLoader;
     private final List<Plugin> plugins;
     private final HashSet<String> loadedJars;
 
@@ -21,11 +20,11 @@ public class PluginManager {
         this.loadedJars = new HashSet<>();
     }
 
-    public void loadPlugins() {
-        pluginLoader.loadPlugins(plugins, loadedJars);
+    public void loadPlugins(ConnectionManager connectionManager, GuiManager guiManager) {
+        pluginLoader.loadPlugins(plugins, loadedJars, connectionManager, guiManager);
     }
 
-    public void handlePublicMessage(Message msg) {
+    public void handlePublicMessage(byte[] msg) {
         for (Plugin plugin : plugins) {
             plugin.receiveMessage(msg);
         }
@@ -38,16 +37,14 @@ public class PluginManager {
         return null;
     }
 
-    public boolean handlePrivateMessage(byte[] msg, String receiverId) {
-        Plugin plugin = getPlugin(receiverId);
-        if (plugin == null) return false;
+    public void handlePrivateMessage(TcpConnection connection, byte[] msg) {
+        Plugin plugin = getPlugin(connection.getReceiver());
+        if (plugin == null) return;
 
         if (plugin instanceof PrivateConnectionPlugin privatePlugin) {
-            privatePlugin.receiveBytes(msg);
-            return true;
+            privatePlugin.receiveBytes(connection, msg);
         }
 
-        return false;
     }
 
     public boolean handleConnection(TcpConnection connection, String receiverId) {

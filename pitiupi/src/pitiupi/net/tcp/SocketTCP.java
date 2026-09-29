@@ -1,10 +1,8 @@
 package pitiupi.net.tcp;
 
-import pitiupi.GUI.MainWindow;
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.PluginManager;
 import pitiupi.net.Message;
-import pitiupi.plugin.Plugin;
 import pitiupi.plugin.PrivateConnectionPlugin;
 
 import java.io.*;
@@ -38,11 +36,12 @@ public class SocketTCP extends Thread {
 
     private final ConnectionManager connectionManager;
 
+    private final PluginManager pluginManager;
+
+    private final TcpConnectionManager tcpConnectionManager;
+
     private ServerSocket serverSocket;
     private InetAddress address;
-
-    private final ConnectionManager connectionManager;
-    private final PluginManager pluginManager;
 
     private volatile boolean running = true;
 
@@ -303,38 +302,20 @@ public class SocketTCP extends Thread {
 
                 SysInfoMessage sysMessage = SysInfoMessage.parseSystemInfo(bytes);
 
-                        if (sysMessage == null) {
-                            pluginManager.handlePublicMessage(message);
-                            continue;
-                        }
-
-                        switch (sysMessage.getType()) {
-                            case CONNECTION_CLOSED, INTERNAL_ERROR -> {
-                                tcpConnectionManager.closeConnection(connection);
-                                return;
-                            }
-                            case MESSAGE_REJECTED -> {
-                                logger.log(Level.SEVERE, "Somehow sent something that was not an Message");
-                            }
-                            default -> {}
-                        }
-                    }
-                    else {
-                        SysInfoMessage.sendSystemInfo(
-                            connection,
-                            SysInfoType.MESSAGE_REJECTED,
-                            "Public messages must be instances of Message"
-                        );
-                    }
+                if (sysMessage == null) {
+                    pluginManager.handlePublicMessage(bytes);
+                    continue;
                 }
-                catch (ClassNotFoundException ex) {
-                    SysInfoMessage.sendSystemInfo(
-                            connection,
-                            SysInfoType.INTERNAL_ERROR,
-                            "class Message not found."
-                    );
-                    logger.log(Level.SEVERE, null, ex);
-                    tcpConnectionManager.closeConnection(connection);
+
+                switch (sysMessage.getType()) {
+                    case CONNECTION_CLOSED, INTERNAL_ERROR -> {
+                        tcpConnectionManager.closeConnection(connection);
+                        return;
+                    }
+                    case MESSAGE_REJECTED -> {
+                        logger.log(Level.SEVERE, "Somehow sent something that was not an Message");
+                    }
+                    default -> {}
                 }
             }
             catch (SocketTimeoutException ex) {
@@ -367,7 +348,7 @@ public class SocketTCP extends Thread {
                 SysInfoMessage sysMessage = SysInfoMessage.parseSystemInfo(message);
 
                 if (sysMessage == null) {
-                    pluginManager.handlePrivateMessage(message, connection.getReceiver());
+                    pluginManager.handlePrivateMessage(connection, message);
                     continue;
                 }
 
@@ -440,7 +421,6 @@ public class SocketTCP extends Thread {
                 Objects.requireNonNullElse(description, "No reason provided")
         );
     }
-
 
     @Override
     public void run() {

@@ -28,8 +28,6 @@ public class HeartbeatManager {
 
     private static final long HEARTBEAT_INTERVAL_MS = 5000;
     private static final long PEER_TIMEOUT_MS = 15000; // ~3 batimentos perdidos
-
-    private final MainWindow mainWindow;
     private final ConnectionManager connectionManager;
     private final Map<String, PeerInfo> peers = new ConcurrentHashMap<>();
     private final List<PeerListener> listeners = new CopyOnWriteArrayList<>();
@@ -39,11 +37,8 @@ public class HeartbeatManager {
     /**
      * Cria um gerenciador de heartbeat associado à janela principal da aplicação.
      *
-     * @param mainWindow janela principal utilizada para obter o nome do usuário
-     * e o socket de comunicação.
      */
-    public HeartbeatManager(MainWindow mainWindow, ConnectionManager connectionManager) {
-        this.mainWindow = mainWindow;
+    public HeartbeatManager(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
 
@@ -66,7 +61,7 @@ public class HeartbeatManager {
     }
 
     private void announce() {
-        HeartbeatMessage msg = new HeartbeatMessage(mainWindow.getUserName(), instanceId);
+        HeartbeatMessage msg = new HeartbeatMessage(connectionManager.getUserName(), instanceId);
         connectionManager.sendUdpMulticast(msg);
     }
 

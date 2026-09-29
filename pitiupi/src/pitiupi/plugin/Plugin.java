@@ -5,6 +5,8 @@
 package pitiupi.plugin;
 
 import pitiupi.GUI.MainWindow;
+import pitiupi.control.ConnectionManager;
+import pitiupi.control.GuiManager;
 import pitiupi.net.Message;
 import pitiupi.net.tcp.TcpConnection;
 
@@ -30,7 +32,7 @@ public interface Plugin {
      *
      * @param window janela principal da aplicação.
      */
-    public void createPlugin(MainWindow window);
+    public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager);
 
     /**
      * Retorna uma mensagem utilizada pelo plugin.
