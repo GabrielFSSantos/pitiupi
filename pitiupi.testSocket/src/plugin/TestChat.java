@@ -8,6 +8,7 @@ import pitiupi.net.Message;
 import pitiupi.net.tcp.TcpConnection;
 import pitiupi.plugin.PrivateConnectionPlugin;
 
+import javax.swing.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -57,9 +58,12 @@ public class TestChat implements PrivateConnectionPlugin{
         chatController.receivePublic(testChatMessage);
     }
 
+
     @Override
     public void receivePrivateConnection(TcpConnection tcpConnection) {
-        chatController.addChatWindow(tcpConnection);
+        SwingUtilities.invokeLater(() -> {
+            chatController.addChatWindow(tcpConnection);
+        });
     }
 
     @Override

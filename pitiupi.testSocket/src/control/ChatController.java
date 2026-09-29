@@ -20,7 +20,6 @@ public class ChatController {
     private final HashMap<TcpConnection, JMenuItem> chatMenus;
     private final HashMap<TcpConnection, ChatWindow>  chatWindows;
 
-
     public ChatController(MainWindow mainWindow, ChatMenu chatMenu) {
         this.mainWindow = mainWindow;
         publicChatWindow = new PublicChatWindow(mainWindow);
@@ -28,7 +27,9 @@ public class ChatController {
         chatMenus = new HashMap<>();
         chatWindows = new HashMap<>();
 
-        chatMenu.newMenuItem(new JMenuItem("Show global chat"), publicChatWindow);
+        this.chatMenu = chatMenu;
+
+        this.chatMenu.newMenuItem(new JMenuItem("Show global chat"), publicChatWindow);
     }
 
     public void addChatWindow(TcpConnection tcpConnection) {
@@ -36,10 +37,8 @@ public class ChatController {
 
         PrivateChatWindow newChat = new PrivateChatWindow(mainWindow, tcpConnection);
         chatWindows.put(tcpConnection, newChat);
-
         JMenuItem newMenuItem = new JMenuItem();
         chatMenus.put(tcpConnection, newMenuItem);
-
         newMenuItem.setText(tcpConnection.getAddress().toString());
         chatMenu.newMenuItem(newMenuItem, newChat);
     }
