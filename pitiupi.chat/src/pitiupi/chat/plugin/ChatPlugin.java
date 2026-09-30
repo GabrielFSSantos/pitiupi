@@ -11,6 +11,8 @@ import pitiupi.GUI.MainWindow;
 import pitiupi.chat.GUI.ChatMenu;
 import pitiupi.chat.GUI.ChatWindow;
 import pitiupi.chat.net.ChatMessage;
+import pitiupi.control.ConnectionManager;
+import pitiupi.control.GuiManager;
 import pitiupi.net.Message;
 import pitiupi.plugin.Plugin;
 
@@ -21,16 +23,14 @@ import pitiupi.plugin.Plugin;
 public class ChatPlugin implements Plugin {
 
     private ChatWindow chatWindow;
-    private MainWindow mainWindow;
 
     public ChatPlugin() {
     }
 
     @Override
-    public void createPlugin(MainWindow mainWindow) {
-        this.mainWindow = mainWindow;
-        this.chatWindow = new ChatWindow(mainWindow);
-        this.mainWindow.addMenu(new ChatMenu(chatWindow));
+    public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager) {
+        this.chatWindow = new ChatWindow(connectionManager);
+        guiManager.addMenu(new ChatMenu(chatWindow));
     }
 
     @Override
@@ -42,9 +42,7 @@ public class ChatPlugin implements Plugin {
             if (ois.readObject() instanceof ChatMessage msg) {
                 this.chatWindow.receiveChatMessage(msg);
             }
-        } catch (IOException ex) {
-            System.out.println(ex.toString());
-        } catch (ClassNotFoundException ex) {
+        } catch (IOException | ClassNotFoundException ex) {
             System.out.println(ex.toString());
         }
     }
@@ -62,6 +60,11 @@ public class ChatPlugin implements Plugin {
     @Override
     public String getVersion() {
         return "0";
+    }
+
+    @Override
+    public String getIdentifier() {
+        return "Pitiupi.Chat.Example";
     }
 
     @Override

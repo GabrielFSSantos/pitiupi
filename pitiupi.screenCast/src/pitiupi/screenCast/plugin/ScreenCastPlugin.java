@@ -8,6 +8,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import pitiupi.GUI.MainWindow;
+import pitiupi.control.ConnectionManager;
+import pitiupi.control.GuiManager;
 import pitiupi.net.Message;
 import pitiupi.plugin.Plugin;
 import pitiupi.screenCast.GUI.ScreenCastMenu;
@@ -21,7 +23,6 @@ import pitiupi.screenCast.net.ScreenCastMessage;
 public class ScreenCastPlugin implements Plugin {
 
     private ScreenCastWindow screenCastWindow;
-    private MainWindow mainWindow;
 
     @Override
     public String getName() {
@@ -39,10 +40,14 @@ public class ScreenCastPlugin implements Plugin {
     }
 
     @Override
-    public void createPlugin(MainWindow mainWindow) {
-        this.mainWindow = mainWindow;
-        this.screenCastWindow = new ScreenCastWindow(mainWindow);
-        this.mainWindow.addMenu(new ScreenCastMenu(screenCastWindow));
+    public String getIdentifier() {
+        return "Pitiupi.ScreenCast.Example";
+    }
+
+    @Override
+    public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager) {
+        this.screenCastWindow = new ScreenCastWindow(connectionManager, guiManager);
+        guiManager.addMenu(new ScreenCastMenu(screenCastWindow));
     }
 
     @Override
@@ -54,9 +59,7 @@ public class ScreenCastPlugin implements Plugin {
             if (ois.readObject() instanceof ScreenCastMessage msg) {
                 this.screenCastWindow.receiveScreenCastMessage(msg);
             }
-        } catch (IOException ex) {
-            System.out.println(ex.toString());
-        } catch (ClassNotFoundException ex) {
+        } catch (IOException | ClassNotFoundException ex) {
             System.out.println(ex.toString());
         }
     }

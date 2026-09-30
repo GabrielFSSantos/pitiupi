@@ -5,24 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="083e72ce-fa9b-4ddf-a0ef-24105aa3eabb" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../pitiupi.chat/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi.chat/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../pitiupi.chat/build/built-jar.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi.chat/build/built-jar.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../pitiupi.chat/build/classes/pitiupi/chat/GUI/ChatWindow.class" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi.chat/build/classes/pitiupi/chat/GUI/ChatWindow.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../pitiupi.chat/dist/pitiupi.chat.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../pitiupi.chat/pitiupi.chat.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi.chat/pitiupi.chat.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../pitiupi.chat/src/pitiupi/chat/GUI/ChatWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi.chat/src/pitiupi/chat/GUI/ChatWindow.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../pitiupi.testSocket/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/built-jar.properties" beforeDir="false" afterPath="$PROJECT_DIR$/build/built-jar.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/pitiupi/screenCast/GUI/ScreenCastWindow.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/pitiupi/screenCast/GUI/ScreenCastWindow.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/pitiupi.screenCast.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pitiupi/screenCast/GUI/ScreenCastWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pitiupi/screenCast/GUI/ScreenCastWindow.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../pitiupi/plugins/pitiupi.chat.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi/plugins/pitiupi.chat.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../pitiupi/plugins/pitiupi.screenCast.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi/plugins/pitiupi.screenCast.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../pitiupi/src/pitiupi/GUI/MainWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi/src/pitiupi/GUI/MainWindow.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../pitiupi/src/pitiupi/control/HeartbeatManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi/src/pitiupi/control/HeartbeatManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pitiupi/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pitiupi/src/pitiupi/net/tcp/ConnectionFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/../pitiupi/src/pitiupi/net/tcp/ConnectionFactory.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,10 +32,12 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "feature/unicast",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "feature/separacao-gerenciadores",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/extre/OneDrive/Documentos/Faculdade/2026_02/Monitoria/Pitiupi/pitiupi.screenCast",
+    "last_opened_file_path": "C:/Users/Gustavo/OneDrive/Documentos/Faculdade/2026_2/Monitoria/pitiupi/pitiupi.screenCast",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
@@ -57,17 +45,6 @@
   }
 }]]></component>
   <component name="RunManager">
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="pitiupi.screenCast" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="pitiupi.screenCast" />
-      <option name="filePath" />
-      <method v="2" />
-    </configuration>
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="pitiupi.screenCast" />
       <option name="ENV_FILES" value="" />
@@ -102,11 +79,23 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <method v="2" />
     </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="pitiupi.screenCast" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="pitiupi.screenCast" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.28539.54" />
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.26222.65" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.26222.65" />
       </set>
     </attachedChunks>
   </component>
@@ -119,5 +108,8 @@
       <updated>1784745206049</updated>
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
 </project>

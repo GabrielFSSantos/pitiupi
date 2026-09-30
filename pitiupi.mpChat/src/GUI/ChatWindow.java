@@ -1,7 +1,6 @@
 package GUI;
 
-import net.TestChatMessage;
-import pitiupi.GUI.MainWindow;
+import net.MpChatMessage;
 import pitiupi.control.ConnectionManager;
 
 import javax.swing.*;
@@ -64,20 +63,20 @@ public abstract class ChatWindow extends JFrame {
 
     protected abstract void initButtons(JPanel bottomPanel);
 
-    protected TestChatMessage createMessage(String tipoMensagem) {
+    protected MpChatMessage createMessage(String tipoMensagem) {
         try {
             String nome = connectionManager.getUserName();
             String ip = InetAddress.getLocalHost().getHostAddress();
             String message = messageField.getText();
 
-            return new TestChatMessage(nome, ip, tipoMensagem, message);
+            return new MpChatMessage(nome, ip, tipoMensagem, message);
 
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void receiveMessage(TestChatMessage msg) {
+    public void receiveMessage(MpChatMessage msg) {
         SwingUtilities.invokeLater(() -> {
             String mensagem = String.format(
                     "[%s] %s (%s): %s%n",

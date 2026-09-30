@@ -1,7 +1,6 @@
 package GUI;
 
-import net.TestChatMessage;
-import pitiupi.GUI.MainWindow;
+import net.MpChatMessage;
 import pitiupi.control.ConnectionManager;
 import pitiupi.net.tcp.TcpConnection;
 
@@ -35,7 +34,7 @@ public class PrivateChatWindow extends ChatWindow {
 
     private void sendTCP() {
         try {
-            TestChatMessage msg = createMessage("TCP Private");
+            MpChatMessage msg = createMessage("TCP Private");
             connection.send(msg.toByteArray());
 
         } catch (Exception ex) {

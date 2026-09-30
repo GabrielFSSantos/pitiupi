@@ -1,18 +1,15 @@
 package GUI;
 
-import plugin.TestChat;
+import plugin.MultiProtocolChat;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ChatMenu extends JMenu {
-    private final TestChat testChat;
+    private final MultiProtocolChat multiProtocolChat;
 
-    public ChatMenu(TestChat testChat) {
-        this.testChat = testChat;
+    public ChatMenu(MultiProtocolChat multiProtocolChat) {
+        this.multiProtocolChat = multiProtocolChat;
         this.setText("MP-Chat");
 
         JMenuItem startPrivateChat = new JMenuItem("start Private Chat");
@@ -71,7 +68,7 @@ public class ChatMenu extends JMenu {
         startButton.addActionListener(e -> {
             String ip = ipField.getText();
 
-            if (testChat.openConnection(ip)) dialog.dispose();
+            if (multiProtocolChat.openConnection(ip)) dialog.dispose();
             else errorLabel.setVisible(true);
 
         });

@@ -1,7 +1,6 @@
 package GUI;
 
-import net.TestChatMessage;
-import pitiupi.GUI.MainWindow;
+import net.MpChatMessage;
 import pitiupi.control.ConnectionManager;
 
 import javax.swing.*;
@@ -57,7 +56,7 @@ public class PublicChatWindow extends ChatWindow {
 
     private void sendTCP() {
         try {
-            TestChatMessage msg = createMessage("TCP Unicast");
+            MpChatMessage msg = createMessage("TCP Unicast");
 
             InetAddress ip = InetAddress.getByName(ipField.getText());
 
@@ -70,7 +69,7 @@ public class PublicChatWindow extends ChatWindow {
 
     private void sendUDP() {
         try {
-            TestChatMessage msg = createMessage("UDP Unicast");
+            MpChatMessage msg = createMessage("UDP Unicast");
 
             InetAddress ip = InetAddress.getByName(ipField.getText());
 
@@ -83,7 +82,7 @@ public class PublicChatWindow extends ChatWindow {
 
     private void sendMulticast() {
         try {
-            TestChatMessage msg = createMessage("UDP Multicast");
+            MpChatMessage msg = createMessage("UDP Multicast");
 
             connectionManager.sendUdpMulticast(msg);
 

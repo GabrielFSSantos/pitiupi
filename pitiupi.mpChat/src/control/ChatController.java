@@ -4,8 +4,7 @@ import GUI.ChatMenu;
 import GUI.ChatWindow;
 import GUI.PrivateChatWindow;
 import GUI.PublicChatWindow;
-import net.TestChatMessage;
-import pitiupi.GUI.MainWindow;
+import net.MpChatMessage;
 import pitiupi.control.ConnectionManager;
 import pitiupi.net.tcp.TcpConnection;
 
@@ -53,10 +52,10 @@ public class ChatController {
         removedWindow.dispose();
     }
 
-    public void receivePublic(TestChatMessage message) {
+    public void receivePublic(MpChatMessage message) {
         publicChatWindow.receiveMessage(message);
     }
-    public void receivePrivate(TcpConnection tcpConnection, TestChatMessage message) {
+    public void receivePrivate(TcpConnection tcpConnection, MpChatMessage message) {
         chatWindows.get(tcpConnection).receiveMessage(message);
     }
 }
