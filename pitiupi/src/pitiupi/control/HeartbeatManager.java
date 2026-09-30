@@ -16,6 +16,11 @@ import pitiupi.GUI.MainWindow;
 import pitiupi.net.HeartbeatMessage;
 import java.util.UUID;
 /**
+ * Gerencia o mecanismo de heartbeat da aplicação.
+ *
+ * <p>Responsável por anunciar a presença da aplicação na rede, receber
+ * heartbeats de outros usuários, controlar o tempo desde a última atividade
+ * dos peers e notificar listeners quando a lista de usuários ativos muda.</p>
  *
  * @author tony
  */
@@ -23,23 +28,32 @@ public class HeartbeatManager {
 
     private static final long HEARTBEAT_INTERVAL_MS = 5000;
     private static final long PEER_TIMEOUT_MS = 15000; // ~3 batimentos perdidos
-
-    private final MainWindow mainWindow;
+    private final ConnectionManager connectionManager;
     private final Map<String, PeerInfo> peers = new ConcurrentHashMap<>();
     private final List<PeerListener> listeners = new CopyOnWriteArrayList<>();
     private ScheduledExecutorService scheduler;
     private final String instanceId = UUID.randomUUID().toString();
 
-    public HeartbeatManager(MainWindow mainWindow) {
-        this.mainWindow = mainWindow;
+    /**
+     * Cria um gerenciador de heartbeat associado à janela principal da aplicação.
+     *
+     */
+    public HeartbeatManager(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
     }
 
+    /**
+     * Inicia o mecanismo de heartbeat.
+     */
     public void start() {
         scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(this::announce, 0, HEARTBEAT_INTERVAL_MS, TimeUnit.MILLISECONDS);
         scheduler.scheduleAtFixedRate(this::checkTimeouts, HEARTBEAT_INTERVAL_MS, HEARTBEAT_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Para o mecanismo de heartbeat e encerra as tarefas agendadas.
+     */
     public void stop() {
         if (scheduler != null) {
             scheduler.shutdownNow();
@@ -47,15 +61,23 @@ public class HeartbeatManager {
     }
 
     private void announce() {
-        try {
-            HeartbeatMessage msg = new HeartbeatMessage(mainWindow.getUserName(), instanceId);
-            mainWindow.getSocket().send(msg.toByteArray());
-        } catch (IOException ex) {
-            Logger.getLogger(HeartbeatManager.class.getName()).log(Level.WARNING, "Falha ao enviar heartbeat", ex);
-        }
+        HeartbeatMessage msg = new HeartbeatMessage(connectionManager.getUserName(), instanceId);
+        connectionManager.sendUdpMulticast(msg);
     }
 
-    
+    // Chamado pelo Socket quando um pacote é identificado como heartbeat
+    /**
+     * Processa uma mensagem de heartbeat recebida de outro usuário.
+     *
+     * <p>Atualiza o momento da última atividade do peer correspondente e notifica os listeners
+     * caso outra instância da aplicação seja identificada.</p>
+     *
+     * <p>Mensagens de heartbeat enviadas pela própria aplicação são ignoradas.</p>
+     *
+     * @param msg mensagem de heartbeat recebida.
+     * @param from endereço de rede do usuário que enviou a mensagem.
+     */
+
     public void receiveHeartbeat(HeartbeatMessage msg, InetAddress from) {
         // ignora o próprio heartbeat 
         if (msg.getInstanceId().equals(instanceId) ) {
@@ -88,15 +110,33 @@ public class HeartbeatManager {
         }
     }
 
+    /**
+     * Adiciona um listener para receber atualizações sobre os peers conhecidos.
+     *
+     * <p>O listener recebe imediatamente o estado atual dos peers ao ser
+     * registrado.</p>
+     *
+     * @param l listener que será notificado sobre alterações.
+     */
     public void addPeerListener(PeerListener l) {
         listeners.add(l);
         l.onPeersChanged(new ArrayList<>(peers.values()));
     }
 
+    /**
+     * Remove um listener previamente registrado.
+     *
+     * @param l listener que deixará de receber atualizações.
+     */
     public void removePeerListener(PeerListener l) {
         listeners.remove(l);
     }
 
+    /**
+     * Retorna uma cópia da lista atual de peers conhecidos.
+     *
+     * @return lista contendo os peers atualmente conhecidos.
+     */
     public List<PeerInfo> getPeers() {
         return new ArrayList<>(peers.values());
     }

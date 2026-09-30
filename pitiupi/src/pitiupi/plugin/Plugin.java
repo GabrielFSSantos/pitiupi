@@ -4,11 +4,17 @@
  */
 package pitiupi.plugin;
 
-import javax.swing.JMenu;
 import pitiupi.GUI.MainWindow;
+import pitiupi.control.ConnectionManager;
+import pitiupi.control.GuiManager;
 import pitiupi.net.Message;
+import pitiupi.net.tcp.TcpConnection;
 
 /**
+ * Interface base para plugins da aplicação.
+ *
+ * <p>Cada plugin deve implementar esta interface para ser carregado
+ * pela aplicação e participar do sistema de comunicação por mensagens.</p>
  *
  * @author flavio
  */
@@ -17,7 +23,32 @@ public interface Plugin {
     public String getName();
     public String getAuthor();
     public String getVersion();
-    public void createPlugin(MainWindow window);
+    public String getIdentifier();
+
+    /**
+     * Inicializa o plugin.
+     *
+     * <p>Este método é chamado pela aplicação após o carregamento do plugin.</p>
+     *
+     * @param window janela principal da aplicação.
+     */
+    public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager);
+
+    /**
+     * Retorna uma mensagem utilizada pelo plugin.
+     *
+     * @return mensagem criada pelo plugin.
+     */
     public Message getMessage();
+
+    /**
+     * Recebe uma mensagem enviada pela aplicação.
+     *
+     * <p>A mensagem é recebida em formato serializado. O plugin deve verificar
+     * se a mensagem pertence ao seu tipo e realizar o processamento necessário.</p>
+     *
+     * @param message mensagem serializada recebida.
+     */
     public void receiveMessage(byte[] message);
+
 }

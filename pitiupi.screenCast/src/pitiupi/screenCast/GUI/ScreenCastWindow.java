@@ -5,6 +5,8 @@
  */
 package pitiupi.screenCast.GUI;
 
+import pitiupi.control.ConnectionManager;
+import pitiupi.control.GuiManager;
 import pitiupi.screenCast.control.AlarmClock;
 import pitiupi.screenCast.control.ImageTransformation;
 import pitiupi.screenCast.control.ScreenShot;
@@ -38,10 +40,13 @@ public class ScreenCastWindow extends javax.swing.JFrame {
     public final static int TIME = 1000;
 
     private float compressRatio;
-    private final MainWindow mainWindow;
+    private final ConnectionManager connectionManager;
+    private final GuiManager guiManager;
 
-    public ScreenCastWindow(MainWindow mainWindow) {
-        this.mainWindow = mainWindow;
+    public ScreenCastWindow(ConnectionManager connectionManager, GuiManager guiManager) {
+        this.connectionManager = connectionManager;
+        this.guiManager = guiManager;
+
         this.compressRatio = 0.5f;
         this.initComponents();
     }
@@ -91,18 +96,11 @@ public class ScreenCastWindow extends javax.swing.JFrame {
             BufferedImage image = ScreenShot.takeAShot();
             BufferedImage rescaled = ImageTransformation.resize(image, 1024, 768);
             byte[] byteImage = ImageTransformation.compress(rescaled, compressRatio);
-            ScreenCastMessage message = new ScreenCastMessage(this.mainWindow.getUserName(), byteImage);
-            msg = message.toByteArray();
+            ScreenCastMessage message = new ScreenCastMessage(this.connectionManager.getUserName(), byteImage);
+
+            if (!connectionManager.sendUdpMulticast(message)) this.compressRatio -= 0.1f;
         } catch (AWTException | IOException ex) {
             Logger.getLogger(AlarmClock.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        if (msg != null) {
-            try {
-                this.mainWindow.getSocket().send(msg);
-            } catch (IOException ex) {
-                System.out.println(ex.toString());
-                this.compressRatio -= 0.1f;
-            }
         }
     }
 

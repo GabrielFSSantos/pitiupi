@@ -5,82 +5,93 @@
  */
 package pitiupi.GUI;
 
-import pitiupi.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import pitiupi.control.ConnectionManager;
+import pitiupi.control.GuiManager;
+import pitiupi.control.PluginManager;
+
 import javax.swing.JMenu;
-import pitiupi.control.PluginLoader;
-import pitiupi.plugin.Plugin;
+
 import pitiupi.control.HeartbeatManager;
 
 /**
+ * Janela principal da aplicação.
+ *
+ * <p>Responsável por inicializar a interface gráfica e coordenar os
+ * principais componentes da aplicação, incluindo comunicação de rede,
+ * gerenciamento de heartbeat e carregamento de plugins.</p>
+ *
+ * <p>A instância desta classe é compartilhada com os plugins para permitir
+ * integração com a aplicação principal.</p>
  *
  * @author flavio
  * @author tony
+ * @author Gustavo
  */
 public class MainWindow extends javax.swing.JFrame {
 
-    private final MenuBar menuBar;
-    private javax.swing.JScrollPane jScrollPane1;
+    private MenuBar menuBar;
     private javax.swing.JLabel status;
-    private javax.swing.JPanel statusPanel;
-    private javax.swing.JTabbedPane tabbedPane;
 
-    private HeartbeatManager heartbeatManager;
-    private OnlineUsersPanel onlineUsersPanel;
+    private final ConnectionManager connectionManager;
+    private final PluginManager pluginManager;
+    private final GuiManager guiManager;
 
 
-    private Socket socket;
-
-    private String userName;
-    private  int port;
-
-    private PluginLoader pluginManager;
-    private final List<Plugin> plugins;
-
-    
+    /**
+     * Cria a janela principal da aplicação.
+     *
+     * @param userName nome utilizado para identificação na rede.
+     * @param port porta utilizada na comunicação multicast.
+     */
     public MainWindow(String userName, int port) {
-        this.userName = userName;
-        this.port = port;
-        this.menuBar = new MenuBar(this);
-        this.plugins = new ArrayList<>();
-        this.initComponents();
+        initMenu();
+
+        pluginManager = new PluginManager(this);
+
+        connectionManager = new ConnectionManager(this, userName, pluginManager, port);
+        guiManager = new GuiManager(this);
+
+        initUserPanel();
+        initStatusPanel();
+
+        loadPlugins();
+
+        this.pack();
+
+        this.setSize(new java.awt.Dimension(1024, 768));
     }
 
-    private void initComponents() {
+    private void initMenu() {
+        menuBar = new MenuBar(this);
+
         this.setJMenuBar(menuBar);
         this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         this.setTitle("Share My Sheet");
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tabbedPane = new javax.swing.JTabbedPane();
-        statusPanel = new javax.swing.JPanel();
-        status = new javax.swing.JLabel();
+        javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
+        javax.swing.JTabbedPane tabbedPane = new javax.swing.JTabbedPane();
 
         jScrollPane1.setViewportView(tabbedPane);
-        statusPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
-        status.setText("Connected on port " + this.port + " name " + this.userName);
-        statusPanel.add(status);
 
         this.getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
-        this.getContentPane().add(statusPanel, java.awt.BorderLayout.PAGE_END);
-
-        this.pack();
-
-        this.socket = new Socket(this);
-        this.socket.start();
-
-        this.heartbeatManager = new HeartbeatManager(this);
-        this.onlineUsersPanel = new OnlineUsersPanel();
-        this.heartbeatManager.addPeerListener(this.onlineUsersPanel);
-        this.getContentPane().add(this.onlineUsersPanel, java.awt.BorderLayout.LINE_END);
-        this.heartbeatManager.start();
-
-        this.setSize(new java.awt.Dimension(1024, 768));
-        this.pluginManager = new PluginLoader(this);
-        this.pluginManager.loadPlugins();
     }
 
+    private void initUserPanel() {
+        OnlineUsersPanel onlineUsersPanel = new OnlineUsersPanel();
+        this.connectionManager.addPeerListener(onlineUsersPanel);
+        this.getContentPane().add(onlineUsersPanel, java.awt.BorderLayout.LINE_END);
+    }
+
+    private void initStatusPanel() {
+        javax.swing.JPanel statusPanel = new javax.swing.JPanel();
+        status = new javax.swing.JLabel();
+
+        statusPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
+        updateStatus();
+        statusPanel.add(status);
+
+        this.getContentPane().add(statusPanel, java.awt.BorderLayout.PAGE_END);
+    }
 
     public void exit() {
         this.setVisible(false);
@@ -88,51 +99,24 @@ public class MainWindow extends javax.swing.JFrame {
         System.exit(0);
     }
 
-    public HeartbeatManager getHeartbeatManager() {
-        return heartbeatManager;
+    public ConnectionManager getConnectionManager() {
+        return connectionManager;
     }
 
-    public String getUserName(){
-        return this.userName;
+    public void loadPlugins() {
+        pluginManager.loadPlugins(connectionManager, guiManager);
     }
-    
+
     public void addMenu(JMenu menu) {
         this.menuBar.addPlugin(menu);
     }
-
-    public int getPort() {
-        return this.port;
-    }
-
-    public Socket getSocket() {
-        return this.socket;
-    }
-
-    public List<Plugin> getPlugins() {
-        return plugins;
-    }
-
     public void setUserName(String userName) {
-        this.userName = userName;
-        updateStatus();
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-        reconnect();
+        connectionManager.setUserName(userName);
         updateStatus();
     }
 
     private void updateStatus() {
-        this.status.setText("Connected on port " + this.port + " name " + this.userName);
-    }
-
-    private void reconnect() {
-        if (this.socket != null) {
-            this.socket.close();
-        }
-        this.socket = new Socket(this);
-        this.socket.start();
+        this.status.setText("Connected on port " + connectionManager.getUserPort() + " name " + connectionManager.getUserName());
     }
 
 }

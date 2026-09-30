@@ -16,6 +16,10 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 
 /**
+ * Janela de preferencias da aplicação.
+ *
+ * <p>Permite ao usuário informar o nome utilizado na rede e a porta
+ * multicast que será utilizada pela comunicação.</p>
  *
  * @author flavio
  * @author tony
@@ -43,7 +47,6 @@ public final class Login extends JDialog {
 
     public void initComponents() {
         this.setTitle("Login");
-
 
         String nomeSalvo = prefs.get(PREF_NOME, System.getProperty("user.name"));
         int portaSalva = prefs.getInt(PREF_PORTA, 8000);

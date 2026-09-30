@@ -1,5 +1,10 @@
 package pitiupi.net;
+
 /**
+ * Mensagem utilizada para sinalizar a presença de um usuário na rede.
+ *
+ * <p>É enviada periodicamente para permitir que a aplicação identifique
+ * usuários ativos e mantenha o controle dos participantes conectados.</p>
  *
  * @author tony
  */

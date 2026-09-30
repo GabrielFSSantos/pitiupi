@@ -2,6 +2,11 @@ package pitiupi.control;
 
 import java.net.InetAddress;
 /**
+ * Representa um usuário identificado na rede e as informações necessárias
+ * para acompanhar sua presença através de mensagens de heartbeat.
+ *
+ * <p>Armazena o nome do usuário, seu endereço de rede e o instante da
+ * última mensagem recebida.</p>
  *
  * @author tony
  */
@@ -29,6 +34,11 @@ public class PeerInfo {
         return lastSeen;
     }
 
+    /**
+     * Atualiza o instante da última atividade do usuário.
+     *
+     * @param timestamp novo instante de atividade.
+     */
     public void touch(long timestamp) {
         this.lastSeen = timestamp;
     }

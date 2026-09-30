@@ -8,3 +8,5 @@
 
 # JARs gerados
 *.jar
+
+.idea/

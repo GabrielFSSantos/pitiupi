@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import pitiupi.chat.net.ChatMessage;
 import pitiupi.GUI.MainWindow;
+import pitiupi.control.ConnectionManager;
 import pitiupi.net.Message;
 
 /**
@@ -29,10 +30,10 @@ public class ChatWindow extends javax.swing.JDialog {
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTextArea jTextArea1;
 
-    private final MainWindow mainWindow;
+    private final ConnectionManager connectionManager;
 
-    public ChatWindow(MainWindow mainWindow) {
-        this.mainWindow = mainWindow;
+    public ChatWindow(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
         initComponents();
     }
 
@@ -91,20 +92,16 @@ public class ChatWindow extends javax.swing.JDialog {
     }
 
     private void sendMessage() {
-        if (jTextArea1.getText().trim().length() == 0) {
+        if (jTextArea1.getText().trim().isEmpty()) {
             return;
         }
-        ChatMessage message = new ChatMessage(mainWindow.getUserName(), jTextArea1.getText());
+        ChatMessage message = new ChatMessage(connectionManager.getUserName(), jTextArea1.getText());
         this.sendChatMessage(message);
         jTextArea1.setText("");
     }
 
     public void sendChatMessage(Message message) {
-        try {
-            mainWindow.getSocket().send(message.toByteArray());
-        } catch (IOException ex) {
-            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        connectionManager.sendUdpMulticast(message);
     }
 
     public void receiveChatMessage(ChatMessage message) {
