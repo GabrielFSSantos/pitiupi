@@ -65,7 +65,7 @@ class TcpConnectionManager implements PeerListener {
      */
     public void addPrivateConnection(TcpConnection connection) {
         List<TcpConnection> connections =
-                privateConnections.computeIfAbsent(connection.getAddress(), _ -> new ArrayList<>());
+                privateConnections.computeIfAbsent(connection.getAddress(), e -> new ArrayList<>());
 
         synchronized (connections) {
             connections.add(connection);

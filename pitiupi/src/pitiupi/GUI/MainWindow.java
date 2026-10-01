@@ -116,7 +116,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private void updateStatus() {
-        this.status.setText("Connected on port " + connectionManager.getUserPort() + " name " + connectionManager.getUserName());
+        this.status.setText("Connected on port " + connectionManager.getPort() + " name " + connectionManager.getUserName());
     }
 
 }

@@ -13,12 +13,12 @@ public class ChatMenu extends JMenu {
         this.setText("MP-Chat");
 
         JMenuItem startPrivateChat = new JMenuItem("start Private Chat");
-        startPrivateChat.addActionListener(_ -> showPrivateChatDialog());
+        startPrivateChat.addActionListener(e -> showPrivateChatDialog());
         this.add(startPrivateChat);
     }
 
     public void newMenuItem(JMenuItem newMenuItem, ChatWindow chatWindow) {
-        newMenuItem.addActionListener(_ -> chatWindow.setVisible(true));
+        newMenuItem.addActionListener(e -> chatWindow.setVisible(true));
 
         this.add(newMenuItem);
     }

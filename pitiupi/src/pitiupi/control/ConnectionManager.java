@@ -56,7 +56,7 @@ public class ConnectionManager {
         try {
             socketUDP.sendMulticast(message);
             return true;
-        } catch (Exception _) {
+        } catch (Exception e) {
             System.err.println("Error sending UDP Multicast");
         }
         return false;

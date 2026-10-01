@@ -14,9 +14,8 @@ public class PrivateChatWindow extends ChatWindow {
     private final TcpConnection connection;
 
     public PrivateChatWindow(ConnectionManager ConnectionManager, TcpConnection connection) {
-        this.connection = connection;
-
         super(ConnectionManager);
+	this.connection = connection;
     }
 
     @Override
