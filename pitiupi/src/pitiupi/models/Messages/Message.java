@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pitiupi.model.Messages;
+package pitiupi.models.Messages;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,6 +24,19 @@ import java.io.Serializable;
  * @author flavio
  */
 public abstract class Message implements Serializable{
+    private boolean isPublic;
+
+    protected Message(){
+        isPublic = true;
+    }
+
+    protected Message(boolean isPublic){
+        this.isPublic = isPublic;
+    }
+
+    public boolean isPublic(){
+        return isPublic;
+    }
 
     /**
      * Serializa a mensagem para um vetor de bytes.

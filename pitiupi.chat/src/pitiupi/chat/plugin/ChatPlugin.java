@@ -4,46 +4,43 @@
  */
 package pitiupi.chat.plugin;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import pitiupi.GUI.MainWindow;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import pitiupi.chat.GUI.ChatMenu;
 import pitiupi.chat.GUI.ChatWindow;
 import pitiupi.chat.net.ChatMessage;
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.GuiManager;
-import pitiupi.net.Message;
-import pitiupi.plugin.Plugin;
+import pitiupi.models.Menus.MenuCategory;
+import pitiupi.models.Messages.Message;
+import pitiupi.models.Plugin;
 
 /**
  *
  * @author flavio
  */
-public class ChatPlugin implements Plugin {
+public class ChatPlugin extends Plugin {
 
     private ChatWindow chatWindow;
-
-    public ChatPlugin() {
-    }
 
     @Override
     public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager) {
         this.chatWindow = new ChatWindow(connectionManager);
-        guiManager.addMenu(new ChatMenu(chatWindow));
+        guiManager.createMenu(MenuCategory.Social, new ChatMenu(chatWindow));
     }
 
     @Override
-    public void receiveMessage(byte[] message) {
-        ByteArrayInputStream bis = new ByteArrayInputStream(message);
-        ObjectInputStream ois;
-        try {
-            ois = new ObjectInputStream(bis);
-            if (ois.readObject() instanceof ChatMessage msg) {
-                this.chatWindow.receiveChatMessage(msg);
-            }
-        } catch (IOException | ClassNotFoundException ex) {
-            System.out.println(ex.toString());
+    public List<Class<? extends Message>> getMessages() {
+        return List.of(ChatMessage.class);
+    }
+
+
+    @Override
+    public void receiveMessage(Message message) {
+        if (message instanceof ChatMessage msg) {
+            this.chatWindow.receiveChatMessage(msg);
         }
     }
 
@@ -67,8 +64,5 @@ public class ChatPlugin implements Plugin {
         return "Pitiupi.Chat.Example";
     }
 
-    @Override
-    public Message getMessage() {
-        return new ChatMessage();
-    }
+
 }

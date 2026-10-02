@@ -1,6 +1,6 @@
 package pitiupi.net.tcp;
 
-import pitiupi.model.Messages.Message;
+import pitiupi.models.Messages.Message;
 
 class HandshakeMessage extends Message {
     private final boolean isPrivate;

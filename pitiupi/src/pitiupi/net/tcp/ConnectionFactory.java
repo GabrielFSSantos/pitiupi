@@ -1,8 +1,8 @@
 package pitiupi.net.tcp;
 
-import pitiupi.model.Messages.Message;
-import pitiupi.model.Messages.InfoMessage;
-import pitiupi.model.Messages.InfoType;
+import pitiupi.models.Messages.Message;
+import pitiupi.models.Messages.InfoMessage;
+import pitiupi.models.Messages.InfoType;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

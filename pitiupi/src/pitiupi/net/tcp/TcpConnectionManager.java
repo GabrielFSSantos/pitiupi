@@ -1,9 +1,9 @@
 package pitiupi.net.tcp;
 
-import pitiupi.model.Messages.InfoType;
-import pitiupi.model.User;
+import pitiupi.models.Messages.InfoType;
+import pitiupi.models.User;
 import pitiupi.control.PeerListener;
-import pitiupi.model.Messages.InfoMessage;
+import pitiupi.models.Messages.InfoMessage;
 
 import java.io.IOException;
 import java.net.InetAddress;

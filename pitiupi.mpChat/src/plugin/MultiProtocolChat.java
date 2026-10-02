@@ -5,9 +5,9 @@ import control.ChatController;
 import net.MpChatMessage;
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.GuiManager;
-import pitiupi.net.Message;
+import pitiupi.models.Messages.Message;
 import pitiupi.net.tcp.TcpConnection;
-import pitiupi.plugin.PrivateConnectionPlugin;
+import pitiupi.models.Plugin;
 
 import javax.swing.*;
 import java.io.ByteArrayInputStream;
@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
 
-public class MultiProtocolChat implements PrivateConnectionPlugin{
+public class MultiProtocolChat extends Plugin {
     ChatController chatController;
     ConnectionManager connectionManager;
     GuiManager guiManager;
@@ -47,7 +47,7 @@ public class MultiProtocolChat implements PrivateConnectionPlugin{
 
         ChatMenu chatMenu = new ChatMenu(this);
         chatController = new ChatController(connectionManager, chatMenu);
-        guiManager.addMenu(chatMenu);
+        guiManager.addMulticastMenu(chatMenu);
     }
 
     @Override
@@ -61,23 +61,25 @@ public class MultiProtocolChat implements PrivateConnectionPlugin{
         chatController.receivePublic(mpChatMessage);
     }
 
-
     @Override
-    public void receivePrivateConnection(TcpConnection tcpConnection) {
+    public boolean receivePrivateConnection(TcpConnection connection) {
         SwingUtilities.invokeLater(() -> {
-            chatController.addChatWindow(tcpConnection);
+            chatController.addChatWindow(connection);
         });
+        return true;
     }
 
     @Override
-    public void receiveBytes(TcpConnection connection, byte[] bytes) {
+    public boolean receiveBytes(TcpConnection connection, byte[] bytes) {
         MpChatMessage mpChatMessage = parseMessage(bytes);
         chatController.receivePrivate(connection, mpChatMessage);
+        return true;
     }
 
     @Override
-    public void onSocketClosed(TcpConnection tcpConnection) {
-        chatController.removeChatWindow(tcpConnection);
+    public boolean onSocketClosed(TcpConnection connection) {
+        chatController.removeChatWindow(connection);
+        return true;
     }
 
     public boolean openConnection(String ip) {

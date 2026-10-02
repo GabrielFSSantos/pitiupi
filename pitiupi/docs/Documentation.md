@@ -468,10 +468,10 @@ MeusPlugins
     |
     +---services
         |
-        +---pitiupi.model.Plugin
+        +---pitiupi.models.Plugin
 ```
 
-O arquivo `pitiupi.model.Plugin` deve conter o nome completo das classes que
+O arquivo `pitiupi.models.Plugin` deve conter o nome completo das classes que
 implementam a interface Plugin:
 
 ```

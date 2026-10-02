@@ -1,6 +1,6 @@
 package pitiupi.control;
 
-import pitiupi.model.User;
+import pitiupi.models.User;
 
 import java.util.List;
 

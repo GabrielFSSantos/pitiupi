@@ -1,4 +1,4 @@
-package pitiupi.model;
+package pitiupi.models;
 
 import java.net.InetAddress;
 /**

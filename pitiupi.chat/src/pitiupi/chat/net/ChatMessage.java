@@ -5,14 +5,14 @@
  */
 package pitiupi.chat.net;
 
-import pitiupi.net.Message;
-import pitiupi.net.Message;
+
+import pitiupi.models.Messages.Message;
 
 /**
  *
  * @author flavio
  */
-public class ChatMessage extends Message{
+public class ChatMessage extends Message {
 
     private String text;
     private String name;

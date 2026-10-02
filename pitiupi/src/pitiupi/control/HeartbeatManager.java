@@ -10,8 +10,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import pitiupi.model.User;
-import pitiupi.model.Messages.HeartbeatMessage;
+import pitiupi.models.User;
+import pitiupi.models.Messages.HeartbeatMessage;
 import java.util.UUID;
 /**
  * Gerencia o mecanismo de heartbeat da aplicação.

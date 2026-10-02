@@ -2,12 +2,14 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
-package pitiupi.model;
+package pitiupi.models;
 
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.GuiManager;
-import pitiupi.model.Messages.Message;
+import pitiupi.models.Messages.Message;
 import pitiupi.net.tcp.TcpConnection;
+
+import java.util.List;
 
 /**
  * Interface base para plugins da aplicação.
@@ -18,7 +20,6 @@ import pitiupi.net.tcp.TcpConnection;
  * @author flavio
  */
 public abstract class Plugin {
-
     public abstract String getName();
     public abstract String getAuthor();
     public abstract String getVersion();
@@ -39,7 +40,7 @@ public abstract class Plugin {
      *
      * @return mensagem criada pelo plugin.
      */
-    public abstract Message getMessage();
+    public abstract List<Class<? extends Message>> getMessages();
 
     /**
      * Recebe uma mensagem enviada pela aplicação.
@@ -49,8 +50,9 @@ public abstract class Plugin {
      *
      * @param message mensagem serializada recebida.
      */
-    public abstract void receiveMessage(byte[] message);
+    public abstract void receiveMessage(Message message);
 
+    public boolean receiveAllTypes() {return false;}
     public boolean receivePrivateConnection(TcpConnection connection) {
         return false;
     }

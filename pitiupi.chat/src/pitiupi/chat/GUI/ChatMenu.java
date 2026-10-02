@@ -4,28 +4,29 @@
  */
 package pitiupi.chat.GUI;
 
-import java.awt.event.ActionEvent;
-import javax.swing.JMenu;
+import pitiupi.models.Menus.MulticastMenus.MulticastMenu;
+import pitiupi.models.Menus.MulticastMenus.MulticastSubMenu;
+
+import java.util.List;
 
 /**
  *
  * @author flavio
  */
-public class ChatMenu extends JMenu {
-
-    private final ChatWindow chatWindow;
-    private javax.swing.JMenuItem menuItem;
+public class ChatMenu extends MulticastSubMenu {
+    ChatMulticastMenu chatMulticastMenu;
 
     public ChatMenu(ChatWindow chatWindow) {
-        this.chatWindow = chatWindow;
-        this.setText("Chat");
-        menuItem = new javax.swing.JMenuItem();
-        menuItem.setText("Show Chat Window");
-        menuItem.addActionListener(this::chatMenuActionPerformed);
-        this.add(menuItem);
+        this.chatMulticastMenu = new ChatMulticastMenu(chatWindow);
     }
 
-    private void chatMenuActionPerformed(ActionEvent ae) {
-        this.chatWindow.setVisible(true);
+    @Override
+    public String getText() {
+        return "Chat";
+    }
+
+    @Override
+    public List<MulticastMenu> getMenus() {
+        return List.of(chatMulticastMenu);
     }
 }

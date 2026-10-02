@@ -6,18 +6,21 @@ import GUI.PrivateChatWindow;
 import GUI.PublicChatWindow;
 import net.MpChatMessage;
 import pitiupi.control.ConnectionManager;
+import pitiupi.control.PeerListener;
+import pitiupi.models.User;
 import pitiupi.net.tcp.TcpConnection;
 
 import javax.swing.*;
+import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.List;
 
-public class ChatController {
+public class ChatController implements PeerListener {
     ConnectionManager connectionManager;
     ChatMenu chatMenu;
 
     PublicChatWindow publicChatWindow;
 
-    private final HashMap<TcpConnection, JMenuItem> chatMenus;
     private final HashMap<TcpConnection, ChatWindow>  chatWindows;
 
     public ChatController(ConnectionManager connectionManager, ChatMenu chatMenu) {
@@ -57,5 +60,14 @@ public class ChatController {
     }
     public void receivePrivate(TcpConnection tcpConnection, MpChatMessage message) {
         chatWindows.get(tcpConnection).receiveMessage(message);
+    }
+
+    public void openChatWindow(InetAddress address) {
+
+    }
+
+    @Override
+    public void onPeersChanged(List<User> list) {
+
     }
 }

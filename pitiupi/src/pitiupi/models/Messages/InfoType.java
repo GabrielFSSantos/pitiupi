@@ -1,4 +1,4 @@
-package pitiupi.model.Messages;
+package pitiupi.models.Messages;
 
 public enum InfoType {
     CONNECTION_REJECTED,

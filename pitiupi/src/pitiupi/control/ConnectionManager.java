@@ -1,8 +1,9 @@
 package pitiupi.control;
 
 import pitiupi.GUI.MainWindow;
-import pitiupi.model.Messages.HeartbeatMessage;
-import pitiupi.model.Messages.Message;
+import pitiupi.control.plugins.PluginManager;
+import pitiupi.models.Messages.HeartbeatMessage;
+import pitiupi.models.Messages.Message;
 import pitiupi.net.tcp.SocketTCP;
 import pitiupi.net.tcp.TcpConnection;
 import pitiupi.net.udp.SocketUDP;
@@ -63,7 +64,7 @@ public class ConnectionManager {
     }
 
     public void broadcastLocal(byte[] message) {
-        pluginManager.handlePublicMessage(message);
+        pluginManager.handleMessage(message);
     }
 
     public void addPeerListener(PeerListener peerListener) {

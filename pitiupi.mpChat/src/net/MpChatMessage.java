@@ -1,6 +1,6 @@
 package net;
 
-import pitiupi.net.Message;
+import pitiupi.models.Messages.Message;
 
 public class MpChatMessage extends Message {
     private String nome;

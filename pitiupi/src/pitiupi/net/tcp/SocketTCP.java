@@ -1,10 +1,10 @@
 package pitiupi.net.tcp;
 
 import pitiupi.control.ConnectionManager;
-import pitiupi.control.PluginManager;
-import pitiupi.model.Messages.Message;
-import pitiupi.model.Messages.InfoMessage;
-import pitiupi.model.Messages.InfoType;
+import pitiupi.control.plugins.PluginManager;
+import pitiupi.models.Messages.Message;
+import pitiupi.models.Messages.InfoMessage;
+import pitiupi.models.Messages.InfoType;
 
 import java.io.*;
 import java.net.*;
@@ -304,7 +304,7 @@ public class SocketTCP extends Thread {
                 InfoMessage sysMessage = InfoMessage.parseSystemInfo(bytes);
 
                 if (sysMessage == null) {
-                    pluginManager.handlePublicMessage(bytes);
+                    pluginManager.handleMessage(bytes);
                     continue;
                 }
 
@@ -349,7 +349,7 @@ public class SocketTCP extends Thread {
                 InfoMessage sysMessage = InfoMessage.parseSystemInfo(message);
 
                 if (sysMessage == null) {
-                    pluginManager.handlePrivateMessage(connection, message);
+                    pluginManager.handleMessageFromConnection(connection, message);
                     continue;
                 }
 

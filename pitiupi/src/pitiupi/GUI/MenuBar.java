@@ -5,8 +5,14 @@
  */
 package pitiupi.GUI;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
+import pitiupi.models.Menus.MenuCategory;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Barra de menus principal da aplicação.
@@ -21,12 +27,14 @@ import javax.swing.JMenuBar;
  */
 public class MenuBar extends JMenuBar {
 
-    private javax.swing.JMenuItem setupMenu;
-    private javax.swing.JMenuItem aboutMenu;
-    private javax.swing.JMenu fileMenu;
-    private javax.swing.JMenu helpMenu;
-    private javax.swing.JMenu pluginMenu;
-    private javax.swing.JMenuItem exitMenu;
+    private JMenuItem preferencesMenu;
+    private JMenuItem aboutMenu;
+    private JMenu fileMenu;
+    private JMenu helpMenu;
+    private JMenu pluginMenu;
+    private Map<MenuCategory, JMenu> categories;
+
+    private JMenuItem exitMenu;
     private final MainWindow mainWindow;
 
     /**
@@ -40,42 +48,54 @@ public class MenuBar extends JMenuBar {
     }
 
     private void initComponents() {
-        fileMenu = new javax.swing.JMenu();
-        exitMenu = new javax.swing.JMenuItem();
-        helpMenu = new javax.swing.JMenu();
-        pluginMenu = new javax.swing.JMenu();
-        setupMenu = new javax.swing.JMenuItem();
-        aboutMenu = new javax.swing.JMenuItem();
+        initFileMenu();
+        initPluginMenu();
+        initHelpMenu();
+    }
 
-        fileMenu.setText("File");
-        exitMenu.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
-        exitMenu.setText("Exit");
+    private void initFileMenu() {
+        fileMenu = new JMenu("File");
+        exitMenu = new JMenuItem("Exit");
+
+        exitMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
         exitMenu.addActionListener(this::exitMenuActionPerformed);
         fileMenu.add(exitMenu);
         this.add(fileMenu);
+    }
 
-        pluginMenu.setText("Plugin");
+    private void initPluginMenu() {
+        pluginMenu = new JMenu("Plugin");
+        categories = new HashMap<>();
+
+        for (MenuCategory category : MenuCategory.values()) {
+            JMenu newCategoryMenu = new JMenu(category.toString());
+
+            pluginMenu.add(newCategoryMenu);
+            categories.put(category, newCategoryMenu);
+        }
+
         this.add(pluginMenu);
+    }
 
-        helpMenu.setText("Help");
+    private void initHelpMenu() {
+        helpMenu = new JMenu("Help");
+        preferencesMenu = new JMenuItem("Preferences");
+        aboutMenu = new JMenuItem("About");
 
-        setupMenu.setText("Preferences");
-        setupMenu.addActionListener(this::setupMenuActionPerformed);
-        helpMenu.add(setupMenu);
+        preferencesMenu.addActionListener(this::setupMenuActionPerformed);
+        helpMenu.add(preferencesMenu);
 
-        aboutMenu.setText("About");
         aboutMenu.addActionListener(this::aboutMenuActionPerformed);
         helpMenu.add(aboutMenu);
 
         this.add(helpMenu);
     }
 
-    private void exitMenuActionPerformed(java.awt.event.ActionEvent evt) {
+    private void exitMenuActionPerformed(ActionEvent evt) {
         mainWindow.exit();
     }
 
-
-   private void setupMenuActionPerformed(java.awt.event.ActionEvent evt) {
+   private void setupMenuActionPerformed(ActionEvent evt) {
         Login login = new Login();
         login.setVisible(true);
 
@@ -85,18 +105,13 @@ public class MenuBar extends JMenuBar {
         login.dispose();
     }
 
-    private void aboutMenuActionPerformed(java.awt.event.ActionEvent evt) {
+    private void aboutMenuActionPerformed(ActionEvent evt) {
         About about = new About();
         about.setVisible(true);
     }
 
-    /**
-     * Adiciona um menu fornecido por um plugin à seção de plugins da barra
-     * de menus.
-     *
-     * @param menu menu criado pelo plugin.
-     */
-    public void addPlugin(JMenu menu){
-     this.pluginMenu.add(menu);
+    public void addPluginMenu(MenuCategory category, JMenuItem menu){
+        System.out.println("addPluginMenu");
+        categories.get(category).add(menu);
     }
 }

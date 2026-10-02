@@ -7,11 +7,11 @@ package pitiupi.GUI;
 
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.GuiManager;
-import pitiupi.control.PluginManager;
+import pitiupi.control.plugins.PluginManager;
 
-import javax.swing.JMenu;
+import javax.swing.*;
 
-import pitiupi.control.HeartbeatManager;
+import java.awt.*;
 
 /**
  * Janela principal da aplicação.
@@ -27,15 +27,15 @@ import pitiupi.control.HeartbeatManager;
  * @author tony
  * @author Gustavo
  */
-public class MainWindow extends javax.swing.JFrame {
+public class MainWindow extends JFrame {
 
     private MenuBar menuBar;
-    private javax.swing.JLabel status;
+    private JLabel status;
+    OnlineUsersPanel onlineUsersPanel;
 
     private final ConnectionManager connectionManager;
     private final PluginManager pluginManager;
     private final GuiManager guiManager;
-
 
     /**
      * Cria a janela principal da aplicação.
@@ -47,12 +47,12 @@ public class MainWindow extends javax.swing.JFrame {
         initMenu();
 
         pluginManager = new PluginManager();
-
         connectionManager = new ConnectionManager(this, userName, pluginManager, port);
-        guiManager = new GuiManager(this);
 
         initUserPanel();
         initStatusPanel();
+
+        guiManager = new GuiManager(this, menuBar, onlineUsersPanel);
 
         loadPlugins();
 
@@ -66,7 +66,7 @@ public class MainWindow extends javax.swing.JFrame {
 
         this.setJMenuBar(menuBar);
         this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        this.setTitle("Share My Sheet");
+        this.setTitle("Pitiupi");
 
         javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
         javax.swing.JTabbedPane tabbedPane = new javax.swing.JTabbedPane();
@@ -77,20 +77,20 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private void initUserPanel() {
-        OnlineUsersPanel onlineUsersPanel = new OnlineUsersPanel();
+        onlineUsersPanel = new OnlineUsersPanel();
         this.connectionManager.addPeerListener(onlineUsersPanel);
         this.getContentPane().add(onlineUsersPanel, java.awt.BorderLayout.LINE_END);
     }
 
     private void initStatusPanel() {
-        javax.swing.JPanel statusPanel = new javax.swing.JPanel();
-        status = new javax.swing.JLabel();
+        JPanel statusPanel = new JPanel();
+        status = new JLabel();
 
-        statusPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
+        statusPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         updateStatus();
         statusPanel.add(status);
 
-        this.getContentPane().add(statusPanel, java.awt.BorderLayout.PAGE_END);
+        this.getContentPane().add(statusPanel, BorderLayout.PAGE_END);
     }
 
     public void exit() {
@@ -107,9 +107,6 @@ public class MainWindow extends javax.swing.JFrame {
         pluginManager.loadPlugins(connectionManager, guiManager);
     }
 
-    public void addMenu(JMenu menu) {
-        this.menuBar.addPlugin(menu);
-    }
     public void setUserName(String userName) {
         connectionManager.setUserName(userName);
         updateStatus();

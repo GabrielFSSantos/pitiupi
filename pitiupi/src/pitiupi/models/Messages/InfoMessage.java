@@ -1,4 +1,4 @@
-package pitiupi.model.Messages;
+package pitiupi.models.Messages;
 
 import pitiupi.net.tcp.TcpConnection;
 

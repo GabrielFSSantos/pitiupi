@@ -5,30 +5,28 @@
  */
 package pitiupi.chat.GUI;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import pitiupi.chat.net.ChatMessage;
-import pitiupi.GUI.MainWindow;
 import pitiupi.control.ConnectionManager;
-import pitiupi.net.Message;
+import pitiupi.models.Messages.Message;
+
+import javax.swing.*;
 
 /**
  *
  * @author flavio
  */
-public class ChatWindow extends javax.swing.JDialog {
+public class ChatWindow extends JDialog {
 
-    private javax.swing.JButton jButton1;
-    private javax.swing.JEditorPane jEditorPane1;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JTextArea jTextArea1;
+    private JButton jButton1;
+    private JEditorPane jEditorPane1;
+    private JPanel jPanel1;
+    private JPanel jPanel2;
+    private JScrollPane jScrollPane1;
+    private JScrollPane jScrollPane2;
+    private JSplitPane jSplitPane1;
+    private JTextArea jTextArea1;
 
     private final ConnectionManager connectionManager;
 
@@ -44,23 +42,23 @@ public class ChatWindow extends javax.swing.JDialog {
      */
     private void initComponents() {
 
-        this.setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
+        this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         this.setTitle("Chat Window");
         this.setBounds(new java.awt.Rectangle(0, 0, 800, 600));
         this.getContentPane().setLayout(new java.awt.BorderLayout(5, 5));
         this.setPreferredSize(new java.awt.Dimension(800, 600));
 
-        jSplitPane1 = new javax.swing.JSplitPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jEditorPane1 = new javax.swing.JEditorPane();
-        jPanel1 = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
-        jPanel2 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
+        jSplitPane1 = new JSplitPane();
+        jScrollPane1 = new JScrollPane();
+        jEditorPane1 = new JEditorPane();
+        jPanel1 = new JPanel();
+        jScrollPane2 = new JScrollPane();
+        jTextArea1 = new JTextArea();
+        jPanel2 = new JPanel();
+        jButton1 = new JButton();
 
         jSplitPane1.setDividerLocation(500);
-        jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
         jEditorPane1.setContentType("text/html");
         jPanel1.setLayout(new java.awt.BorderLayout());
         jTextArea1.setColumns(20);

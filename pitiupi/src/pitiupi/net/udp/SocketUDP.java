@@ -14,9 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import pitiupi.control.ConnectionManager;
-import pitiupi.control.PluginManager;
-import pitiupi.model.Messages.HeartbeatMessage;
-import pitiupi.model.Messages.Message;
+import pitiupi.control.plugins.PluginManager;
+import pitiupi.models.Messages.HeartbeatMessage;
+import pitiupi.models.Messages.Message;
 
 /**
  * Gerencia a comunicação UDP multicast e unicast da aplicação.
@@ -157,7 +157,7 @@ public class SocketUDP extends Thread {
                 continue;
             }
 
-            pluginManager.handlePublicMessage(msgPacket.getData());
+            pluginManager.handleMessage(msgPacket.getData());
         }
     }
 
