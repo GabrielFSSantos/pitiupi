@@ -1,4 +1,6 @@
-package pitiupi.net;
+package pitiupi.model.Messages;
+
+import pitiupi.model.Messages.Message;
 
 /**
  * Mensagem utilizada para sinalizar a presença de um usuário na rede.

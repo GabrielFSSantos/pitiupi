@@ -2,12 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
-package pitiupi.plugin;
+package pitiupi.model;
 
-import pitiupi.GUI.MainWindow;
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.GuiManager;
-import pitiupi.net.Message;
+import pitiupi.model.Messages.Message;
 import pitiupi.net.tcp.TcpConnection;
 
 /**
@@ -18,28 +17,29 @@ import pitiupi.net.tcp.TcpConnection;
  *
  * @author flavio
  */
-public interface Plugin {
+public abstract class Plugin {
 
-    public String getName();
-    public String getAuthor();
-    public String getVersion();
-    public String getIdentifier();
+    public abstract String getName();
+    public abstract String getAuthor();
+    public abstract String getVersion();
+    public abstract String getIdentifier();
 
     /**
      * Inicializa o plugin.
      *
      * <p>Este método é chamado pela aplicação após o carregamento do plugin.</p>
      *
-     * @param window janela principal da aplicação.
+     * @param connectionManager interface com o sistema de conexões da aplicação.
+     * @param guiManager interface com a janela principal da aplicação
      */
-    public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager);
+    public abstract void createPlugin(ConnectionManager connectionManager, GuiManager guiManager);
 
     /**
      * Retorna uma mensagem utilizada pelo plugin.
      *
      * @return mensagem criada pelo plugin.
      */
-    public Message getMessage();
+    public abstract Message getMessage();
 
     /**
      * Recebe uma mensagem enviada pela aplicação.
@@ -49,6 +49,15 @@ public interface Plugin {
      *
      * @param message mensagem serializada recebida.
      */
-    public void receiveMessage(byte[] message);
+    public abstract void receiveMessage(byte[] message);
 
+    public boolean receivePrivateConnection(TcpConnection connection) {
+        return false;
+    }
+    public boolean receiveBytes(TcpConnection connection, byte[] bytes) {
+        return false;
+    }
+    public boolean onSocketClosed(TcpConnection connection) {
+        return false;
+    }
 }

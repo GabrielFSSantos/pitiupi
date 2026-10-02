@@ -9,7 +9,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import pitiupi.control.PeerInfo;
+import pitiupi.model.User;
 import pitiupi.control.PeerListener;
 
 /**
@@ -39,10 +39,10 @@ public class OnlineUsersPanel extends JPanel implements PeerListener {
      * @param peers lista atualizada de usuários ativos na rede.
      */
     @Override
-    public void onPeersChanged(List<PeerInfo> peers) {
+    public void onPeersChanged(List<User> peers) {
         SwingUtilities.invokeLater(() -> {
             listModel.clear();
-            for (PeerInfo peer : peers) {
+            for (User peer : peers) {
                 listModel.addElement(peer.toString());
             }
         });

@@ -1,8 +1,8 @@
 package pitiupi.control;
 
 import pitiupi.GUI.MainWindow;
-import pitiupi.net.HeartbeatMessage;
-import pitiupi.net.Message;
+import pitiupi.model.Messages.HeartbeatMessage;
+import pitiupi.model.Messages.Message;
 import pitiupi.net.tcp.SocketTCP;
 import pitiupi.net.tcp.TcpConnection;
 import pitiupi.net.udp.SocketUDP;

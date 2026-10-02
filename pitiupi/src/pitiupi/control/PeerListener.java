@@ -1,5 +1,7 @@
 package pitiupi.control;
 
+import pitiupi.model.User;
+
 import java.util.List;
 
 /**
@@ -17,5 +19,5 @@ public interface PeerListener {
      *
      * @param peers lista atualizada de usuários ativos.
      */
-    void onPeersChanged(List<PeerInfo> peers);
+    void onPeersChanged(List<User> peers);
 }

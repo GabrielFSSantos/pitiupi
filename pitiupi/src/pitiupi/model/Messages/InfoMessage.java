@@ -1,6 +1,6 @@
-package pitiupi.net.tcp;
+package pitiupi.model.Messages;
 
-import pitiupi.net.Message;
+import pitiupi.net.tcp.TcpConnection;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -8,12 +8,11 @@ import java.io.ObjectInputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SysInfoMessage extends Message {
-
-    private final SysInfoType type;
+public class InfoMessage extends Message {
+    private final InfoType type;
     private final String message;
 
-    public SysInfoMessage(String message, SysInfoType type) {
+    public InfoMessage(String message, InfoType type) {
         this.message = message;
         this.type = type;
     }
@@ -22,29 +21,29 @@ public class SysInfoMessage extends Message {
         return message;
     }
 
-    public SysInfoType getType() {
+    public InfoType getType() {
         return type;
     }
 
-    public static void sendSystemInfo(TcpConnection connection, SysInfoType type, String description) {
+    public static void sendSystemInfo(TcpConnection connection, InfoType type, String description) {
         try {
-            SysInfoMessage error = new SysInfoMessage(description, type);
+            InfoMessage error = new InfoMessage(description, type);
             connection.send(error.toByteArray());
         } catch (IOException ex) {
-            Logger.getLogger(SysInfoMessage.class.getName()).log(Level.WARNING, null, ex);
+            Logger.getLogger(InfoMessage.class.getName()).log(Level.WARNING, null, ex);
         }
     }
 
-    public static SysInfoMessage parseSystemInfo(byte[] bytes) {
+    public static InfoMessage parseSystemInfo(byte[] bytes) {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
              ObjectInputStream ois = new ObjectInputStream(bis)) {
 
             Object object = ois.readObject();
-            if (object instanceof SysInfoMessage) {
-                return (SysInfoMessage) object;
+            if (object instanceof InfoMessage) {
+                return (InfoMessage) object;
             }
         } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(SysInfoMessage.class.getName()).log(Level.WARNING, null, ex);
+            Logger.getLogger(InfoMessage.class.getName()).log(Level.WARNING, null, ex);
         }
         return null;
     }

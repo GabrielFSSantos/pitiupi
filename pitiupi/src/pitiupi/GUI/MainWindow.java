@@ -46,7 +46,7 @@ public class MainWindow extends javax.swing.JFrame {
     public MainWindow(String userName, int port) {
         initMenu();
 
-        pluginManager = new PluginManager(this);
+        pluginManager = new PluginManager();
 
         connectionManager = new ConnectionManager(this, userName, pluginManager, port);
         guiManager = new GuiManager(this);

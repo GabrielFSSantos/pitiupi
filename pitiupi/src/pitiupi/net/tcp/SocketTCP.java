@@ -2,8 +2,9 @@ package pitiupi.net.tcp;
 
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.PluginManager;
-import pitiupi.net.Message;
-import pitiupi.plugin.PrivateConnectionPlugin;
+import pitiupi.model.Messages.Message;
+import pitiupi.model.Messages.InfoMessage;
+import pitiupi.model.Messages.InfoType;
 
 import java.io.*;
 import java.net.*;
@@ -273,9 +274,9 @@ public class SocketTCP extends Thread {
         if (pluginManager.handleConnection(connection, connection.getReceiver()))
             privateConnectionReceiver(connection);
         else {
-            SysInfoMessage.sendSystemInfo(
+            InfoMessage.sendSystemInfo(
                     connection,
-                    SysInfoType.RECEIVER_NOT_FOUND,
+                    InfoType.RECEIVER_NOT_FOUND,
                     "This peer does not have the plugin: " + connection.getReceiver()
             );
         }
@@ -300,7 +301,7 @@ public class SocketTCP extends Thread {
             try {
                 byte[] bytes = connection.receive();
 
-                SysInfoMessage sysMessage = SysInfoMessage.parseSystemInfo(bytes);
+                InfoMessage sysMessage = InfoMessage.parseSystemInfo(bytes);
 
                 if (sysMessage == null) {
                     pluginManager.handlePublicMessage(bytes);
@@ -345,7 +346,7 @@ public class SocketTCP extends Thread {
         while (running) {
             try {
                 byte[] message = connection.receive();
-                SysInfoMessage sysMessage = SysInfoMessage.parseSystemInfo(message);
+                InfoMessage sysMessage = InfoMessage.parseSystemInfo(message);
 
                 if (sysMessage == null) {
                     pluginManager.handlePrivateMessage(connection, message);
@@ -390,7 +391,7 @@ public class SocketTCP extends Thread {
                 try (ByteArrayInputStream bis = new ByteArrayInputStream(message);
                      ObjectInputStream ois = new ObjectInputStream(bis)) {
 
-                    SysInfoMessage sysMessage = SysInfoMessage.parseSystemInfo(message);
+                    InfoMessage sysMessage = InfoMessage.parseSystemInfo(message);
                     if (sysMessage != null) continue;
 
                     //TODO: Ainda não existem mensagens trocadas entre o sistema.

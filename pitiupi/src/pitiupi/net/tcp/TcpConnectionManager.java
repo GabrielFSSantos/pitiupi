@@ -1,7 +1,9 @@
 package pitiupi.net.tcp;
 
-import pitiupi.control.PeerInfo;
+import pitiupi.model.Messages.InfoType;
+import pitiupi.model.User;
 import pitiupi.control.PeerListener;
+import pitiupi.model.Messages.InfoMessage;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -99,7 +101,7 @@ class TcpConnectionManager implements PeerListener {
      * @param reason motivo do encerramento que será informado ao peer.
      */
     public void closeConnection(TcpConnection connection, String reason) {
-        SysInfoMessage.sendSystemInfo(connection, SysInfoType.CONNECTION_CLOSED, reason);
+        InfoMessage.sendSystemInfo(connection, InfoType.CONNECTION_CLOSED, reason);
         closeConnection(connection);
     }
 
@@ -153,7 +155,7 @@ class TcpConnectionManager implements PeerListener {
     public void closeByAdress(InetAddress address, String reason) {
         List<TcpConnection> connections = privateConnections.get(address);
         for (TcpConnection connection : connections) {
-            SysInfoMessage.sendSystemInfo(connection, SysInfoType.CONNECTION_CLOSED, reason);
+            InfoMessage.sendSystemInfo(connection, InfoType.CONNECTION_CLOSED, reason);
         }
         closeByAdress(address);
     }
@@ -205,7 +207,7 @@ class TcpConnectionManager implements PeerListener {
     public void closeAllConnections(String reason) {
         for (List<TcpConnection> connections : privateConnections.values()) {
             for (TcpConnection connection : connections) {
-                SysInfoMessage.sendSystemInfo(connection, SysInfoType.CONNECTION_CLOSED, reason);
+                InfoMessage.sendSystemInfo(connection, InfoType.CONNECTION_CLOSED, reason);
             }
         }
         closeAllConnections();
@@ -245,8 +247,8 @@ class TcpConnectionManager implements PeerListener {
      */
 
     @Override
-    public void onPeersChanged(List<PeerInfo> peers) {
-        Set<InetAddress> activePeers = peers.stream().map(PeerInfo::getAddress).collect(Collectors.toSet());
+    public void onPeersChanged(List<User> peers) {
+        Set<InetAddress> activePeers = peers.stream().map(User::getAddress).collect(Collectors.toSet());
 
         for (InetAddress address : publicConnections.keySet()) {
             if (!activePeers.contains(address)) {

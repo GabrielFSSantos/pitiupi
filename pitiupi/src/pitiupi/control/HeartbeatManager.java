@@ -1,6 +1,5 @@
 package pitiupi.control;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +9,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import pitiupi.GUI.MainWindow;
-import pitiupi.net.HeartbeatMessage;
+
+import pitiupi.model.User;
+import pitiupi.model.Messages.HeartbeatMessage;
 import java.util.UUID;
 /**
  * Gerencia o mecanismo de heartbeat da aplicação.
@@ -29,7 +27,7 @@ public class HeartbeatManager {
     private static final long HEARTBEAT_INTERVAL_MS = 5000;
     private static final long PEER_TIMEOUT_MS = 15000; // ~3 batimentos perdidos
     private final ConnectionManager connectionManager;
-    private final Map<String, PeerInfo> peers = new ConcurrentHashMap<>();
+    private final Map<String, User> peers = new ConcurrentHashMap<>();
     private final List<PeerListener> listeners = new CopyOnWriteArrayList<>();
     private ScheduledExecutorService scheduler;
     private final String instanceId = UUID.randomUUID().toString();
@@ -87,7 +85,7 @@ public class HeartbeatManager {
         String key =  msg.getInstanceId();
         boolean isNew = !peers.containsKey(key);
 
-        PeerInfo peer = peers.computeIfAbsent(key, k -> new PeerInfo(msg.getUserName(), from, msg.getTimestamp()));
+        User peer = peers.computeIfAbsent(key, k -> new User(msg.getUserName(), from, msg.getTimestamp()));
         peer.touch(System.currentTimeMillis());
 
         if (isNew) {
@@ -104,7 +102,7 @@ public class HeartbeatManager {
     }
 
     private void notifyListeners() {
-        List<PeerInfo> snapshot = new ArrayList<>(peers.values());
+        List<User> snapshot = new ArrayList<>(peers.values());
         for (PeerListener l : listeners) {
             l.onPeersChanged(snapshot);
         }
@@ -137,7 +135,7 @@ public class HeartbeatManager {
      *
      * @return lista contendo os peers atualmente conhecidos.
      */
-    public List<PeerInfo> getPeers() {
+    public List<User> getPeers() {
         return new ArrayList<>(peers.values());
     }
 }

@@ -5,7 +5,6 @@
  */
 package pitiupi.net.udp;
 
-import pitiupi.GUI.MainWindow;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -16,9 +15,8 @@ import java.util.logging.Logger;
 
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.PluginManager;
-import pitiupi.net.HeartbeatMessage;
-import pitiupi.net.Message;
-import pitiupi.plugin.Plugin;
+import pitiupi.model.Messages.HeartbeatMessage;
+import pitiupi.model.Messages.Message;
 
 /**
  * Gerencia a comunicação UDP multicast e unicast da aplicação.

@@ -1,4 +1,4 @@
-package pitiupi.control;
+package pitiupi.model;
 
 import java.net.InetAddress;
 /**
@@ -10,13 +10,13 @@ import java.net.InetAddress;
  *
  * @author tony
  */
-public class PeerInfo {
+public class User {
 
     private final String userName;
     private final InetAddress address;
     private volatile long lastSeen;
 
-    public PeerInfo(String userName, InetAddress address, long lastSeen) {
+    public User(String userName, InetAddress address, long lastSeen) {
         this.userName = userName;
         this.address = address;
         this.lastSeen = lastSeen;

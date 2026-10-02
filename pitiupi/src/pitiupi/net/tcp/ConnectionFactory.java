@@ -1,6 +1,8 @@
 package pitiupi.net.tcp;
 
-import pitiupi.net.Message;
+import pitiupi.model.Messages.Message;
+import pitiupi.model.Messages.InfoMessage;
+import pitiupi.model.Messages.InfoType;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -152,7 +154,7 @@ public class ConnectionFactory {
             Object object = ois.readObject();
 
             if (object instanceof Message message) {
-                SysInfoMessage sysInfo = SysInfoMessage.parseSystemInfo(bytes);
+                InfoMessage sysInfo = InfoMessage.parseSystemInfo(bytes);
                 if (sysInfo != null) return null;
 
 
@@ -161,25 +163,25 @@ public class ConnectionFactory {
                 }
             }
 
-            SysInfoMessage.sendSystemInfo(
+            InfoMessage.sendSystemInfo(
                     connection,
-                    SysInfoType.CONNECTION_REJECTED,
+                    InfoType.CONNECTION_REJECTED,
                     "The message was not from an allowed type."
             );
         }
         catch (SocketTimeoutException ex) {
-            SysInfoMessage.sendSystemInfo(
+            InfoMessage.sendSystemInfo(
                     connection,
-                    SysInfoType.CONNECTION_REJECTED,
+                    InfoType.CONNECTION_REJECTED,
                     "No handshake was received within the allowed time."
             );
         }
         catch (ClassNotFoundException | IOException ex) {
             Logger.getLogger(ConnectionFactory.class.getName()).log(Level.SEVERE, null, ex);
 
-            SysInfoMessage.sendSystemInfo(
+            InfoMessage.sendSystemInfo(
                     connection,
-                    SysInfoType.INTERNAL_ERROR,
+                    InfoType.INTERNAL_ERROR,
                     "The server could not process the handshake."
             );
         }
@@ -206,17 +208,17 @@ public class ConnectionFactory {
         String receiver = handshake.getReceiver();
 
         if (sender == null || sender.isBlank()) {
-            SysInfoMessage.sendSystemInfo(
+            InfoMessage.sendSystemInfo(
                     connection,
-                    SysInfoType.CONNECTION_REJECTED,
+                    InfoType.CONNECTION_REJECTED,
                     "Invalid Sender: " + sender + "."
             );
             return false;
         }
         if (receiver == null || receiver.isBlank()) {
-            SysInfoMessage.sendSystemInfo(
+            InfoMessage.sendSystemInfo(
                     connection,
-                    SysInfoType.CONNECTION_REJECTED,
+                    InfoType.CONNECTION_REJECTED,
                     "Invalid Receiver: " + receiver + "."
             );
             return false;

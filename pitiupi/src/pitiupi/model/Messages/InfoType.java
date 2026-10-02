@@ -1,6 +1,6 @@
-package pitiupi.net.tcp;
+package pitiupi.model.Messages;
 
-public enum SysInfoType {
+public enum InfoType {
     CONNECTION_REJECTED,
     RECEIVER_NOT_FOUND,
     MESSAGE_REJECTED,
