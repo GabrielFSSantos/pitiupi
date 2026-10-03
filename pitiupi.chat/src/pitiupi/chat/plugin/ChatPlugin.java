@@ -8,28 +8,28 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import pitiupi.plugin.Pitiupi;
 import pitiupi.chat.GUI.ChatMenu;
 import pitiupi.chat.GUI.ChatWindow;
 import pitiupi.chat.net.ChatMessage;
-import pitiupi.control.ConnectionManager;
-import pitiupi.control.GuiManager;
 import pitiupi.models.Menus.MenuCategory;
 import pitiupi.models.Messages.Message;
 import pitiupi.models.Plugin;
 
 /**
- *
+ *@author tony
  * @author flavio
  */
 public class ChatPlugin extends Plugin {
 
     private ChatWindow chatWindow;
 
-    @Override
-    public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager) {
-        this.chatWindow = new ChatWindow(connectionManager);
-        guiManager.createMenu(MenuCategory.Social, new ChatMenu(chatWindow));
+   @Override
+    public void createPlugin(Pitiupi pitiupi) {
+        this.chatWindow = new ChatWindow(pitiupi);
+        pitiupi.createMenu(MenuCategory.Social, new ChatMenu(chatWindow));
     }
+
 
     @Override
     public List<Class<? extends Message>> getMessages() {
