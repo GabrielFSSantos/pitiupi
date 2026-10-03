@@ -55,7 +55,6 @@ public class GuiManager {
             logger.log(Level.WARNING, e.getMessage());
         }
     }
-
     private JMenuItem buildMenu(Menu menu) {
         if (menu instanceof MulticastSubMenu multicastSubMenu) {
             JMenu newMenu = new JMenu(menu.getText());
@@ -63,6 +62,8 @@ public class GuiManager {
             for (Menu child : multicastSubMenu.getMenus()) {
                 newMenu.add(buildMenu(child));
             }
+
+            multicastSubMenu.onMenuBuilt(newMenu);
 
             return newMenu;
         }
