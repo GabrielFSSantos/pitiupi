@@ -8,13 +8,13 @@ package pitiupi.chat.GUI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import pitiupi.chat.net.ChatMessage;
-import pitiupi.control.ConnectionManager;
+import pitiupi.plugin.Pitiupi;
 import pitiupi.models.Messages.Message;
 
 import javax.swing.*;
 
 /**
- *
+ * @author tony
  * @author flavio
  */
 public class ChatWindow extends JDialog {
@@ -28,13 +28,12 @@ public class ChatWindow extends JDialog {
     private JSplitPane jSplitPane1;
     private JTextArea jTextArea1;
 
-    private final ConnectionManager connectionManager;
+    private final Pitiupi pitiupi;
 
-    public ChatWindow(ConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
-        initComponents();
-    }
-
+	public ChatWindow(Pitiupi pitiupi) {
+          this.pitiupi = pitiupi;
+          initComponents();
+	}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -93,13 +92,13 @@ public class ChatWindow extends JDialog {
         if (jTextArea1.getText().trim().isEmpty()) {
             return;
         }
-        ChatMessage message = new ChatMessage(connectionManager.getUserName(), jTextArea1.getText());
+        ChatMessage message = new ChatMessage(pitiupi.getUserName(), jTextArea1.getText());
         this.sendChatMessage(message);
         jTextArea1.setText("");
     }
 
     public void sendChatMessage(Message message) {
-        connectionManager.sendUdpMulticast(message);
+        pitiupi.sendUdpMulticast(message);
     }
 
     public void receiveChatMessage(ChatMessage message) {
