@@ -1,9 +1,3 @@
-/pitiupi/build/
-/pitiupi/dist/
-/pitiupi.chat/build/
-/pitiupi.chat/dist/
-/pitiupi.chat/nbproject/private/
-/pitiupi.screenCast/build/
-/pitiupi.screenCast/dist/
-
-.idea/
+build/
+dist/
+*.class
