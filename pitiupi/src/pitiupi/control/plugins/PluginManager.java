@@ -1,5 +1,6 @@
 package pitiupi.control.plugins;
 
+import pitiupi.plugin.Pitiupi;
 import pitiupi.Main;
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.GuiManager;
@@ -92,6 +93,7 @@ public class PluginManager {
     public void loadPlugins(ConnectionManager connectionManager, GuiManager guiManager) {
         File pluginDir = new File("plugins");
         File[] jarFiles = pluginDir.listFiles((dir, name) -> name.endsWith(".jar"));
+	Pitiupi pitiupi = new Pitiupi(connectionManager, guiManager);
 
         if (jarFiles == null || jarFiles.length == 0) {
             System.out.println("No plugins found in the " + pluginDir.getAbsolutePath() + " directory.");
@@ -118,7 +120,7 @@ public class PluginManager {
                     System.out.println("Loading: " + plugin.getName());
                     LoadedPlugin loadedPlugin = new LoadedPlugin(plugin, classLoader);
 
-                    plugin.createPlugin(connectionManager, guiManager);
+                    plugin.createPlugin(pitiupi);
                     loadedPlugins.add(loadedPlugin);
                     loadedJars.add(file.getName());
                 }
