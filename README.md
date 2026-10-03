@@ -1,9 +1,11 @@
 # pitiupi
 
 Este repositório tem 4 projetos Java que são independentes:
-######## Sistema:
+
+### Sistema:
 - A ferramenta pitiupi (P2P)
-######## Plugins: 
+
+### Plugins: 
 - Um plugin de Chat
 - Um plugin de Chat multiprotocolo (TCP/UDP)
 - Um plugin de ScreenCast
