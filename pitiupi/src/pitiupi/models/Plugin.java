@@ -28,8 +28,7 @@ public abstract class Plugin {
      *
      * <p>Este método é chamado pela aplicação após o carregamento do plugin.</p>
      *
-     * @param connectionManager interface com o sistema de conexões da aplicação.
-     * @param guiManager interface com a janela principal da aplicação
+     * @param pitiupi interface com o sistema de conexões da aplicação.
      */
     public abstract void createPlugin(Pitiupi pitiupi);
 
