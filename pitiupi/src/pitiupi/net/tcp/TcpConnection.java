@@ -60,6 +60,8 @@ public class TcpConnection {
         output.write(message);
         output.flush();
         updateLastActivity();
+
+        System.out.println("TcpConnection enviou uma mensagem de tamanho: " + message.length);
     }
 
     /**
@@ -74,6 +76,8 @@ public class TcpConnection {
      */
     byte[] receive() throws IOException {
         int length = input.readInt();
+
+        System.out.println("TcpConnection recebeu uma mensagem de tamanho: " + length);
 
         if (length < 0) throw new IOException("Invalid message length.");
 

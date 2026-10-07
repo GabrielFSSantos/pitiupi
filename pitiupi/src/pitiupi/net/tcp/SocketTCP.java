@@ -262,6 +262,7 @@ public class SocketTCP extends Thread {
      * @param connection conexão cujo fluxo de entrada será processado.
      */
     private void startReceiver(TcpConnection connection) {
+        System.out.println("Starting TCP connection receiver.");
 
         if (!connection.isPrivate()) {
             publicConnectionReceiver(connection);
@@ -273,8 +274,10 @@ public class SocketTCP extends Thread {
             return;
         }
 
-        if (pluginManager.handleConnection(connection, connection.getReceiver()))
+        if (pluginManager.handleConnection(connection, connection.getReceiver())) {
+            System.out.println("Private connection receiver established.");
             privateConnectionReceiver(connection);
+        }
         else {
             InfoMessage.sendSystemInfo(
                     connection,
@@ -348,6 +351,7 @@ public class SocketTCP extends Thread {
         while (running) {
             try {
                 byte[] message = connection.receive();
+                System.out.println("Um plugin recebeu uma mensagem");
                 InfoMessage sysMessage = InfoMessage.parseSystemInfo(message);
 
                 if (sysMessage == null) {
