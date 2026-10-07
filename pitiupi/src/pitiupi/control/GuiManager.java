@@ -30,6 +30,18 @@ public class GuiManager {
     }
 
     public void createMenu(MenuCategory category, Menu menu) {
+        System.out.println(
+                menu.getClass().getSuperclass().getSuperclass()
+        );
+
+        System.out.println(
+                MulticastMenu.class
+        );
+
+        System.out.println(
+                menu.getClass().getSuperclass().getSuperclass()
+                        == MulticastMenu.class
+        );
         try {
             JMenuItem newMenu = buildMenu(menu);
             if (menu instanceof MulticastMenu) {
@@ -43,6 +55,7 @@ public class GuiManager {
             logger.log(Level.WARNING, e.getMessage());
         }
     }
+
     private JMenuItem buildMenu(Menu menu) {
         if (menu instanceof MulticastSubMenu multicastSubMenu) {
             JMenu newMenu = new JMenu(menu.getText());
