@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="pitiupi.screenCast">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/pitiupi.screenCast/dist/pitiupi.screenCast.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

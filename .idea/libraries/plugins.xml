@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="plugins">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/pitiupi/plugins/pitiupi.screenCast.jar!/" />
+      <root url="jar://$PROJECT_DIR$/pitiupi/plugins/pitiupi.chat.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

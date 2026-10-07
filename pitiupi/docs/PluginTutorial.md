@@ -1,42 +1,92 @@
 # Como criar plugins para o Pitiupi
 
-Aqui será discutido os métodos e classes que um desenvolvedor pode ou deve usar para criar um plugin para a plataforma Pitiupi. 
+Aqui serão discutidos os métodos e classes que um desenvolvedor pode ou deve usar para criar um plugin para a plataforma Pitiupi.
 
 Alguns deles estarão marcados com um <span style="color: red;">[REF]</span>, isso indica que eles estão sendo alterados para a versão 3.0 e deixarão de existir ou vão mudar consideravelmente.
 
 ## GUI
 
-O pitiupi é feito usando a biblioteca Swing do Java, por isso é altamente recomendado que os plugins também a utilizem na hora de criar sua interface gráfica, porém não é obrigatório.
+O Pitiupi é feito usando a biblioteca Swing do Java, por isso é altamente recomendado que os plugins também a utilizem na hora de criar sua interface gráfica, porém não é obrigatório.
+
+## Como tornar o seu plugin visível para o Pitiupi
+
+A busca por plugins é realizada em três etapas pelo pitiupi:
+
+1. Encontra todos os jars em `plugins`.
+2. Verifica o `META-INF` dos jars para saber onde estão as implementações da classe `Plugin`.
+3. Carrega o plugin no sistema.
+
+Em relação ao `META-INF`, ele deve conter um diretório `resources` e dentro dele um arquivo contendo o nome completamente qualificado da classe `Plugin` do pitiupi: 	`pitiupi.models.Plugin`, por fim dentro desse arquivo você deve colocar o nome completamente qualificado de todas as classes que implementam `Plugin` do seu projeto, um em cada linha.
+
+```
+build/
+   |---->META-INF/resources/pitiupi.models.Plugin
+   |---->MeusPlugins/...
+   |---->MinhasMensagens/...
+   |---->Restante dos .class  
+```
+
+
+```
+src/MeusPlugins/MeuPrimeiroPlugin
+src/MeusPlugins/MeuSegundoPlugin
+...
+```
+
+### Dicas
+
+- Faça um makefile que automaticamente mova o META-INF para o build/ quando você compilar uma nova versão caso ele esteja sendo alterado com frequência.
+Ex:
+```
+JAR = ../pitiupi/dist/pitiupi.jar
+BUILD_DIR = build
+META-INF_DIR = src/META-INF
+DIST = dist/mpChat.jar
+
+SOURCES = $(shell find -name "*.java")
+
+all:
+	mkdir -p "$(BUILD_DIR)"
+	mkdir -p "$(dir $(DIST))"
+	javac -cp "$(JAR)" -d "$(BUILD_DIR)" $(SOURCES)
+	cp -r "$(META-INF_DIR)" "$(BUILD_DIR)"
+	jar cf "$(DIST)" -C "$(BUILD_DIR)" .
+
+clean:
+	rm -rf "$(BUILD_DIR)"/*
+```
+
+- Para a versão 3.0 será necessário fazer o mesmo processo para as implementações da classe `Message`, então se quiser deixar preparado para a nova versão adicione `pitiupi.models.Messages.Message` em `resources` e coloque nele todas suas implementações de `Message`, assim como você fez para os de `Plugin`.
 
 ## Pitiupi
 
 A classe `Pitiupi` é a interface que o seu plugin vai receber quando for criado, ela fornece os métodos necessários para interagir com a interface gráfica e comunicação para outros peers.
 
-### sendUdpMulticast(Message message)
+###  boolean sendUdpMulticast(Message message)
 
 Envia uma mensagem multicast, retorna `boolean` indicando se teve sucesso.
 
-### sendUdpUnicast(Message message, InetAddress address)
+### boolean sendUdpUnicast(Message message, InetAddress address)
 
 Envia uma mensagem unicast via udp para o endereço fornecido, retorna `boolean` indicando se teve sucesso.
 
-### sendTcp(Message message, InetAddress address)
+### boolean sendTcp(Message message, InetAddress address)
 
 Envia uma mensagem unicast via tcp para o endereço fornecido, retorna `boolean` indicando se teve sucesso.
 
-### <span style="color: red;">[REF]</span> connectTcp(InetAddress address, String senderId, String receiverId)
+### <span style="color: red;">[REF]</span> TcpConnection connectTcp(InetAddress address, String senderId, String receiverId)
 
 Pede uma conexão tcp privada para o seu plugin com outro usuário, para utilizar essa funcionalidade é necessário implementar alguns métodos opcionais em Plugin. Maisinformações serão discutidas na seção TcpConnection.
 
-### getUserName()
+### String getUserName()
 
 Retorna o nome do usuário conectado
 
-### getPort()
+### int getPort()
 
 Retorna a porta que o usuário está usando o Pitiupi
 
-### createMenu(MenuCategory category, Menu menu)
+### void createMenu(MenuCategory category, Menu menu)
 
 Adiciona um menu ao pitiupi, category define em qual das categoria de Menus ele será adicionado: Jogos, Social, Streaming.
 
