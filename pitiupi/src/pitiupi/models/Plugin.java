@@ -3,9 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
 package pitiupi.models;
-
-import pitiupi.control.ConnectionManager;
-import pitiupi.control.GuiManager;
+import pitiupi.plugin.Pitiupi;
 import pitiupi.models.Messages.Message;
 import pitiupi.net.tcp.TcpConnection;
 
@@ -30,10 +28,9 @@ public abstract class Plugin {
      *
      * <p>Este método é chamado pela aplicação após o carregamento do plugin.</p>
      *
-     * @param connectionManager interface com o sistema de conexões da aplicação.
-     * @param guiManager interface com a janela principal da aplicação
+     * @param pitiupi interface com o sistema de conexões da aplicação.
      */
-    public abstract void createPlugin(ConnectionManager connectionManager, GuiManager guiManager);
+    public abstract void createPlugin(Pitiupi pitiupi);
 
     /**
      * Retorna uma mensagem utilizada pelo plugin.
