@@ -40,6 +40,8 @@ public class TcpConnection {
         this.input = new DataInputStream(socket.getInputStream());
         this.output = new DataOutputStream(socket.getOutputStream());
         this.address = socket.getInetAddress();
+        if (address != null) System.out.println("TcpConnection: " + address);
+        else System.out.println("Adress: Null");
         this.lastActivity = System.currentTimeMillis();
         this.timeout = 300_000; // 5 minutos
     }

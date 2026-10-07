@@ -1,25 +1,26 @@
 package GUI;
 
+import control.PrivateChatController;
 import pitiupi.models.Menus.UnicastMenus.UnicastActionMenu;
 import pitiupi.models.User;
-import plugin.MultiProtocolChat;
-
-import javax.swing.*;
 
 public class UnicastMpChatMenu extends UnicastActionMenu {
-    private final MultiProtocolChat multiProtocolChat;
 
-    public UnicastMpChatMenu(MultiProtocolChat multiProtocolChat) {
-        this.multiProtocolChat = multiProtocolChat;
+    private final PrivateChatController controller;
+
+    public UnicastMpChatMenu(
+            PrivateChatController controller
+    ) {
+        this.controller = controller;
     }
 
     @Override
     public void onClick(User user) {
-        multiProtocolChat.openConnection(user.getAddress().toString());
+        controller.openChat(user);
     }
 
     @Override
     public String getText() {
-        return "start Private Chat";
+        return "Start Private Chat";
     }
 }

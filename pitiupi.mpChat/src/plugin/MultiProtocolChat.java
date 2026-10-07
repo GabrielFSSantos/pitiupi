@@ -4,6 +4,7 @@ import GUI.MulticastMpChatMenu;
 import GUI.PrivateChatWindow;
 import GUI.PublicChatWindow;
 import GUI.UnicastMpChatMenu;
+import control.PrivateChatController;
 import net.MpChatMessage;
 import pitiupi.models.Menus.MenuCategory;
 import pitiupi.models.Messages.Message;
@@ -21,8 +22,8 @@ import java.util.List;
 public class MultiProtocolChat extends Plugin {
     Pitiupi pitiupi;
 
+    PrivateChatController privateChatController;
     PublicChatWindow publicChatWindow;
-    PrivateChatWindow privateChatWindow;
 
     @Override
     public String getName() {
@@ -48,11 +49,12 @@ public class MultiProtocolChat extends Plugin {
     public void createPlugin(Pitiupi pitiupi) {
         this.pitiupi = pitiupi;
 
+        privateChatController = new PrivateChatController(pitiupi, this);
+
         publicChatWindow = new PublicChatWindow(pitiupi);
-        privateChatWindow = new PrivateChatWindow(pitiupi);
 
         MulticastMpChatMenu multicastMpChatMenu = new MulticastMpChatMenu(publicChatWindow);
-        UnicastMpChatMenu unicastMpChatMenu = new UnicastMpChatMenu(this);
+        UnicastMpChatMenu unicastMpChatMenu = new UnicastMpChatMenu(privateChatController);
 
         pitiupi.createMenu(MenuCategory.Social, multicastMpChatMenu);
         pitiupi.createMenu(MenuCategory.Social, unicastMpChatMenu);
@@ -74,7 +76,7 @@ public class MultiProtocolChat extends Plugin {
     @Override
     public boolean receivePrivateConnection(TcpConnection connection) {
         SwingUtilities.invokeLater(() -> {
-            privateChatWindow.addConnection(connection);
+            privateChatController.connectionReceived(connection);
         });
         return true;
     }
@@ -82,13 +84,13 @@ public class MultiProtocolChat extends Plugin {
     @Override
     public boolean receiveBytes(TcpConnection connection, byte[] bytes) {
         MpChatMessage mpChatMessage = parseMessage(bytes);
-        privateChatWindow.receiveMessage(connection, mpChatMessage);
+        privateChatController.receiveMessage(connection, mpChatMessage);
         return true;
     }
 
     @Override
     public boolean onSocketClosed(TcpConnection connection) {
-        privateChatWindow.removeConnection(connection);
+        privateChatController.closeChat(connection);
         return true;
     }
 

@@ -111,7 +111,6 @@ public class MenuBar extends JMenuBar {
     }
 
     public void addPluginMenu(MenuCategory category, JMenuItem menu){
-        System.out.println("addPluginMenu");
         categories.get(category).add(menu);
     }
 }

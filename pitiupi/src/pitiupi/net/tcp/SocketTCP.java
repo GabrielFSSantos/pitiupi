@@ -66,6 +66,8 @@ public class SocketTCP extends Thread {
         try {
             serverSocket = new ServerSocket(connectionManager.getPort());
             address = InetAddress.getByName(InetAddress.getLocalHost().getHostAddress());
+            if (address != null) System.out.println("SocketTCP: "+ address);
+            else System.out.println("Adress: Null");
         } catch (IOException ex) {
             System.out.println("There is no socket connection. Sorry.");
             System.out.println(ex.toString());
@@ -336,7 +338,7 @@ public class SocketTCP extends Thread {
      * ao plugin destinatário.
      *
      * <p>Dados que não representam mensagens de controle são entregues
-     * diretamente ao {@link PrivateConnectionPlugin}. Mensagens de controle
+     * diretamente ao {@link pitiupi.models.Plugin}. Mensagens de controle
      * relacionadas ao encerramento ou a erros internos provocam a notificação
      * do plugin e o fechamento da conexão.</p>
      *
