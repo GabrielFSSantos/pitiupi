@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Arrays;
 
 /**
  * Representa uma conexão TCP ativa com um peer remoto.
@@ -40,8 +41,6 @@ public class TcpConnection {
         this.input = new DataInputStream(socket.getInputStream());
         this.output = new DataOutputStream(socket.getOutputStream());
         this.address = socket.getInetAddress();
-        if (address != null) System.out.println("TcpConnection: " + address);
-        else System.out.println("Adress: Null");
         this.lastActivity = System.currentTimeMillis();
         this.timeout = 300_000; // 5 minutos
     }
@@ -60,8 +59,6 @@ public class TcpConnection {
         output.write(message);
         output.flush();
         updateLastActivity();
-
-        System.out.println("TcpConnection enviou uma mensagem de tamanho: " + message.length);
     }
 
     /**
@@ -77,11 +74,10 @@ public class TcpConnection {
     byte[] receive() throws IOException {
         int length = input.readInt();
 
-        System.out.println("TcpConnection recebeu uma mensagem de tamanho: " + length);
-
         if (length < 0) throw new IOException("Invalid message length.");
 
         byte[] message = input.readNBytes(length);
+
 
         if (message.length != length) {
             throw new IOException("Connection closed before receiving the complete message.");

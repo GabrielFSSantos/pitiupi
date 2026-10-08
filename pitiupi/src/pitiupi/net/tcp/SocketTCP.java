@@ -66,8 +66,6 @@ public class SocketTCP extends Thread {
         try {
             serverSocket = new ServerSocket(connectionManager.getPort());
             address = InetAddress.getByName(InetAddress.getLocalHost().getHostAddress());
-            if (address != null) System.out.println("SocketTCP: "+ address);
-            else System.out.println("Adress: Null");
         } catch (IOException ex) {
             System.out.println("There is no socket connection. Sorry.");
             System.out.println(ex.toString());
@@ -262,7 +260,6 @@ public class SocketTCP extends Thread {
      * @param connection conexão cujo fluxo de entrada será processado.
      */
     private void startReceiver(TcpConnection connection) {
-        System.out.println("Starting TCP connection receiver.");
 
         if (!connection.isPrivate()) {
             publicConnectionReceiver(connection);
@@ -275,7 +272,6 @@ public class SocketTCP extends Thread {
         }
 
         if (pluginManager.handleConnection(connection, connection.getReceiver())) {
-            System.out.println("Private connection receiver established.");
             privateConnectionReceiver(connection);
         }
         else {
@@ -351,7 +347,6 @@ public class SocketTCP extends Thread {
         while (running) {
             try {
                 byte[] message = connection.receive();
-                System.out.println("Um plugin recebeu uma mensagem");
                 InfoMessage sysMessage = InfoMessage.parseSystemInfo(message);
 
                 if (sysMessage == null) {

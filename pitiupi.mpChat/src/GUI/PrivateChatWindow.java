@@ -91,6 +91,7 @@ public class PrivateChatWindow extends JFrame {
             );
 
             connection.send(message.toByteArray());
+            receiveMessage(message);
 
             messageField.setText("");
 

@@ -178,6 +178,7 @@ public class PublicChatWindow extends JFrame {
             InetAddress ip = InetAddress.getByName(ipField.getText());
 
             pitiupi.sendTcp(msg, ip);
+            receiveMessage(msg);
 
         } catch (Exception ex) {
             Logger.getLogger(
@@ -193,6 +194,7 @@ public class PublicChatWindow extends JFrame {
             InetAddress ip = InetAddress.getByName(ipField.getText());
 
             pitiupi.sendUdpUnicast(msg, ip);
+            receiveMessage(msg);
 
         } catch (Exception ex) {
             Logger.getLogger(

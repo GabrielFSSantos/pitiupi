@@ -84,6 +84,12 @@ public class MultiProtocolChat extends Plugin {
     @Override
     public boolean receiveBytes(TcpConnection connection, byte[] bytes) {
         MpChatMessage mpChatMessage = parseMessage(bytes);
+        if (mpChatMessage == null) {
+            System.out.println("Invalid message received");
+            return true;
+        }
+        else System.out.println(mpChatMessage.getMessage());
+
         privateChatController.receiveMessage(connection, mpChatMessage);
         return true;
     }
