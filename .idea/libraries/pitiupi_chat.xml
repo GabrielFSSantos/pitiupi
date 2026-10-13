@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="pitiupi.chat">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/pitiupi.chat/dist/pitiupi.chat.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
