@@ -60,8 +60,9 @@ public class PluginManager {
 
     private Plugin getPlugin(String pluginId) {
         for (LoadedPlugin loadedPlugin : loadedPlugins) {
-            if (loadedPlugin.getPlugin().getIdentifier().equals(pluginId))
+            if (loadedPlugin.getPlugin().getIdentifier().equals(pluginId)) {
                 return loadedPlugin.getPlugin();
+            }
         }
         return null;
     }
@@ -79,7 +80,7 @@ public class PluginManager {
 
         plugin.receivePrivateConnection(connection);
 
-        return false;
+        return true;
     }
 
     public void handleDisconnection(TcpConnection connection, String receiverId) {
@@ -115,7 +116,6 @@ public class PluginManager {
                 ServiceLoader<Plugin> serviceLoader = ServiceLoader.load(Plugin.class, classLoader);
 
                 for (Plugin plugin : serviceLoader) {
-                    System.out.println("Loading: " + plugin.getName());
                     LoadedPlugin loadedPlugin = new LoadedPlugin(plugin, classLoader);
 
                     plugin.createPlugin(connectionManager, guiManager);

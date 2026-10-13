@@ -271,8 +271,9 @@ public class SocketTCP extends Thread {
             return;
         }
 
-        if (pluginManager.handleConnection(connection, connection.getReceiver()))
+        if (pluginManager.handleConnection(connection, connection.getReceiver())) {
             privateConnectionReceiver(connection);
+        }
         else {
             InfoMessage.sendSystemInfo(
                     connection,
@@ -336,7 +337,7 @@ public class SocketTCP extends Thread {
      * ao plugin destinatário.
      *
      * <p>Dados que não representam mensagens de controle são entregues
-     * diretamente ao {@link PrivateConnectionPlugin}. Mensagens de controle
+     * diretamente ao {@link pitiupi.models.Plugin}. Mensagens de controle
      * relacionadas ao encerramento ou a erros internos provocam a notificação
      * do plugin e o fechamento da conexão.</p>
      *

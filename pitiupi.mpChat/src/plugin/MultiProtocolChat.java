@@ -1,24 +1,29 @@
 package plugin;
 
-import GUI.ChatMenu;
-import control.ChatController;
+import GUI.MulticastMpChatMenu;
+import GUI.PrivateChatWindow;
+import GUI.PublicChatWindow;
+import GUI.UnicastMpChatMenu;
+import control.PrivateChatController;
 import net.MpChatMessage;
-import pitiupi.control.ConnectionManager;
-import pitiupi.control.GuiManager;
+import pitiupi.models.Menus.MenuCategory;
 import pitiupi.models.Messages.Message;
 import pitiupi.net.tcp.TcpConnection;
 import pitiupi.models.Plugin;
+import pitiupi.plugin.Pitiupi;
 
 import javax.swing.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
+import java.util.List;
 
 public class MultiProtocolChat extends Plugin {
-    ChatController chatController;
-    ConnectionManager connectionManager;
-    GuiManager guiManager;
+    Pitiupi pitiupi;
+
+    PrivateChatController privateChatController;
+    PublicChatWindow publicChatWindow;
 
     @Override
     public String getName() {
@@ -41,30 +46,37 @@ public class MultiProtocolChat extends Plugin {
     }
 
     @Override
-    public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager) {
-        this.connectionManager = connectionManager;
-        this.guiManager = guiManager;
+    public void createPlugin(Pitiupi pitiupi) {
+        this.pitiupi = pitiupi;
 
-        ChatMenu chatMenu = new ChatMenu(this);
-        chatController = new ChatController(connectionManager, chatMenu);
-        guiManager.addMulticastMenu(chatMenu);
+        privateChatController = new PrivateChatController(pitiupi, this);
+
+        publicChatWindow = new PublicChatWindow(pitiupi);
+
+        MulticastMpChatMenu multicastMpChatMenu = new MulticastMpChatMenu(publicChatWindow);
+        UnicastMpChatMenu unicastMpChatMenu = new UnicastMpChatMenu(privateChatController);
+
+        pitiupi.createMenu(MenuCategory.Social, multicastMpChatMenu);
+        pitiupi.createMenu(MenuCategory.Social, unicastMpChatMenu);
     }
 
     @Override
-    public Message getMessage() {
-        return new MpChatMessage();
+    public List<Class<? extends Message>> getMessages() {
+        return List.of(MpChatMessage.class);
     }
 
     @Override
-    public void receiveMessage(byte[] message) {
-        MpChatMessage mpChatMessage = parseMessage(message);
-        chatController.receivePublic(mpChatMessage);
+    public void receiveMessage(Message message) {
+        if (message instanceof MpChatMessage mpChatMessage) {
+            publicChatWindow.receiveMessage(mpChatMessage);
+        }
     }
+
 
     @Override
     public boolean receivePrivateConnection(TcpConnection connection) {
         SwingUtilities.invokeLater(() -> {
-            chatController.addChatWindow(connection);
+            privateChatController.connectionReceived(connection);
         });
         return true;
     }
@@ -72,25 +84,29 @@ public class MultiProtocolChat extends Plugin {
     @Override
     public boolean receiveBytes(TcpConnection connection, byte[] bytes) {
         MpChatMessage mpChatMessage = parseMessage(bytes);
-        chatController.receivePrivate(connection, mpChatMessage);
+        if (mpChatMessage == null) {
+            System.out.println("Invalid message received");
+            return true;
+        }
+        else System.out.println(mpChatMessage.getMessage());
+
+        privateChatController.receiveMessage(connection, mpChatMessage);
         return true;
     }
 
     @Override
     public boolean onSocketClosed(TcpConnection connection) {
-        chatController.removeChatWindow(connection);
+        privateChatController.closeChat(connection);
         return true;
     }
 
-    public boolean openConnection(String ip) {
+    public void openConnection(String ip) {
         try {
-            connectionManager.connectPluginTcp(InetAddress.getByName(ip), getIdentifier(), getIdentifier());
-            return true;
+            pitiupi.connectTcp(InetAddress.getByName(ip), getIdentifier(), getIdentifier());
         }
         catch (Exception e) {
             System.out.println("Error opening connection: " + e.getMessage());
         }
-        return false;
     }
 
     private MpChatMessage parseMessage(byte[] bytes) {
