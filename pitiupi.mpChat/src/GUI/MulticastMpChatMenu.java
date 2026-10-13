@@ -2,10 +2,10 @@ package GUI;
 
 import pitiupi.models.Menus.MulticastMenus.MulticastActionMenu;
 
-public class PublicChatMenu extends MulticastActionMenu {
+public class MulticastMpChatMenu extends MulticastActionMenu {
     PublicChatWindow publicChatWindow;
 
-    PublicChatMenu(PublicChatWindow publicChatWindow) {
+    public MulticastMpChatMenu(PublicChatWindow publicChatWindow) {
         this.publicChatWindow = publicChatWindow;
     }
 
@@ -14,8 +14,9 @@ public class PublicChatMenu extends MulticastActionMenu {
         publicChatWindow.setVisible(true);
     }
 
+
     @Override
     public String getText() {
-        return "";
+        return "MP-Chat";
     }
 }

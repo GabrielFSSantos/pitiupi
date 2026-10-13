@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Arrays;
 
 /**
  * Representa uma conexão TCP ativa com um peer remoto.
@@ -76,6 +77,7 @@ public class TcpConnection {
         if (length < 0) throw new IOException("Invalid message length.");
 
         byte[] message = input.readNBytes(length);
+
 
         if (message.length != length) {
             throw new IOException("Connection closed before receiving the complete message.");
