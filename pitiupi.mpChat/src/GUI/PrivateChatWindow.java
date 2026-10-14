@@ -1,8 +1,8 @@
 package GUI;
 
 import net.MpChatMessage;
+import pitiupi.control.ConnectionManager;
 import pitiupi.net.tcp.TcpConnection;
-import pitiupi.plugin.Pitiupi;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,17 +12,17 @@ import java.util.logging.Logger;
 
 public class PrivateChatWindow extends JFrame {
 
-    private final Pitiupi pitiupi;
+    private final ConnectionManager connectionManager;
     private final TcpConnection connection;
 
     private final JTextArea receivedMessagesArea;
     private final JTextField messageField;
 
     public PrivateChatWindow(
-            Pitiupi pitiupi,
+            ConnectionManager connectionManager,
             TcpConnection connection
     ) {
-        this.pitiupi = pitiupi;
+        this.connectionManager = connectionManager;
         this.connection = connection;
 
         setTitle("Chat privado");
@@ -81,7 +81,7 @@ public class PrivateChatWindow extends JFrame {
 
     private void sendTCP() {
         try {
-            String nome = pitiupi.getUserName();
+            String nome = connectionManager.getUserName();
 
             MpChatMessage message = new MpChatMessage(
                     nome,

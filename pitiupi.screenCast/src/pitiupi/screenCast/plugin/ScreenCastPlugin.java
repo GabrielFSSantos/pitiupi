@@ -4,14 +4,13 @@
  */
 package pitiupi.screenCast.plugin;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import pitiupi.GUI.MainWindow;
+import java.util.List;
+
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.GuiManager;
-import pitiupi.net.Message;
-import pitiupi.plugin.Plugin;
+import pitiupi.models.Menus.MenuCategory;
+import pitiupi.models.Messages.Message;
+import pitiupi.models.Plugin;
 import pitiupi.screenCast.GUI.ScreenCastMenu;
 import pitiupi.screenCast.GUI.ScreenCastWindow;
 import pitiupi.screenCast.net.ScreenCastMessage;
@@ -20,7 +19,7 @@ import pitiupi.screenCast.net.ScreenCastMessage;
  *
  * @author flavio
  */
-public class ScreenCastPlugin implements Plugin {
+public class ScreenCastPlugin extends Plugin {
 
     private ScreenCastWindow screenCastWindow;
 
@@ -47,26 +46,18 @@ public class ScreenCastPlugin implements Plugin {
     @Override
     public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager) {
         this.screenCastWindow = new ScreenCastWindow(connectionManager, guiManager);
-        guiManager.addMenu(new ScreenCastMenu(screenCastWindow));
+        guiManager.createMenu(MenuCategory.Social, new ScreenCastMenu(screenCastWindow));
     }
 
     @Override
-    public void receiveMessage(byte[] message) {
-        ByteArrayInputStream bis = new ByteArrayInputStream(message);
-        ObjectInputStream ois;
-        try {
-            ois = new ObjectInputStream(bis);
-            if (ois.readObject() instanceof ScreenCastMessage msg) {
-                this.screenCastWindow.receiveScreenCastMessage(msg);
-            }
-        } catch (IOException | ClassNotFoundException ex) {
-            System.out.println(ex.toString());
+    public List<Class<? extends Message>> getMessages() {
+        return List.of(ScreenCastMessage.class);
+    }
+
+    @Override
+    public void receiveMessage(Message message) {
+        if (message instanceof ScreenCastMessage msg) {
+            this.screenCastWindow.receiveScreenCastMessage(msg);
         }
     }
-
-    @Override
-    public Message getMessage() {
-        return new ScreenCastMessage();
-    }
-
 }

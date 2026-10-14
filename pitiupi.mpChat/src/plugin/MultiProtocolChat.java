@@ -1,16 +1,16 @@
 package plugin;
 
 import GUI.MulticastMpChatMenu;
-import GUI.PrivateChatWindow;
 import GUI.PublicChatWindow;
 import GUI.UnicastMpChatMenu;
 import control.PrivateChatController;
 import net.MpChatMessage;
+import pitiupi.control.ConnectionManager;
+import pitiupi.control.GuiManager;
 import pitiupi.models.Menus.MenuCategory;
 import pitiupi.models.Messages.Message;
-import pitiupi.net.tcp.TcpConnection;
 import pitiupi.models.Plugin;
-import pitiupi.plugin.Pitiupi;
+import pitiupi.net.tcp.TcpConnection;
 
 import javax.swing.*;
 import java.io.ByteArrayInputStream;
@@ -20,7 +20,7 @@ import java.net.InetAddress;
 import java.util.List;
 
 public class MultiProtocolChat extends Plugin {
-    Pitiupi pitiupi;
+    private ConnectionManager connectionManager;
 
     PrivateChatController privateChatController;
     PublicChatWindow publicChatWindow;
@@ -46,18 +46,18 @@ public class MultiProtocolChat extends Plugin {
     }
 
     @Override
-    public void createPlugin(Pitiupi pitiupi) {
-        this.pitiupi = pitiupi;
+    public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager) {
+        this.connectionManager = connectionManager;
 
-        privateChatController = new PrivateChatController(pitiupi, this);
+        privateChatController = new PrivateChatController(connectionManager, this);
 
-        publicChatWindow = new PublicChatWindow(pitiupi);
+        publicChatWindow = new PublicChatWindow(connectionManager);
 
         MulticastMpChatMenu multicastMpChatMenu = new MulticastMpChatMenu(publicChatWindow);
         UnicastMpChatMenu unicastMpChatMenu = new UnicastMpChatMenu(privateChatController);
 
-        pitiupi.createMenu(MenuCategory.Social, multicastMpChatMenu);
-        pitiupi.createMenu(MenuCategory.Social, unicastMpChatMenu);
+        guiManager.createMenu(MenuCategory.Social, multicastMpChatMenu);
+        guiManager.createMenu(MenuCategory.Social, unicastMpChatMenu);
     }
 
     @Override
@@ -102,7 +102,11 @@ public class MultiProtocolChat extends Plugin {
 
     public void openConnection(String ip) {
         try {
-            pitiupi.connectTcp(InetAddress.getByName(ip), getIdentifier(), getIdentifier());
+            connectionManager.connectPluginTcp(
+                    InetAddress.getByName(ip),
+                    getIdentifier(),
+                    getIdentifier()
+            );
         }
         catch (Exception e) {
             System.out.println("Error opening connection: " + e.getMessage());

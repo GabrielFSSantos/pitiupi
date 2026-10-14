@@ -5,7 +5,7 @@
  */
 package pitiupi.screenCast.net;
 
-import pitiupi.net.Message;
+import pitiupi.models.Messages.Message;
 
 /**
  *
@@ -46,7 +46,7 @@ public class ScreenCastMessage extends Message {
     }
 
     /**
-     * @param imageByte the image to set
+     * @param imageByte the imageByte to set
      */
     public void setImageByte(byte[] imageByte) {
         this.imageByte = imageByte;

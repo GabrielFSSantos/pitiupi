@@ -1,9 +1,13 @@
 /pitiupi/build/
 /pitiupi/dist/
+/pitiupi/plugins/*.jar
 /pitiupi.chat/build/
 /pitiupi.chat/dist/
 /pitiupi.chat/nbproject/private/
 /pitiupi.screenCast/build/
 /pitiupi.screenCast/dist/
+/pitiupi.mpChat/out/
+/pitiupi.mpChat/dist/
+**/built-jar.properties
 
 .idea/

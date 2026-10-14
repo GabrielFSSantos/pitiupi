@@ -4,28 +4,49 @@
  */
 package pitiupi.screenCast.GUI;
 
-import java.awt.event.ActionEvent;
-import javax.swing.JMenu;
+import java.util.List;
+
+import pitiupi.models.Menus.MulticastMenus.MulticastActionMenu;
+import pitiupi.models.Menus.MulticastMenus.MulticastMenu;
+import pitiupi.models.Menus.MulticastMenus.MulticastSubMenu;
 
 /**
  *
  * @author flavio
  */
-public class ScreenCastMenu extends JMenu {
+public class ScreenCastMenu extends MulticastSubMenu {
 
-    private final ScreenCastWindow screenCastWindow;
-    private final javax.swing.JMenuItem menuItem;
+    private final ScreenCastShowMenu showMenu;
 
     public ScreenCastMenu(ScreenCastWindow screenCastWindow) {
-        this.screenCastWindow = screenCastWindow;
-        this.setText("Screen Cast");
-        menuItem = new javax.swing.JMenuItem();
-        menuItem.setText("ScreenCast Window");
-        menuItem.addActionListener(this::chatMenuActionPerformed);
-        this.add(menuItem);
+        this.showMenu = new ScreenCastShowMenu(screenCastWindow);
     }
 
-    private void chatMenuActionPerformed(ActionEvent ae) {
-        this.screenCastWindow.setVisible(true);
+    @Override
+    public String getText() {
+        return "Screen Cast";
+    }
+
+    @Override
+    public List<MulticastMenu> getMenus() {
+        return List.of(showMenu);
+    }
+
+    private static final class ScreenCastShowMenu extends MulticastActionMenu {
+        private final ScreenCastWindow screenCastWindow;
+
+        ScreenCastShowMenu(ScreenCastWindow screenCastWindow) {
+            this.screenCastWindow = screenCastWindow;
+        }
+
+        @Override
+        public String getText() {
+            return "ScreenCast Window";
+        }
+
+        @Override
+        public void onClick() {
+            screenCastWindow.setVisible(true);
+        }
     }
 }

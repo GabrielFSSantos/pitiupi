@@ -2,9 +2,9 @@ package control;
 
 import GUI.PrivateChatWindow;
 import net.MpChatMessage;
+import pitiupi.control.ConnectionManager;
 import pitiupi.models.User;
 import pitiupi.net.tcp.TcpConnection;
-import pitiupi.plugin.Pitiupi;
 import plugin.MultiProtocolChat;
 
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class PrivateChatController {
 
-    private final Pitiupi pitiupi;
+    private final ConnectionManager connectionManager;
     private final MultiProtocolChat multiProtocolChat;
 
     /*
@@ -29,14 +29,18 @@ public class PrivateChatController {
     private final Set<String> pendingConnections;
 
     public PrivateChatController(
-            Pitiupi pitiupi,
+            ConnectionManager connectionManager,
             MultiProtocolChat multiProtocolChat
     ) {
-        this.pitiupi = pitiupi;
+        this.connectionManager = connectionManager;
         this.multiProtocolChat = multiProtocolChat;
 
         this.windows = new HashMap<>();
         this.pendingConnections = new HashSet<>();
+    }
+
+    private static String addressKey(TcpConnection connection) {
+        return connection.getAddress().getHostAddress();
     }
 
     public void openChat(User user) {
@@ -70,7 +74,7 @@ public class PrivateChatController {
     }
 
     public void receiveMessage(TcpConnection connection, MpChatMessage message) {
-        String address = connection.getAddress().toString();
+        String address = addressKey(connection);
 
         PrivateChatWindow window = windows.get(address);
 
@@ -85,12 +89,12 @@ public class PrivateChatController {
      * Deve ser chamado quando uma nova conexão privada chegar.
      */
     public void connectionReceived(TcpConnection connection) {
-        String address = connection.getAddress().toString();
+        String address = addressKey(connection);
 
         pendingConnections.remove(address);
 
         PrivateChatWindow window = new PrivateChatWindow(
-                pitiupi,
+                connectionManager,
                 connection
         );
 
@@ -105,7 +109,7 @@ public class PrivateChatController {
      * Fecha a janela e remove o relacionamento.
      */
     public void closeChat(TcpConnection connection) {
-        String address = connection.getAddress().toString();
+        String address = addressKey(connection);
 
         PrivateChatWindow window = windows.remove(address);
 

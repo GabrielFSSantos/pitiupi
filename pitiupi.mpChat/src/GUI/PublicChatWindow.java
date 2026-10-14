@@ -2,7 +2,6 @@ package GUI;
 
 import net.MpChatMessage;
 import pitiupi.control.ConnectionManager;
-import pitiupi.plugin.Pitiupi;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -15,14 +14,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PublicChatWindow extends JFrame {
-    private final Pitiupi pitiupi;
+    private final ConnectionManager connectionManager;
 
     private JTextPane receivedMessagesArea;
     private JTextField messageField;
     private JTextField ipField;
 
-    public PublicChatWindow(Pitiupi pitiupi) {
-        this.pitiupi = pitiupi;
+    public PublicChatWindow(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
 
         initComponents();
     }
@@ -120,7 +119,7 @@ public class PublicChatWindow extends JFrame {
 
     private MpChatMessage createMessage(String tipoMensagem) {
         try {
-            String nome = pitiupi.getUserName();
+            String nome = connectionManager.getUserName();
             String ip = InetAddress.getLocalHost().getHostAddress();
             String message = messageField.getText();
 
@@ -177,7 +176,7 @@ public class PublicChatWindow extends JFrame {
 
             InetAddress ip = InetAddress.getByName(ipField.getText());
 
-            pitiupi.sendTcp(msg, ip);
+            connectionManager.sendTcp(msg, ip);
             receiveMessage(msg);
 
         } catch (Exception ex) {
@@ -193,7 +192,7 @@ public class PublicChatWindow extends JFrame {
 
             InetAddress ip = InetAddress.getByName(ipField.getText());
 
-            pitiupi.sendUdpUnicast(msg, ip);
+            connectionManager.sendUdpUnicast(msg, ip);
             receiveMessage(msg);
 
         } catch (Exception ex) {
@@ -207,7 +206,7 @@ public class PublicChatWindow extends JFrame {
         try {
             MpChatMessage msg = createMessage("UDP Multicast");
 
-            pitiupi.sendUdpMulticast(msg);
+            connectionManager.sendUdpMulticast(msg);
 
         } catch (Exception ex) {
             Logger.getLogger(
