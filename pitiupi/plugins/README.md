@@ -1,18 +1,33 @@
 # Plugins instalados
 
-O núcleo carrega arquivos `.jar` desta pasta ao iniciar (relativo ao diretório de trabalho — execute `java -jar dist/pitiupi.jar` a partir de `pitiupi/`).
+O núcleo carrega **todos os arquivos `.jar`** desta pasta ao iniciar. Execute sempre a partir de `pitiupi/`:
 
-## Desenvolvimento
+```bash
+java -jar dist/pitiupi.jar
+```
 
-Após compilar os módulos de referência, use symlinks (Linux):
+## Pasta única (sem subpastas por categoria)
+
+Os JARs ficam lado a lado em `plugins/`. A divisão **chat / jogo / streaming** aparece no menu **Plugin → Social | Jogos | Streaming**, definida por cada plugin com `MenuCategory` no código.
+
+## Instalação automática (recomendado)
+
+Na raiz do repositório, o catálogo [`plugins.registry.json`](../../plugins.registry.json) lista módulos buildáveis:
+
+```bash
+./scripts/pitiupi.sh link --all
+./scripts/pitiupi.sh build --plugins chat
+```
+
+Symlinks gerados: `plugins/{id}.jar` → `../../{módulo}/{jar}`.
+
+## Manual
 
 ```bash
 cd pitiupi/plugins
-ln -sf ../../pitiupi.chat/dist/pitiupi.chat.jar pitiupi.chat.jar
-ln -sf ../../pitiupi.screenCast/dist/pitiupi.screenCast.jar pitiupi.screenCast.jar
-ln -sf ../../pitiupi.mpChat/dist/mpChat.jar mpChat.jar
+ln -sf ../../pitiupi.chat/dist/pitiupi.chat.jar chat.jar
 ```
 
-Ordem de build: núcleo (`pitiupi`) primeiro, depois cada plugin. Ver [docs/documentation/00_quickstart.md](../../docs/documentation/00_quickstart.md).
+Não commite `.jar` — apenas este README e symlinks locais.
 
-Os JARs gerados não devem ser commitados — apenas este README e symlinks locais.
+Novo módulo: registrar no catálogo e ver [docs/documentation/10_tutorial_plugin.md](../../docs/documentation/10_tutorial_plugin.md).

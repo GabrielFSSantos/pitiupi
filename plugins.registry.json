@@ -1,0 +1,25 @@
+{
+  "plugins": [
+    {
+      "id": "chat",
+      "dir": "pitiupi.chat",
+      "build": "ant",
+      "jar": "dist/pitiupi.chat.jar",
+      "menuCategory": "Social"
+    },
+    {
+      "id": "screencast",
+      "dir": "pitiupi.screenCast",
+      "build": "ant",
+      "jar": "dist/pitiupi.screenCast.jar",
+      "menuCategory": "Streaming"
+    },
+    {
+      "id": "mpchat",
+      "dir": "pitiupi.mpChat",
+      "build": "make",
+      "jar": "dist/mpChat.jar",
+      "menuCategory": "Social"
+    }
+  ]
+}

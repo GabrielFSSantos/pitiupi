@@ -7,8 +7,9 @@ Três exemplos no repositório para comparar estilos de integração. Todos deve
 | | pitiupi.chat | pitiupi.screenCast | pitiupi.mpChat |
 | --- | --- | --- | --- |
 | Build | Ant | Ant | Make |
+| id (`plugins.registry.json`) | `chat` | `screencast` | `mpchat` |
 | Classe | `ChatPlugin` | `ScreenCastPlugin` | `MultiProtocolChat` |
-| Categoria menu | `Social` | (menu custom via `GuiManager`) | `Social` (multicast + unicast) |
+| Categoria menu | `Social` | `Streaming` | `Social` (multicast + unicast) |
 | Mensagem | `ChatMessage` | `ScreenCastMessage` | `MpChatMessage` |
 | Transporte principal | UDP (via `ConnectionManager`) | UDP / payloads maiores | UDP público + **TCP privado** |
 | TCP avançado | Não | Depende da versão do módulo | `receivePrivateConnection`, `receiveBytes` |

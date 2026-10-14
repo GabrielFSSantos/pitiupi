@@ -9,7 +9,13 @@ Não há suíte JUnit integrada ao repositório. A validação principal é:
 
 ## Gate de build (recomendado)
 
-Sequência:
+Na raiz do clone (todos os módulos do catálogo):
+
+```bash
+./scripts/pitiupi.sh build --all
+```
+
+Equivalente manual:
 
 ```bash
 cd pitiupi && ant jar
@@ -18,7 +24,7 @@ cd ../pitiupi.screenCast && ant jar
 cd ../pitiupi.mpChat && make
 ```
 
-Falha se `java`, **`javac`**, Ant ou Make estiverem ausentes (instale `openjdk-*-jdk`, não só JRE).
+Falha se `java`, **`javac`**, Ant, Make ou `python3` estiverem ausentes (instale `openjdk-*-jdk`, não só JRE).
 
 ## Checklist manual (rede)
 

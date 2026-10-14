@@ -2,6 +2,8 @@
 
 ```
 pitiupi/                 # clone (este repositório)
+├── plugins.registry.json  # catálogo de módulos (build/link via scripts/pitiupi.sh)
+├── scripts/pitiupi.sh
 ├── pitiupi/             # núcleo P2P (executável)
 ├── pitiupi.chat/        # plugin referência — chat
 ├── pitiupi.screenCast/  # plugin referência — captura de tela
@@ -27,7 +29,7 @@ Todos dependem do JAR do núcleo no classpath de compilação.
 
 ## O que o aluno cria
 
-Novo diretório irmão, por exemplo `pitiupi.xadrez/`, copiando a estrutura de `pitiupi.chat` (Ant + `META-INF/services`).
+Novo diretório irmão, por exemplo `pitiupi.xadrez/`, copiando a estrutura de `pitiupi.chat` (Ant + `META-INF/services`). Registre o módulo em `plugins.registry.json` e use `MenuCategory` adequado no código.
 
 Não é obrigatório commitar o plugin do aluno neste repositório base; o professor pode definir fork ou entrega em zip.
 

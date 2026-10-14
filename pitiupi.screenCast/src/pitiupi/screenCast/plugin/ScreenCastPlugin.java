@@ -46,7 +46,7 @@ public class ScreenCastPlugin extends Plugin {
     @Override
     public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager) {
         this.screenCastWindow = new ScreenCastWindow(connectionManager, guiManager);
-        guiManager.createMenu(MenuCategory.Social, new ScreenCastMenu(screenCastWindow));
+        guiManager.createMenu(MenuCategory.Streaming, new ScreenCastMenu(screenCastWindow));
     }
 
     @Override

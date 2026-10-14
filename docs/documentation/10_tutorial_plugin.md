@@ -49,16 +49,50 @@ Arquivo `src/META-INF/services/pitiupi.models.Plugin`:
 pacote.MeuPlugin
 ```
 
-## 5. Build e instalação
+## 5. Categoria no menu
+
+Escolha onde o plugin aparece na barra **Plugin**:
+
+| `MenuCategory` | Uso |
+| --- | --- |
+| `Social` | Chat, presença |
+| `Jogos` | Jogos entre peers |
+| `Streaming` | Screen cast, mídia |
+
+Exemplo:
+
+```java
+guiManager.createMenu(MenuCategory.Jogos, new MeuMenu(...));
+```
+
+## 6. Registrar no catálogo
+
+Adicione uma entrada em [`plugins.registry.json`](../../plugins.registry.json) na raiz do repo:
+
+```json
+{
+  "id": "xadrez",
+  "dir": "pitiupi.xadrez",
+  "build": "ant",
+  "jar": "dist/pitiupi.xadrez.jar",
+  "menuCategory": "Jogos"
+}
+```
+
+O `id` é o que você passa para `./scripts/pitiupi.sh run --plugins xadrez`.
+
+## 7. Build e instalação
 
 ```bash
-cd pitiupi.meuPlugin && ant jar
-ln -sf ../../pitiupi.meuPlugin/dist/*.jar ../pitiupi/plugins/
+./scripts/pitiupi.sh build --plugins xadrez
+# ou, manualmente:
+cd pitiupi.xadrez && ant jar
+ln -sf ../../pitiupi.xadrez/dist/pitiupi.xadrez.jar ../pitiupi/plugins/xadrez.jar
 ```
 
 Reinicie o Pitiupi após trocar JARs.
 
-## 6. Teste
+## 8. Teste
 
 Duas instâncias, mesma rede, portas distintas se no mesmo host. Ver [00_quickstart.md](00_quickstart.md).
 
