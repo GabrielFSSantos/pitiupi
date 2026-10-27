@@ -19,5 +19,6 @@
 | D19 | Chat unificado | Um JAR `plugins/chat` com sala geral, peer/IP e TCP privado; mpChat removido do catálogo | [11_plugins_referencia.md](documentation/11_plugins_referencia.md) |
 | D20 | Peer actions por plugin no popup | Lista lateral agrupa ações de todos os plugins (submenus), não só a aba ativa | [09_sistema_de_plugins.md](documentation/09_sistema_de_plugins.md) |
 | D21 | `onShellTabClosed` | Fechar aba do plugin na shell notifica o plugin (ex.: parar screencast) | [09_sistema_de_plugins.md](documentation/09_sistema_de_plugins.md) |
+| D22 | `PeerIpv4` para IP de peer na UI | No Windows, `InetAddress.getHostAddress()` pode devolver IPv6-mapeado e sufixo de zona (`%n`); chat e roteamento usam IPv4 pontilhado | [appendix_portas_e_multicast.md](documentation/appendix_portas_e_multicast.md) |
 
 Novas decisões: adicionar linha nesta tabela e detalhar no arquivo técnico correspondente.
