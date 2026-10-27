@@ -42,8 +42,10 @@ public class InfoMessage extends Message {
             if (object instanceof InfoMessage) {
                 return (InfoMessage) object;
             }
-        } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(InfoMessage.class.getName()).log(Level.WARNING, null, ex);
+        } catch (ClassNotFoundException ex) {
+            // Payload de plugin ou outro tipo — SocketTCP delega ao PluginManager.
+        } catch (IOException ex) {
+            Logger.getLogger(InfoMessage.class.getName()).log(Level.FINE, null, ex);
         }
         return null;
     }
