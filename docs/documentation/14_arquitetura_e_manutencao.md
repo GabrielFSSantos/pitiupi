@@ -4,12 +4,13 @@
 
 | Comportamento | Pacote / classe |
 | --- | --- |
-| Login, porta, nome | `pitiupi.GUI.Login` |
-| Orquestração GUI + plugins | `pitiupi.GUI.MainWindow` |
-| Barra de menus base | `pitiupi.GUI.MenuBar` |
-| Usuários online | `pitiupi.GUI.OnlineUsersPanel`, `HeartbeatManager` |
+| Login, porta, nome | `pitiupi.presentation.shell.LoginDialog` |
+| Shell principal (abas, galeria) | `pitiupi.presentation.shell.MainShellFrame`, `TabWorkspacePanel` |
+| Menu Ajuda | `pitiupi.presentation.shell.ShellMenuBar` |
+| Usuários online, peer actions | `pitiupi.presentation.shell.NetworkUsersPanel`, `PeerActionBroker` |
 | Facade rede para plugins | `pitiupi.control.ConnectionManager` |
-| Registro de menus | `pitiupi.control.GuiManager` |
+| Workspace na aba (SPI) | `pitiupi.api.plugin.PluginWorkspace`, `ShellPluginWorkspace` |
+| Menus legados (adapter) | `pitiupi.control.GuiManager` — deprecado; preferir peer actions |
 | UDP | `pitiupi.net.udp.SocketUDP` |
 | TCP servidor e mapa de conexões | `pitiupi.net.tcp.SocketTCP`, `TcpConnectionManager` |
 | Conexão TCP por peer | `pitiupi.net.tcp.TcpConnection` |
@@ -24,7 +25,7 @@
 ```
 pitiupi (núcleo)
    ↑ classpath
-pitiupi.chat | pitiupi.screenCast | pitiupi.mpChat
+plugins/chat | plugins/screencast
 ```
 
 Plugins **não** devem ser dependência do núcleo.

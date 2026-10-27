@@ -1,8 +1,7 @@
 package pitiupi.control;
 
-import pitiupi.GUI.MainWindow;
-import pitiupi.GUI.MenuBar;
-import pitiupi.GUI.OnlineUsersPanel;
+import pitiupi.presentation.shell.NetworkUsersPanel;
+import pitiupi.presentation.shell.ShellHost;
 import pitiupi.models.Menus.*;
 import pitiupi.models.Menus.MulticastMenus.MulticastActionMenu;
 import pitiupi.models.Menus.MulticastMenus.MulticastMenu;
@@ -16,39 +15,25 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GuiManager {
-    private MainWindow mainWindow;
-    private MenuBar menuBar;
-    private OnlineUsersPanel onlineUsersPanel;
+    private final ShellHost shellHost;
+    private final NetworkUsersPanel networkUsersPanel;
 
     private Logger logger;
 
-    public GuiManager(MainWindow mainWindow, MenuBar menuBar,  OnlineUsersPanel onlineUsersPanel) {
-        this.mainWindow = mainWindow;
-        this.menuBar = menuBar;
-        this.onlineUsersPanel = onlineUsersPanel;
+    public GuiManager(ShellHost shellHost, javax.swing.JMenuBar menuBar, NetworkUsersPanel networkUsersPanel) {
+        this.shellHost = shellHost;
+        this.networkUsersPanel = networkUsersPanel;
         this.logger = Logger.getLogger(GuiManager.class.getName());
     }
 
     public void createMenu(MenuCategory category, Menu menu) {
-        System.out.println(
-                menu.getClass().getSuperclass().getSuperclass()
-        );
-
-        System.out.println(
-                MulticastMenu.class
-        );
-
-        System.out.println(
-                menu.getClass().getSuperclass().getSuperclass()
-                        == MulticastMenu.class
-        );
         try {
             JMenuItem newMenu = buildMenu(menu);
             if (menu instanceof MulticastMenu) {
-                menuBar.addPluginMenu(category, newMenu);
+                // Onda D: ações multicast migram para peer actions / abas (Onda E).
             }
             if (menu instanceof UnicastMenu) {
-                onlineUsersPanel.addUnicastMenu(category, newMenu);
+                networkUsersPanel.addUnicastMenu(category, newMenu);
             }
         }
         catch (IllegalArgumentException e) {
@@ -86,7 +71,7 @@ public class GuiManager {
         if  (menu instanceof UnicastActionMenu unicastActionMenu) {
             JMenuItem newMenu = new JMenuItem(menu.getText());
 
-            onlineUsersPanel.initUnicastMenu(newMenu, unicastActionMenu::onClick);
+            networkUsersPanel.initUnicastMenu(newMenu, unicastActionMenu::onClick);
             return newMenu;
         }
 

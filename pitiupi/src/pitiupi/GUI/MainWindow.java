@@ -8,97 +8,76 @@ package pitiupi.GUI;
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.GuiManager;
 import pitiupi.control.plugins.PluginManager;
+import pitiupi.presentation.shell.NetworkUsersPanel;
+import pitiupi.presentation.shell.ShellHost;
+import pitiupi.presentation.shell.ShellMenuBar;
 
 import javax.swing.*;
-
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
- * Janela principal da aplicação.
- *
- * <p>Responsável por inicializar a interface gráfica e coordenar os
- * principais componentes da aplicação, incluindo comunicação de rede,
- * gerenciamento de heartbeat e carregamento de plugins.</p>
- *
- * <p>A instância desta classe é compartilhada com os plugins para permitir
- * integração com a aplicação principal.</p>
- *
- * @author flavio
- * @author tony
- * @author Gustavo
+ * @deprecated Substituído por {@link pitiupi.presentation.shell.MainShellFrame}.
  */
-public class MainWindow extends JFrame {
+@Deprecated
+public class MainWindow extends JFrame implements ShellHost {
 
-    private MenuBar menuBar;
     private JLabel status;
-    OnlineUsersPanel onlineUsersPanel;
+    private final NetworkUsersPanel networkUsersPanel;
 
     private final ConnectionManager connectionManager;
     private final PluginManager pluginManager;
     private final GuiManager guiManager;
 
-    /**
-     * Cria a janela principal da aplicação.
-     *
-     * @param userName nome utilizado para identificação na rede.
-     * @param port porta utilizada na comunicação multicast.
-     */
     public MainWindow(String userName, int port) {
-        initMenu();
-
         pluginManager = new PluginManager();
-        connectionManager = new ConnectionManager(this, userName, pluginManager, port);
+        connectionManager = new ConnectionManager(userName, pluginManager, port);
 
-        initUserPanel();
+        ShellMenuBar menuBar = new ShellMenuBar();
+        setJMenuBar(menuBar);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setTitle("Pitiupi");
+
+        networkUsersPanel = new NetworkUsersPanel(connectionManager);
+        getContentPane().add(new JScrollPane(new JTabbedPane()), BorderLayout.CENTER);
+        getContentPane().add(networkUsersPanel, BorderLayout.LINE_END);
+
         initStatusPanel();
 
-        guiManager = new GuiManager(this, menuBar, onlineUsersPanel);
+        guiManager = new GuiManager(this, menuBar, networkUsersPanel);
 
         loadPlugins();
 
-        this.pack();
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                exit();
+            }
+        });
 
-        this.setSize(new java.awt.Dimension(1024, 768));
-    }
-
-    private void initMenu() {
-        menuBar = new MenuBar(this);
-
-        this.setJMenuBar(menuBar);
-        this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        this.setTitle("Pitiupi");
-
-        javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
-        javax.swing.JTabbedPane tabbedPane = new javax.swing.JTabbedPane();
-
-        jScrollPane1.setViewportView(tabbedPane);
-
-        this.getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
-    }
-
-    private void initUserPanel() {
-        onlineUsersPanel = new OnlineUsersPanel();
-        this.connectionManager.addPeerListener(onlineUsersPanel);
-        this.getContentPane().add(onlineUsersPanel, java.awt.BorderLayout.LINE_END);
+        pack();
+        setSize(new Dimension(1024, 768));
     }
 
     private void initStatusPanel() {
         JPanel statusPanel = new JPanel();
         status = new JLabel();
-
         statusPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         updateStatus();
         statusPanel.add(status);
-
-        this.getContentPane().add(statusPanel, BorderLayout.PAGE_END);
+        getContentPane().add(statusPanel, BorderLayout.PAGE_END);
     }
 
+    @Override
     public void exit() {
-        this.setVisible(false);
-        this.dispose();
+        connectionManager.shutdownGracefully();
+        setVisible(false);
+        dispose();
         System.exit(0);
     }
 
+    @Override
     public ConnectionManager getConnectionManager() {
         return connectionManager;
     }
@@ -107,13 +86,18 @@ public class MainWindow extends JFrame {
         pluginManager.loadPlugins(connectionManager, guiManager);
     }
 
+    @Override
     public void setUserName(String userName) {
         connectionManager.setUserName(userName);
         updateStatus();
     }
 
-    private void updateStatus() {
-        this.status.setText("Connected on port " + connectionManager.getPort() + " name " + connectionManager.getUserName());
+    @Override
+    public void setStatusMessage(String message) {
+        status.setText(message);
     }
 
+    private void updateStatus() {
+        status.setText("Connected on port " + connectionManager.getPort() + " name " + connectionManager.getUserName());
+    }
 }

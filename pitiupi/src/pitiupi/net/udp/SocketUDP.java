@@ -15,7 +15,9 @@ import java.util.logging.Logger;
 
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.plugins.PluginManager;
+import pitiupi.models.Messages.GoodbyeMessage;
 import pitiupi.models.Messages.HeartbeatMessage;
+import pitiupi.models.Messages.SessionInviteMessage;
 import pitiupi.models.Messages.Message;
 
 /**
@@ -151,9 +153,17 @@ public class SocketUDP extends Thread {
                 throw ex;
             }
 
-            HeartbeatMessage heartbeat = tryParseHeartbeat(msgPacket.getData());
-            if (heartbeat != null) {
+            Object coreMessage = tryParseCoreUdpMessage(msgPacket.getData());
+            if (coreMessage instanceof HeartbeatMessage heartbeat) {
                 connectionManager.receiveHeartbeat(heartbeat, msgPacket.getAddress());
+                continue;
+            }
+            if (coreMessage instanceof GoodbyeMessage goodbye) {
+                connectionManager.receiveGoodbye(goodbye);
+                continue;
+            }
+            if (coreMessage instanceof SessionInviteMessage invite) {
+                connectionManager.receiveSessionInvite(invite);
                 continue;
             }
 
@@ -168,14 +178,19 @@ public class SocketUDP extends Thread {
      * @return a mensagem de heartbeat caso os dados correspondam a uma;
      *         {@code null} caso contrário.
      */
-    private HeartbeatMessage tryParseHeartbeat(byte[] data) {
+    private Object tryParseCoreUdpMessage(byte[] data) {
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(data);
             ObjectInput in = new ObjectInputStream(bais);
             Object obj = in.readObject();
-            return (obj instanceof HeartbeatMessage) ? (HeartbeatMessage) obj : null;
+            if (obj instanceof HeartbeatMessage
+                    || obj instanceof GoodbyeMessage
+                    || obj instanceof SessionInviteMessage) {
+                return obj;
+            }
+            return null;
         } catch (IOException | ClassNotFoundException | ClassCastException ex) {
-            return null; 
+            return null;
         }
     }
 

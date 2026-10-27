@@ -1,10 +1,10 @@
 # Tutorial — criar um plugin
 
-Este guia complementa [09_sistema_de_plugins.md](09_sistema_de_plugins.md). Use `pitiupi.chat` como modelo.
+Este guia complementa [09_sistema_de_plugins.md](09_sistema_de_plugins.md). Use `plugins/chat` como modelo.
 
 ## 1. Novo projeto
 
-- Copie a pasta `pitiupi.chat` para `pitiupi.meuPlugin` (nome à escolha).
+- Copie a pasta `plugins/chat` para `plugins/meuPlugin` (nome à escolha).
 - Ajuste `project.properties` / `build.xml` com o nome do JAR de saída.
 - Mantenha `javac.classpath` apontando para `../pitiupi/dist/pitiupi.jar`.
 
@@ -98,7 +98,7 @@ Duas instâncias, mesma rede, portas distintas se no mesmo host. Ver [00_quickst
 
 ## TCP dedicado (avançado)
 
-Se o plugin precisa de canal TCP com handshake por `getIdentifier()`, estude `pitiupi.mpChat` e os métodos opcionais em `Plugin` (`receivePrivateConnection`, `receiveBytes`). Ver [11_plugins_referencia.md](11_plugins_referencia.md).
+Se o plugin precisa de canal TCP com handshake por `getIdentifier()`, estude `plugins/chat` (`receivePrivateConnection`, `receiveBytes`). Use `MessageDispatcher` para envios didáticos. Ver [11_plugins_referencia.md](11_plugins_referencia.md).
 
 ## Erros frequentes
 

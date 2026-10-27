@@ -33,7 +33,7 @@ public class OnlineUsersPanel extends JPanel implements PeerListener {
         initMenu();
 
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createTitledBorder("Online"));
+        setBorder(BorderFactory.createTitledBorder("Usuários nesta rede"));
         setPreferredSize(new Dimension(160, 0));
 
         listModel = new DefaultListModel<>();
@@ -64,6 +64,10 @@ public class OnlineUsersPanel extends JPanel implements PeerListener {
                 }
 
                 userList.setSelectedIndex(index);
+                User selected = listModel.getElementAt(index);
+                if (selected != null && selected.isBroadcastTarget()) {
+                    return;
+                }
                 menu.show(userList, e.getX(), e.getY());
             }
         });
@@ -73,7 +77,7 @@ public class OnlineUsersPanel extends JPanel implements PeerListener {
         menuItem.addActionListener(e -> {
             User user = userList.getSelectedValue();
 
-            if (user != null) {
+            if (user != null && !user.isBroadcastTarget() && user.getAddress() != null) {
                 action.accept(user);
             }
         });
@@ -92,6 +96,7 @@ public class OnlineUsersPanel extends JPanel implements PeerListener {
     public void onPeersChanged(List<User> peers) {
         SwingUtilities.invokeLater(() -> {
             listModel.clear();
+            listModel.addElement(User.broadcastAll());
             for (User peer : peers) {
                 listModel.addElement(peer);
             }

@@ -1,7 +1,12 @@
 package pitiupi.control;
 
-import pitiupi.GUI.MainWindow;
+import pitiupi.application.activity.PeerActivityInbox;
+import pitiupi.application.invites.InviteInboxService;
+import pitiupi.application.peeractions.PeerActionBroker;
+import pitiupi.application.presence.PresenceService;
+import pitiupi.models.Messages.SessionInviteMessage;
 import pitiupi.control.plugins.PluginManager;
+import pitiupi.models.Messages.GoodbyeMessage;
 import pitiupi.models.Messages.HeartbeatMessage;
 import pitiupi.models.Messages.Message;
 import pitiupi.net.tcp.SocketTCP;
@@ -9,6 +14,7 @@ import pitiupi.net.tcp.TcpConnection;
 import pitiupi.net.udp.SocketUDP;
 
 import java.net.InetAddress;
+import java.util.function.Consumer;
 
 public class ConnectionManager {
     private final String pitiupiIdentifier;
@@ -16,13 +22,20 @@ public class ConnectionManager {
     private final PluginManager pluginManager;
 
     private final HeartbeatManager heartbeatManager;
+    private final PresenceService presenceService;
+    private final PeerActionBroker peerActionBroker;
+    private final InviteInboxService inviteInboxService;
+    private final PeerActivityInbox peerActivityInbox;
 
     private SocketTCP socketTCP;
     private SocketUDP socketUDP;
     private String username;
     private int port;
+    private volatile boolean shutdownComplete;
+    private Consumer<String> inviteAcceptedUiListener = pluginId -> {
+    };
 
-    public ConnectionManager(MainWindow main, String username, PluginManager pluginManager, int port) {
+    public ConnectionManager(String username, PluginManager pluginManager, int port) {
         this.pluginManager = pluginManager;
 
         this.username = username;
@@ -33,7 +46,64 @@ public class ConnectionManager {
         reconnect();
 
         heartbeatManager = new HeartbeatManager(this);
+        peerActionBroker = new PeerActionBroker();
+        inviteInboxService = new InviteInboxService(heartbeatManager);
+        peerActivityInbox = new PeerActivityInbox();
+        presenceService = new PresenceService(heartbeatManager, inviteInboxService, peerActivityInbox);
+        inviteInboxService.setOnNotificationsChanged(heartbeatManager::notifyPeerListeners);
+        peerActivityInbox.setOnChanged(heartbeatManager::notifyPeerListeners);
         heartbeatManager.start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownGracefully, "pitiupi-goodbye"));
+    }
+
+    public PresenceService getPresenceService() {
+        return presenceService;
+    }
+
+    public PeerActionBroker getPeerActionBroker() {
+        return peerActionBroker;
+    }
+
+    public InviteInboxService getInviteInboxService() {
+        return inviteInboxService;
+    }
+
+    public PeerActivityInbox getPeerActivityInbox() {
+        return peerActivityInbox;
+    }
+
+    public void setInviteAcceptedUiListener(Consumer<String> listener) {
+        this.inviteAcceptedUiListener = listener != null ? listener : pluginId -> {
+        };
+    }
+
+    public void notifyInviteAcceptedForUi(String pluginId) {
+        if (pluginId != null) {
+            inviteAcceptedUiListener.accept(pluginId);
+        }
+    }
+
+    public HeartbeatManager getHeartbeatManager() {
+        return heartbeatManager;
+    }
+
+    public void receiveSessionInvite(SessionInviteMessage message) {
+        inviteInboxService.receive(message);
+    }
+
+    public void shutdownGracefully() {
+        if (shutdownComplete) {
+            return;
+        }
+        shutdownComplete = true;
+        heartbeatManager.sendGoodbyeAndStop();
+        if (socketUDP != null) {
+            socketUDP.close();
+        }
+        if (socketTCP != null) {
+            socketTCP.close();
+        }
     }
 
     public TcpConnection connectPluginTcp(InetAddress destinationAdress, String senderId, String receiverId) {
@@ -72,7 +142,11 @@ public class ConnectionManager {
     }
 
     public void receiveHeartbeat(HeartbeatMessage message, InetAddress destinationAddress) {
-        heartbeatManager.receiveHeartbeat(message, destinationAddress);
+        presenceService.onHeartbeat(message, destinationAddress);
+    }
+
+    public void receiveGoodbye(GoodbyeMessage message) {
+        presenceService.onGoodbye(message);
     }
 
     public void setPort(int port) {

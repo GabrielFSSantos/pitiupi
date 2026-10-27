@@ -11,6 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import pitiupi.models.User;
+import pitiupi.models.Messages.GoodbyeMessage;
 import pitiupi.models.Messages.HeartbeatMessage;
 import java.util.UUID;
 /**
@@ -41,6 +42,17 @@ public class HeartbeatManager {
     }
 
     /**
+     * Testes unitários sem rede (não chamar {@link #start()}).
+     */
+    public static HeartbeatManager createForTesting() {
+        return new HeartbeatManager(null);
+    }
+
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    /**
      * Inicia o mecanismo de heartbeat.
      */
     public void start() {
@@ -59,8 +71,29 @@ public class HeartbeatManager {
     }
 
     private void announce() {
+        if (connectionManager == null) {
+            return;
+        }
         HeartbeatMessage msg = new HeartbeatMessage(connectionManager.getUserName(), instanceId);
         connectionManager.sendUdpMulticast(msg);
+    }
+
+    public void sendGoodbyeAndStop() {
+        if (connectionManager != null) {
+            GoodbyeMessage msg = new GoodbyeMessage(connectionManager.getUserName(), instanceId);
+            connectionManager.sendUdpMulticast(msg);
+        }
+        stop();
+    }
+
+    public void receiveGoodbye(GoodbyeMessage msg) {
+        if (msg.getInstanceId().equals(instanceId)) {
+            return;
+        }
+        boolean removed = peers.remove(msg.getInstanceId()) != null;
+        if (removed) {
+            notifyListeners();
+        }
     }
 
     // Chamado pelo Socket quando um pacote é identificado como heartbeat
@@ -85,7 +118,7 @@ public class HeartbeatManager {
         String key =  msg.getInstanceId();
         boolean isNew = !peers.containsKey(key);
 
-        User peer = peers.computeIfAbsent(key, k -> new User(msg.getUserName(), from, msg.getTimestamp()));
+        User peer = peers.computeIfAbsent(key, k -> new User(msg.getUserName(), from, msg.getTimestamp(), msg.getInstanceId()));
         peer.touch(System.currentTimeMillis());
 
         if (isNew) {
@@ -137,5 +170,12 @@ public class HeartbeatManager {
      */
     public List<User> getPeers() {
         return new ArrayList<>(peers.values());
+    }
+
+    /**
+     * Re-notifica listeners (ex.: contadores de convite na lista).
+     */
+    public void notifyPeerListeners() {
+        notifyListeners();
     }
 }

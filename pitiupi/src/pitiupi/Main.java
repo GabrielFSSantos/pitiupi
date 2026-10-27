@@ -5,7 +5,9 @@
  */
 package pitiupi;
 
-import java.net.UnknownHostException;
+import pitiupi.platform.LegacyPluginMigration;
+import pitiupi.platform.PitiupiHome;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,12 +46,21 @@ public class Main {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                pitiupi.GUI.Login login = new pitiupi.GUI.Login();
-                login.setVisible(true); 
+                try {
+                    PitiupiHome.get().ensureLayout();
+                    LegacyPluginMigration.maybeMigrateFromLegacyCwd();
+                } catch (Exception e) {
+                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Falha ao preparar PITIUPI_HOME", e);
+                }
 
-                pitiupi.GUI.MainWindow main;
-                main = new pitiupi.GUI.MainWindow(login.getName(), login.getPort());
-                main.setVisible(true);
+                pitiupi.presentation.shell.LoginDialog login = new pitiupi.presentation.shell.LoginDialog();
+                if (!login.showLogin()) {
+                    return;
+                }
+
+                pitiupi.presentation.shell.MainShellFrame shell =
+                        new pitiupi.presentation.shell.MainShellFrame(login.getUserName(), login.getPort());
+                shell.showOnScreen();
             }   
         });
     }

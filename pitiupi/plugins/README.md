@@ -1,33 +1,24 @@
-# Plugins instalados
+# Plugins instalados (runtime)
 
-O núcleo carrega **todos os arquivos `.jar`** desta pasta ao iniciar. Execute sempre a partir de `pitiupi/`:
-
-```bash
-java -jar dist/pitiupi.jar
-```
-
-## Pasta única (sem subpastas por categoria)
-
-Os JARs ficam lado a lado em `plugins/`. A divisão **chat / jogo / streaming** aparece no menu **Plugin → Social | Jogos | Streaming**, definida por cada plugin com `MenuCategory` no código.
+O núcleo carrega **todos os arquivos `.jar`** de `PITIUPI_HOME/plugins` ao iniciar (padrão `~/pitiupi/plugins`). Variável de ambiente opcional: `PITIUPI_HOME`.
 
 ## Instalação automática (recomendado)
 
 Na raiz do repositório, o catálogo [`plugins.registry.json`](../../plugins.registry.json) lista módulos buildáveis:
 
 ```bash
+./scripts/pitiupi.sh build --all
 ./scripts/pitiupi.sh link --all
-./scripts/pitiupi.sh build --plugins chat
 ```
 
-Symlinks gerados: `plugins/{id}.jar` → `../../{módulo}/{jar}`.
+Symlinks: `{PITIUPI_HOME}/plugins/{id}.jar` → JAR buildado em `plugins/{módulo}/dist/` no clone.
 
 ## Manual
 
 ```bash
-cd pitiupi/plugins
-ln -sf ../../pitiupi.chat/dist/pitiupi.chat.jar chat.jar
+ln -sf /caminho/ao/clone/plugins/chat/dist/pitiupi.chat.jar ~/pitiupi/plugins/chat.jar
 ```
 
-Não commite `.jar` — apenas este README e symlinks locais.
+Não commite `.jar` binários no Git — apenas este README.
 
 Novo módulo: registrar no catálogo e ver [docs/documentation/10_tutorial_plugin.md](../../docs/documentation/10_tutorial_plugin.md).

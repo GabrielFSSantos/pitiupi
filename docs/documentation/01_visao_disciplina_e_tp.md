@@ -25,9 +25,9 @@ Exemplos de tema: chat temático, tabuleiro (xadrez/damas), compartilhamento de 
 
 | Módulo | Ideia pedagógica |
 | --- | --- |
-| `pitiupi.chat` | Mensagens UDP + UI simples |
-| `pitiupi.screenCast` | Payload maior / streaming de imagem |
-| `pitiupi.mpChat` | Multicast + TCP privado no mesmo plugin |
+| `plugins/chat` | Mensagens UDP + UI simples |
+| `plugins/screencast` | Payload maior / streaming de imagem |
+| `plugins/chat` | Multicast, unicast, TCP e canal TCP privado |
 
 Detalhes: [11_plugins_referencia.md](11_plugins_referencia.md).
 

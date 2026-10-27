@@ -2,10 +2,10 @@
 
 | Item | Prioridade | Notas |
 | --- | --- | --- |
-| Completar tutorial legado em `pitiupi/docs/PluginTutorial.md` | Média | Substituído por [10_tutorial_plugin.md](10_tutorial_plugin.md) |
 | Testes JUnit para desserialização e framing TCP | Média | Sem rede real |
-| CI (GitHub Actions) com `ant jar` + `make` | Baixa | Requer imagem com Ant |
+| CI (GitHub Actions) com `ant jar` + `ant test` | Baixa | Requer imagem com Ant/JDK |
+| Captura de tela nativa no WSL | Baixa | Limitação de ambiente; validar em Windows/Linux com display |
 
-Itens concluídos recentemente: alinhamento de `pitiupi.mpChat` a `ConnectionManager` / `GuiManager`; documentação de JDK mínimo no [README](../../README.md) e [00_quickstart.md](00_quickstart.md).
+Itens concluídos recentemente: shell com abas e peer actions (D16–D18); chat unificado (D19); docs alinhadas à shell v1 (Onda G); suíte JUnit no núcleo (`ant test`); tutorial Ping em [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md).
 
 Ao fechar um item, atualizar esta tabela e o doc técnico relacionado.

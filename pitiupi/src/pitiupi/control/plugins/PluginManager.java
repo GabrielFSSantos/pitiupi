@@ -1,12 +1,16 @@
 package pitiupi.control.plugins;
 
 import pitiupi.Main;
+import pitiupi.api.plugin.LegacyPluginWorkspace;
+import pitiupi.api.plugin.PluginWorkspace;
+import pitiupi.models.Plugin;
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.GuiManager;
+import pitiupi.errors.ErrorCode;
 import pitiupi.models.Messages.Message;
+import pitiupi.platform.PitiupiHome;
+import pitiupi.plugins.store.PluginMetadataWriter;
 import pitiupi.net.tcp.TcpConnection;
-import pitiupi.models.Plugin;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +19,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.Function;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,12 +29,14 @@ public class PluginManager {
     private final HashSet<String> loadedJars;
 
     private final Logger logger;
+    private final PluginMetadataWriter metadataWriter;
 
     public PluginManager() {
         this.loadedPlugins = new ArrayList<>();
         this.loadedJars = new HashSet<>();
 
         logger = Logger.getLogger(getClass().getName());
+        this.metadataWriter = new PluginMetadataWriter();
     }
 
     public void handleMessage(byte[] msg) {
@@ -90,8 +97,39 @@ public class PluginManager {
         plugin.onSocketClosed(connection);
     }
 
+    public List<Plugin> getLoadedPlugins() {
+        return loadedPlugins.stream().map(LoadedPlugin::getPlugin).toList();
+    }
+
+    public void notifyShellTabClosed(String pluginId) {
+        if (pluginId == null || pluginId.isBlank()) {
+            return;
+        }
+        Plugin plugin = getPlugin(pluginId);
+        if (plugin != null) {
+            plugin.onShellTabClosed();
+        }
+    }
+
+    /** @deprecated use {@link #loadPlugins(ConnectionManager, GuiManager, Function)} com {@link pitiupi.api.plugin.ShellPluginWorkspace} */
+    @Deprecated
     public void loadPlugins(ConnectionManager connectionManager, GuiManager guiManager) {
-        File pluginDir = new File("plugins");
+        loadPlugins(connectionManager, guiManager, plugin -> new LegacyPluginWorkspace(
+                plugin.getIdentifier(),
+                plugin,
+                connectionManager,
+                guiManager,
+                connectionManager.getPeerActionBroker(),
+                connectionManager.getInviteInboxService()
+        ));
+    }
+
+    public void loadPlugins(
+            ConnectionManager connectionManager,
+            GuiManager guiManager,
+            Function<Plugin, PluginWorkspace> workspaceFactory
+    ) {
+        File pluginDir = PitiupiHome.get().pluginsDirectory().toFile();
         File[] jarFiles = pluginDir.listFiles((dir, name) -> name.endsWith(".jar"));
 
         if (jarFiles == null || jarFiles.length == 0) {
@@ -118,13 +156,20 @@ public class PluginManager {
                 for (Plugin plugin : serviceLoader) {
                     LoadedPlugin loadedPlugin = new LoadedPlugin(plugin, classLoader);
 
-                    plugin.createPlugin(connectionManager, guiManager);
+                    PluginWorkspace workspace = workspaceFactory.apply(plugin);
+                    plugin.createPlugin(connectionManager, workspace);
                     loadedPlugins.add(loadedPlugin);
                     loadedJars.add(file.getName());
+                    try {
+                        metadataWriter.write(plugin, file.toPath());
+                    } catch (Exception metaEx) {
+                        logger.log(Level.WARNING, "Failed to write plugin metadata for " + file.getName(), metaEx);
+                    }
                 }
 
             } catch (Exception e) {
-                logger.log(Level.WARNING, "Failed to load plugin " + file.getName(), e);
+                logger.log(Level.WARNING, "Failed to load plugin " + file.getName() + ": "
+                        + ErrorCode.PLUGIN_LOAD_FAILED.getUserMessage(), e);
             }
         }
     }

@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# Build, instala plugins em pitiupi/plugins/ e executa o núcleo (catálogo: plugins.registry.json).
+# Build, instala plugins em PITIUPI_HOME/plugins e executa o núcleo (catálogo: plugins.registry.json).
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CORE="${REPO_ROOT}/pitiupi"
-PLUGINS_DIR="${CORE}/plugins"
+PITIUPI_HOME="${PITIUPI_HOME:-$HOME/pitiupi}"
+PLUGINS_DIR="${PITIUPI_HOME}/plugins"
 REGISTRY="${REPO_ROOT}/plugins.registry.json"
+export PITIUPI_HOME
 
 usage() {
   cat <<'EOF'
@@ -14,7 +16,7 @@ Uso: scripts/pitiupi.sh <comando> [opções]
 Comandos:
   run       Compila, atualiza plugins/ e abre a aplicação (padrão: --all)
   build     Compila e atualiza plugins/
-  link      Só symlinks em pitiupi/plugins/ (JARs já buildados)
+  link      Só symlinks em PITIUPI_HOME/plugins (JARs já buildados)
   list      Lista plugins do catálogo (id, categoria, JAR presente)
   discover  Sugere entradas para o catálogo (pastas pitiupi.* com SPI)
   check     Ferramentas no PATH + valida plugins.registry.json
@@ -74,15 +76,28 @@ if mode == "list":
 
 if mode == "discover":
     known_dirs = {p["dir"] for p in plugins}
+    candidates = []
+    plugins_root = repo / "plugins"
+    if plugins_root.is_dir():
+        candidates.extend(sorted(plugins_root.iterdir()))
     for child in sorted(repo.glob("pitiupi.*")):
+        if child.is_dir():
+            candidates.append(child)
+    seen = set()
+    for child in candidates:
         if not child.is_dir():
             continue
+        key = child.relative_to(repo).as_posix()
+        if key in seen:
+            continue
+        seen.add(key)
         spi = list(child.rglob("META-INF/services/pitiupi.models.Plugin"))
         if not spi:
             continue
-        status = "registrado" if child.name in known_dirs else "sugerido"
+        rel = key
+        status = "registrado" if rel in known_dirs else "sugerido"
         build = "make" if (child / "Makefile").is_file() else "ant"
-        print(f"{status}\t{child.name}\tbuild:{build}")
+        print(f"{status}\t{rel}\tbuild:{build}")
     sys.exit(0)
 
 if mode == "resolve":
@@ -182,7 +197,7 @@ build_plugins_from_selection() {
 }
 
 link_plugins_from_selection() {
-  local id dir jar_rel link_name
+  local id dir jar_rel link_name src_abs
   mkdir -p "${PLUGINS_DIR}"
   rm -f "${PLUGINS_DIR}/"*.jar
 
@@ -191,7 +206,8 @@ link_plugins_from_selection() {
     dir="$(registry_python field "$id" dir)"
     jar_rel="$(registry_python field "$id" jar)"
     link_name="${id}.jar"
-    ln -sf "../../${dir}/${jar_rel}" "${PLUGINS_DIR}/${link_name}"
+    src_abs="${REPO_ROOT}/${dir}/${jar_rel}"
+    ln -sf "${src_abs}" "${PLUGINS_DIR}/${link_name}"
   done < <(selected_ids)
 
   local count
@@ -201,6 +217,9 @@ link_plugins_from_selection() {
   else
     printf 'Plugins ativos em %s:\n' "${PLUGINS_DIR}"
     ls -1 "${PLUGINS_DIR}"/*.jar
+    for jar in "${PLUGINS_DIR}"/*.jar; do
+      [[ -L "$jar" ]] && printf '  -> %s\n' "$(readlink -f "$jar")"
+    done
   fi
 }
 
@@ -284,6 +303,7 @@ case "${CMD}" in
     ;;
   link)
     link_plugins_from_selection
+    printf '\nPara abrir o Pitiupi: %s run --all\n' "${REPO_ROOT}/scripts/pitiupi.sh"
     ;;
   build)
     check_tools || exit 1
@@ -296,7 +316,6 @@ case "${CMD}" in
     build_core
     build_plugins_from_selection
     link_plugins_from_selection
-    cd "${CORE}"
-    exec java -jar dist/pitiupi.jar
+    exec java -jar "${CORE}/dist/pitiupi.jar"
     ;;
 esac

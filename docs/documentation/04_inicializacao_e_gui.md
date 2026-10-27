@@ -20,38 +20,78 @@ distribuídas e desenvolvimento de projetos acadêmicos.
 
 A aplicação é dividida em três grupos principais:
 
-- **Núcleo da aplicação**: a `MainWindow` coordena GUI, rede e plugins.
-- **Sistema de plugins**: extensões em JAR carregadas de `pitiupi/plugins/`.
+- **Núcleo da aplicação**: a `MainShellFrame` coordena GUI, rede e plugins.
+- **Sistema de plugins**: extensões em JAR carregadas de `PITIUPI_HOME/plugins` (dev: `./scripts/pitiupi.sh link --all`).
 - **Comunicação de rede**: UDP (`SocketUDP`) e TCP (`SocketTCP`, `TcpConnection`).
 
 ## Inicialização da aplicação
 
-1. A `MainWindow` é criada após o diálogo de login (nome e porta).
-2. O `SocketUDP` associa-se à porta configurada e ingressa no grupo multicast.
-3. O `SocketTCP` cria um `ServerSocket` na mesma porta para conexões TCP.
-4. Os mecanismos de comunicação iniciam threads de recepção.
-5. O `HeartbeatManager` envia heartbeats periodicamente.
-6. O painel de usuários online registra-se como listener do heartbeat.
-7. O `PluginManager` carrega os JARs em `plugins/` via SPI.
+1. `Main` garante o layout em `PITIUPI_HOME` e abre o `LoginDialog` (nome e porta, PT-BR, ~30% da área útil do monitor, centralizado).
+2. Após confirmar o login, a `MainShellFrame` é exibida (1024×768, centralizada).
+3. O `SocketUDP` associa-se à porta configurada e ingressa no grupo multicast.
+4. O `SocketTCP` cria um `ServerSocket` na mesma porta para conexões TCP.
+5. Os mecanismos de comunicação iniciam threads de recepção.
+6. O `HeartbeatManager` envia heartbeats periodicamente; o `NetworkUsersPanel` lista peers via `PresenceService`.
+7. O `PluginManager` carrega os JARs em `plugins/` via SPI, com `ShellPluginWorkspace` ligado às abas centrais.
 
 Ver também: [05_udp_multicast.md](05_udp_multicast.md), [09_sistema_de_plugins.md](09_sistema_de_plugins.md).
 
+### Teste manual T-LOGIN-01 (login centralizado)
+
+1. Compilar e executar: `./scripts/pitiupi.sh run --all` na raiz do repositório.
+2. O `LoginDialog` deve aparecer **no centro** do monitor principal (WSL/KDE), não no canto superior esquerdo.
+3. Após entrar, a `MainShellFrame` (1024×768) também deve abrir centralizada.
+
+A posição exata depende do gerenciador de janelas; o núcleo recentra após exibir a janela.
+
+### Atualizar plugin Chat (Onda E)
+
+O JAR do módulo é `plugins/chat/dist/pitiupi.chat.jar` (catálogo `plugins.registry.json`). Não use `dist/chat.jar`.
+
+```bash
+cd plugins/chat && ant clean jar
+./scripts/pitiupi.sh link --all
+```
+
+Isso recria o symlink `~/pitiupi/plugins/chat.jar` → o JAR buildado. O comando `link` lista o destino real de cada `.jar`.
+
 # Interface gráfica
 
-A interface gráfica da aplicação é baseada em Swing e é centralizada na
-classe `MainWindow`.
+A interface gráfica é Swing, organizada em shell (`pitiupi.presentation.shell`):
 
-Durante a inicialização, cada plugin recebe `ConnectionManager` e `GuiManager`
-no método `createPlugin()`.
+| Região | Componente |
+|--------|------------|
+| Centro | `TabWorkspacePanel` — aba **Plugins** (galeria; abre plugin sob demanda), abas de plugin **fecháveis** (×), aba **Configurações** |
+| Leste | `NetworkUsersPanel` — “Usuários nesta rede”, badges de convite, peer actions |
+| Sul | Barra de status (porta e nome local) |
+| Menu | `ShellMenuBar` — apenas **Ajuda → Sobre** (sair pelo X da janela) |
 
-A extensão usual é registrar menus por categoria (`MenuCategory`). Ver
-[12_menus_unicast_multicast.md](12_menus_unicast_multicast.md).
+Plugins expõem `getName()` (técnico), `getIdentifier()` (SPI) e `getDisplayName()` (texto na galeria e nas abas).
+
+A aba **Configurações** mostra em cima **Sua conexão** (nome, porta, IP local, ID da instância, contagem de peers; campos selecionáveis para copiar manualmente) e embaixo a tabela de JARs instalados (altura reduzida).
+
+Durante a inicialização, cada plugin recebe `ConnectionManager` e `PluginWorkspace`
+no método `createPlugin()`. Menus multicast na barra superior não são mais usados;
+ações para todos os peers migram para **peer actions** (contexto na lista lateral).
+Ao iniciar, só as abas **Plugins** e **Configurações** ficam visíveis. Cada plugin registra um painel com `bindShellWorkspaceContent`; a aba abre ao clicar na galeria ou via peer action. Referência: **Conversa na rede** (`ChatPanel`) e **Compartilhar tela** (`ScreenCastPanel`).
+
+O **chat** usa campo de mensagem compacto (~2 linhas, quebra de linha; barra de rolagem vertical só se o texto não couber). O histórico ocupa a maior parte da altura da aba (divisor proporcional ao abrir a janela).
+
+Canal TCP privado do chat fica no mesmo `ChatPanel` (histórico separado por conversa: sala geral, peer por IP, privado com toggle). A lista lateral usa `PeerActivityInbox` (bolinha vermelha e contagem; no menu, ● na ação correspondente).
+
+Ao fechar a aba superior de **Compartilhar tela** (×), o núcleo chama `Plugin.onShellTabClosed()` — o plugin interrompe captura e envio (toggle desligado). Reabrir pela galeria deve mostrar compartilhamento inativo.
+
+**TCP (transporte)** envia uma mensagem serializada pelo núcleo (`sendTcp`), na porta do login. **TCP privado** (toggle) abre conexão dedicada ao plugin entre dois peers; com o toggle ativo, o combo de transporte fica desabilitado e o envio usa esse canal. Na UI só se informa o **IP** do peer: UDP/TCP unicast do Pitiupi usa sempre a **mesma porta** que você escolheu no login (convenção de sala: todos com a mesma porta, ex. 5000 e 5001 em testes no mesmo PC).
+
+Textos da UI (destino, combo de forma de envio e linha **“Como esta mensagem vai”**) usam linguagem simples e o termo técnico entre parênteses (multicast UDP, UDP unicast, TCP). Na sala, o transporte não é só multicast: o combo pode escolher cópias unicast ou TCP para cada pessoa, conforme o plugin.
+
+Ver [12_menus_unicast_multicast.md](12_menus_unicast_multicast.md).
 
 ## Diagrama de comunicação
 
 ```
                          +------------------+
-                         |    MainWindow    |
+                         |  MainShellFrame  |
                          +--------+---------+
                                   |
              +--------------------+--------------------+

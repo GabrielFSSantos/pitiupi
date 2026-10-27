@@ -12,14 +12,34 @@ import java.net.InetAddress;
  */
 public class User {
 
+    public static final String BROADCAST_INSTANCE_ID = "__broadcast__";
+
     private final String userName;
     private final InetAddress address;
     private volatile long lastSeen;
+    private final String instanceId;
 
     public User(String userName, InetAddress address, long lastSeen) {
+        this(userName, address, lastSeen, null);
+    }
+
+    public User(String userName, InetAddress address, long lastSeen, String instanceId) {
         this.userName = userName;
         this.address = address;
         this.lastSeen = lastSeen;
+        this.instanceId = instanceId;
+    }
+
+    public static User broadcastAll() {
+        return new User("Todos", null, 0, BROADCAST_INSTANCE_ID);
+    }
+
+    public boolean isBroadcastTarget() {
+        return BROADCAST_INSTANCE_ID.equals(instanceId);
+    }
+
+    public String getInstanceId() {
+        return instanceId;
     }
 
     public String getUserName() {
@@ -45,6 +65,9 @@ public class User {
 
     @Override
     public String toString() {
+        if (isBroadcastTarget() || address == null) {
+            return userName;
+        }
         return userName + " (" + address.getHostAddress() + ")";
     }
 }

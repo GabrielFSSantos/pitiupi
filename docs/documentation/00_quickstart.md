@@ -3,61 +3,45 @@
 ## Pré-requisitos
 
 - **JDK completo** (`java` e `javac`) — OpenJDK 25 recomendado; o núcleo usa `javac.source/target=17`, plugins Ant usam 25.
-- Apache Ant (`pitiupi`, `pitiupi.chat`, `pitiupi.screenCast`)
-- GNU Make (`pitiupi.mpChat`)
+- Apache Ant (`pitiupi`, `plugins/chat`, `plugins/screencast`)
 
 Ubuntu / WSL:
 
 ```bash
-sudo apt install openjdk-25-jdk ant make
-which javac ant make
+sudo apt install openjdk-25-jdk ant
+which javac ant
 ```
-
-Se `ant jar` falhar com *Cannot run program "javac"*, você instalou apenas JRE — instale `openjdk-*-jdk`.
 
 ## Build
 
 Na raiz do clone:
 
 ```bash
-cd pitiupi && ant jar
-cd ../pitiupi.chat && ant jar
-cd ../pitiupi.screenCast && ant jar
-cd ../pitiupi.mpChat && make
+./scripts/pitiupi.sh build --all
 ```
 
-O núcleo gera `pitiupi/dist/pitiupi.jar`. Cada plugin gera JAR em seu `dist/`.
+Ou manualmente:
+
+```bash
+cd pitiupi && ant jar
+cd plugins/chat && ant jar
+cd plugins/screencast && ant jar
+```
 
 ## Instalar plugins
 
-A aplicação lê JARs de `pitiupi/plugins/` (relativo ao diretório de trabalho ao executar o núcleo). Detalhes: [pitiupi/plugins/README.md](../../pitiupi/plugins/README.md).
-
-Symlinks em desenvolvimento (Linux):
+Runtime: JARs em **`PITIUPI_HOME/plugins`** (padrão `~/pitiupi/plugins`).
 
 ```bash
-cd pitiupi/plugins
-ln -sf ../../pitiupi.chat/dist/pitiupi.chat.jar pitiupi.chat.jar
-ln -sf ../../pitiupi.screenCast/dist/pitiupi.screenCast.jar pitiupi.screenCast.jar
-ln -sf ../../pitiupi.mpChat/dist/mpChat.jar mpChat.jar
+./scripts/pitiupi.sh link --all
 ```
 
 ## Executar
 
 ```bash
-cd pitiupi
-java -jar dist/pitiupi.jar
+./scripts/pitiupi.sh run --all
 ```
 
-No diálogo inicial informe **nome** e **porta** (UDP/TCP). Para duas instâncias no mesmo computador, use **portas diferentes** (ex.: 5000 e 5001).
+Login com nome e porta; abra plugins pela aba **Plugins**. Clique em **Todos** ou em um peer na lista lateral para ver ações de cada plugin.
 
-## Verificar P2P
-
-1. Abra duas instâncias (mesma rede ou mesmo host com portas distintas).
-2. Confirme que os nomes aparecem no painel de usuários online.
-3. Teste um plugin de referência (ex.: chat em `MenuCategory.Social`).
-
-Problemas de multicast: [appendix_portas_e_multicast.md](appendix_portas_e_multicast.md).
-
-Gate de build (quatro módulos): [15_testes_e_gate.md](15_testes_e_gate.md).
-
-Próximo passo para o TP: [10_tutorial_plugin.md](10_tutorial_plugin.md).
+Validação rápida do núcleo: `cd pitiupi && ant test`.
