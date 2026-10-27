@@ -21,5 +21,6 @@
 | D21 | `onShellTabClosed` | Fechar aba do plugin na shell notifica o plugin (ex.: parar screencast) | [09_sistema_de_plugins.md](documentation/09_sistema_de_plugins.md) |
 | D22 | `PeerIpv4` para IP de peer na UI | No Windows, `InetAddress.getHostAddress()` pode devolver IPv6-mapeado e sufixo de zona (`%n`); chat e roteamento usam IPv4 pontilhado | [appendix_portas_e_multicast.md](documentation/appendix_portas_e_multicast.md) |
 | D23 | Foco de atividade e badges | **Adiado na v1** — núcleo (`PeerActivityFocus` / `PeerActivityInbox`) mantido; UI sem badges; recebimento passivo em sub-abas (`addTabIfAbsent`) | [09_sistema_de_plugins.md](documentation/09_sistema_de_plugins.md) |
+| D24 | Avisos de sessão (`SessionNoticeMessage`) | Início/fim de atividades (ex. `screen_cast` END ao parar share); extensível por plugin/canal | [09_sistema_de_plugins.md](documentation/09_sistema_de_plugins.md) |
 
 Novas decisões: adicionar linha nesta tabela e detalhar no arquivo técnico correspondente.

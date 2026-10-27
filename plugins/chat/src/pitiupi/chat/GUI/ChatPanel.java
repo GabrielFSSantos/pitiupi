@@ -305,8 +305,8 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
     @Override
     public void onPrivateChannelReady(String peerIp) {
         SwingUtilities.invokeLater(() -> {
-            appendSystemLine(privateKey(peerIp), "Canal TCP privado conectado com " + peerIp + ".");
-            if (privateKey(peerIp).equals(activeConversationKey)) {
+            appendSystemLine(peerKey(canonicalPeerIp(peerIp)), "Canal TCP privado conectado com " + peerIp + ".");
+            if (peerKey(canonicalPeerIp(peerIp)).equals(activeConversationKey)) {
                 flushTranscriptToPane();
             }
         });
@@ -315,8 +315,8 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
     @Override
     public void onPrivateChannelClosed(String peerIp) {
         SwingUtilities.invokeLater(() -> {
-            appendSystemLine(privateKey(peerIp), "Canal TCP privado encerrado (" + peerIp + ").");
-            if (privateKey(peerIp).equals(activeConversationKey)) {
+            appendSystemLine(peerKey(canonicalPeerIp(peerIp)), "Canal TCP privado encerrado (" + peerIp + ").");
+            if (peerKey(canonicalPeerIp(peerIp)).equals(activeConversationKey)) {
                 flushTranscriptToPane();
             }
         });
@@ -324,7 +324,13 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
 
     @Override
     public void appendPrivateLine(String peerIp, LegacyMpChatMessage message, boolean outgoing) {
-        SwingUtilities.invokeLater(() -> appendLegacyLine(privateKey(peerIp), message));
+        SwingUtilities.invokeLater(() -> {
+            String canonical = canonicalPeerIp(peerIp);
+            if (!outgoing) {
+                ensurePeerTabForIncoming(canonical, message.getNome());
+            }
+            appendLegacyLine(peerKey(canonical), message);
+        });
     }
 
     private void buildUi() {
@@ -418,8 +424,8 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
                 if (privateChatController != null) {
                     privateChatController.openChat(user);
                 }
-                appendSystemLine(privateKey(PeerIpv4.fromInetAddress(user.getAddress())),
-                        "Canal TCP privado conectando… envie de novo em instantes.");
+                appendSystemLine(peerKey(canonicalPeerIp(PeerIpv4.fromInetAddress(user.getAddress()))),
+                        "Canal TCP privado conectando…");
                 return;
             }
 
@@ -499,7 +505,7 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
     public void receiveLegacyMessage(String tipo, String nome, String ip, String text) {
         runOnEdt(() -> {
             LegacyMpChatMessage legacy = new LegacyMpChatMessage(nome, ip, tipo, text);
-            String bucket = ip != null && !ip.isBlank() ? privateKey(canonicalPeerIp(ip)) : ROOM_KEY;
+            String bucket = ip != null && !ip.isBlank() ? peerKey(canonicalPeerIp(ip)) : ROOM_KEY;
             appendLegacyLine(bucket, legacy);
         });
     }
@@ -551,7 +557,7 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
         }
         if (key != null && key.startsWith("peer:") && !PluginSessionKeys.PEER_DRAFT.equals(key)) {
             String tabIp = canonicalPeerIp(key.substring("peer:".length()));
-            return peerKey(tabIp).equals(bucket);
+            return peerKey(tabIp).equals(bucket) || privateKey(tabIp).equals(bucket);
         }
         return false;
     }
@@ -608,9 +614,6 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
         String ip = canonicalPeerIp(routing.peerIp());
         if (ip == null || ip.isEmpty()) {
             return ROOM_KEY;
-        }
-        if (routing.privateTcpOn()) {
-            return privateKey(ip);
         }
         return peerKey(ip);
     }

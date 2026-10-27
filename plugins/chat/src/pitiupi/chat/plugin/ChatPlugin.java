@@ -139,11 +139,12 @@ public class ChatPlugin extends Plugin implements PrivateChatHost {
     @Override
     public void openConnection(String ip) {
         try {
-            connectionManager.connectPluginTcp(
+            TcpConnection connection = connectionManager.connectPluginTcp(
                     InetAddress.getByName(ip),
                     getIdentifier(),
                     getIdentifier()
             );
+            privateChatController.registerOutgoingConnection(ip, connection);
         } catch (Exception e) {
             System.out.println("Error opening connection: " + e.getMessage());
         }

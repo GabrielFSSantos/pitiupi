@@ -7,6 +7,11 @@ import pitiupi.application.messaging.TransportMode;
 import pitiupi.api.plugin.PeerActivityFocusTokens;
 import pitiupi.application.presence.UserPeerView;
 import pitiupi.control.ConnectionManager;
+import pitiupi.application.session.SessionNoticeChannel;
+import pitiupi.application.session.SessionNoticePhase;
+import pitiupi.application.session.SessionNoticeScope;
+import pitiupi.models.Messages.SessionNoticeMessage;
+import pitiupi.presentation.shell.LocalNetworkInfo;
 import pitiupi.presentation.shell.PeerDraftPanel;
 import pitiupi.presentation.shell.PeerIpv4;
 import pitiupi.presentation.shell.PluginRoutingPanel;
@@ -14,6 +19,7 @@ import pitiupi.presentation.shell.PluginSessionKeys;
 import pitiupi.presentation.shell.PluginSessionWorkspace;
 import pitiupi.presentation.shell.SessionPeerLabels;
 import pitiupi.presentation.shell.SessionTabBar;
+import pitiupi.presentation.shell.SessionTabDirectionLabels;
 import pitiupi.presentation.shell.ui.ShellUi;
 
 import pitiupi.screenCast.control.AlarmClock;
@@ -74,6 +80,8 @@ public class ScreenCastPanel extends JPanel {
     private final Map<String, String> peerIpsByViewKey = new HashMap<>();
     private final Map<String, String> peerDisplayNames = new HashMap<>();
     private final Map<String, ScreenCastReceiveScope> receiveScopes = new HashMap<>();
+    private final Map<String, TransportMode> receiveTransportByViewKey = new HashMap<>();
+    private PluginRoutingPanel.RoutingSnapshot lastShareRoutingSnapshot;
     private final CardLayout bodyLayout = new CardLayout();
     private final JPanel bodyCards = new JPanel(bodyLayout);
     private final Map<String, JPanel> bodyPanels = new HashMap<>();
@@ -105,7 +113,11 @@ public class ScreenCastPanel extends JPanel {
             if (!ScreenCastOutboundTabs.isOutboundShareTabKey(key)) {
                 return;
             }
-            sharingByTabKey.put(key, shareToggle.isSelected());
+            boolean nowOn = shareToggle.isSelected();
+            if (!nowOn) {
+                sendShareEndedNoticeForActiveTab();
+            }
+            sharingByTabKey.put(key, nowOn);
             updateShareToggleLabel();
             applySharingForActiveTab();
         });
@@ -136,7 +148,7 @@ public class ScreenCastPanel extends JPanel {
     private void initSessionTabs() {
         sessionTabs.addOrSelectTab(
                 PluginSessionKeys.ROOM,
-                "Todos",
+                SessionTabDirectionLabels.outboundTitle("Todos"),
                 "Transmissão para todos na rede (multicast)",
                 new JPanel(),
                 false
@@ -164,10 +176,15 @@ public class ScreenCastPanel extends JPanel {
         if (key != null && key.startsWith("view:")) {
             peerIpsByViewKey.remove(key);
             receiveScopes.remove(key);
+            receiveTransportByViewKey.remove(key);
             bodyPanels.remove(key);
             return;
         }
         boolean wasSharing = isSharingForTab(key);
+        if (wasSharing) {
+            applyRoutingForSessionKey(key);
+            sendShareEndedNotice(routingPanel.snapshot());
+        }
         sharingByTabKey.remove(key);
         if (wasSharing && key != null && key.equals(shareContextTabKey)) {
             cancelShareTimer();
@@ -304,6 +321,7 @@ public class ScreenCastPanel extends JPanel {
             return;
         }
         syncRoutingFromActiveSessionTab();
+        lastShareRoutingSnapshot = routingPanel.snapshot();
         timer = new Timer();
         alarmClock = new AlarmClock(this);
         timer.scheduleAtFixedRate(alarmClock, 0, TIME);
@@ -356,12 +374,23 @@ public class ScreenCastPanel extends JPanel {
             String ip = peerIpsByViewKey.get(key);
             String title = key.substring("view:".length());
             ScreenCastReceiveScope scope = receiveScopes.getOrDefault(key, ScreenCastReceiveScope.BROADCAST);
-            if (ip != null && !ip.isBlank()) {
-                routingPanel.bindPeerSession(ip, title, scope.bannerHtml());
-            } else {
-                routingPanel.bindPeerSession("", title, scope.bannerHtml());
-            }
+            TransportMode mode = receiveTransportByViewKey.getOrDefault(
+                    key,
+                    transportForReceiveScope(scope)
+            );
+            routingPanel.bindReceiveSession(
+                    ip != null ? ip : "",
+                    title,
+                    scope.bannerHtml(),
+                    mode
+            );
         }
+    }
+
+    private static TransportMode transportForReceiveScope(ScreenCastReceiveScope scope) {
+        return scope == ScreenCastReceiveScope.DIRECT
+                ? TransportMode.UNICAST_UDP
+                : TransportMode.MULTICAST_UDP;
     }
 
     private void openDraftPeerTab() {
@@ -401,11 +430,12 @@ public class ScreenCastPanel extends JPanel {
         peerDisplayNames.put(canonical, resolved);
         ensureBodyPanel(key);
         setBodyMessage(key, ShellUi.mutedLabel(IDLE_PEER_HTML));
+        String tabTitle = SessionTabDirectionLabels.outboundTitle(resolved);
         if (sessionTabs.hasTab(key)) {
-            sessionTabs.setTabTitle(key, resolved, canonical);
+            sessionTabs.setTabTitle(key, tabTitle, canonical);
             sessionTabs.selectTab(key);
         } else {
-            sessionTabs.addOrSelectTab(key, resolved, canonical, new JPanel(), true);
+            sessionTabs.addOrSelectTab(key, tabTitle, canonical, new JPanel(), true);
         }
         routingPanel.bindPeerSession(canonical, resolved);
         showBodyCard(key);
@@ -440,7 +470,7 @@ public class ScreenCastPanel extends JPanel {
         if (!sessionTabs.hasTab(PluginSessionKeys.ROOM)) {
             sessionTabs.addOrSelectTab(
                     PluginSessionKeys.ROOM,
-                    "Todos",
+                    SessionTabDirectionLabels.outboundTitle("Todos"),
                     "Transmissão para todos na rede (multicast)",
                     new JPanel(),
                     false
@@ -464,6 +494,9 @@ public class ScreenCastPanel extends JPanel {
     }
 
     public void stopSharing() {
+        if (isSharingForTab(sessionTabs.selectedKey())) {
+            sendShareEndedNoticeForActiveTab();
+        }
         sharingByTabKey.replaceAll((k, v) -> false);
         setShareToggleSelectedSilently(false);
         cancelShareTimer();
@@ -560,9 +593,12 @@ public class ScreenCastPanel extends JPanel {
                     updateTabError(viewKey, message.getName(), "Não foi possível decodificar a imagem.", scope);
                     return;
                 }
-                receiveScopes.put(viewKey, scope != null ? scope : ScreenCastReceiveScope.BROADCAST);
+                ScreenCastReceiveScope resolvedScope = scope != null ? scope : ScreenCastReceiveScope.BROADCAST;
+                receiveScopes.put(viewKey, resolvedScope);
+                receiveTransportByViewKey.put(viewKey, transportForReceiveScope(resolvedScope));
                 resolveSenderIp(message.getName(), viewKey);
-                sessionTabs.addTabIfAbsent(viewKey, message.getName(), message.getName(), new JPanel(), true);
+                String tabTitle = SessionTabDirectionLabels.inboundTitle(message.getName());
+                sessionTabs.addTabIfAbsent(viewKey, tabTitle, message.getName(), new JPanel(), true);
                 setBodyContent(viewKey, new JScrollPane(new JLabel(new ImageIcon(image))));
                 if (viewKey.equals(sessionTabs.selectedKey())) {
                     showBodyCard(viewKey);
@@ -586,13 +622,81 @@ public class ScreenCastPanel extends JPanel {
     }
 
     private void updateTabError(String tabKey, String title, String error, ScreenCastReceiveScope scope) {
-        receiveScopes.put(tabKey, scope != null ? scope : ScreenCastReceiveScope.BROADCAST);
+        ScreenCastReceiveScope resolvedScope = scope != null ? scope : ScreenCastReceiveScope.BROADCAST;
+        receiveScopes.put(tabKey, resolvedScope);
+        receiveTransportByViewKey.put(tabKey, transportForReceiveScope(resolvedScope));
         JLabel label = new JLabel("<html><p style='color:#c62828'>" + error + "</p></html>");
         setBodyContent(tabKey, label);
-        sessionTabs.addTabIfAbsent(tabKey, title, title, new JPanel(), true);
+        String tabTitle = SessionTabDirectionLabels.inboundTitle(title);
+        sessionTabs.addTabIfAbsent(tabKey, tabTitle, title, new JPanel(), true);
         if (tabKey.equals(sessionTabs.selectedKey())) {
             showBodyCard(tabKey);
         }
+    }
+
+    public void closeReceiveTab(String senderDisplayName) {
+        if (senderDisplayName == null || senderDisplayName.isBlank()) {
+            return;
+        }
+        String viewKey = "view:" + senderDisplayName;
+        if (!sessionTabs.hasTab(viewKey)) {
+            return;
+        }
+        SwingUtilities.invokeLater(() -> {
+            if (viewKey.equals(sessionTabs.selectedKey())) {
+                String fallback = sessionTabs.hasTab(PluginSessionKeys.ROOM)
+                        ? PluginSessionKeys.ROOM
+                        : lastSessionKey;
+                if (fallback != null && sessionTabs.hasTab(fallback) && !fallback.startsWith("view:")) {
+                    sessionTabs.selectTabSilently(fallback);
+                    onSessionTabSelected(fallback);
+                }
+            }
+            peerIpsByViewKey.remove(viewKey);
+            receiveScopes.remove(viewKey);
+            receiveTransportByViewKey.remove(viewKey);
+            bodyPanels.remove(viewKey);
+            sessionTabs.closeTab(viewKey);
+        });
+    }
+
+    private void sendShareEndedNoticeForActiveTab() {
+        PluginRoutingPanel.RoutingSnapshot snap = lastShareRoutingSnapshot != null
+                ? lastShareRoutingSnapshot
+                : routingPanel.snapshot();
+        sendShareEndedNotice(snap);
+    }
+
+    private void sendShareEndedNotice(PluginRoutingPanel.RoutingSnapshot routing) {
+        if (pluginId == null || routing == null) {
+            return;
+        }
+        TransportMode mode = routing.transport();
+        if (mode == null) {
+            return;
+        }
+        try {
+            SessionNoticeScope scope = routing.everyoneInRoom()
+                    ? SessionNoticeScope.BROADCAST
+                    : SessionNoticeScope.DIRECT;
+            String localIp = PeerIpv4.normalize(LocalNetworkInfo.bestLocalIpv4());
+            SessionNoticeMessage notice = new SessionNoticeMessage(
+                    pluginId,
+                    SessionNoticePhase.END,
+                    SessionNoticeChannel.SCREEN_CAST,
+                    connectionManager.getUserName(),
+                    localIp,
+                    scope,
+                    mode
+            );
+            SendTarget target = resolveSendTarget(routing);
+            if (target != null) {
+                MessageDispatcher.send(connectionManager, notice, target, mode);
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ScreenCastPanel.class.getName()).log(Level.WARNING, ex.getMessage());
+        }
+        lastShareRoutingSnapshot = null;
     }
 
     private void ensureBodyPanel(String key) {

@@ -48,6 +48,8 @@ public final class PluginRoutingPanel extends JPanel {
     private Consumer<Boolean> privateTcpListener = on -> {
     };
     private boolean everyoneInRoom = true;
+    private boolean receiveOnly;
+    private TransportMode observedReceiveTransport;
     private TransportMode lastRoomTransport = TransportMode.MULTICAST_UDP;
     private TransportMode lastPeerTransport = TransportMode.UNICAST_UDP;
 
@@ -82,6 +84,8 @@ public final class PluginRoutingPanel extends JPanel {
     }
 
     public void bindRoomSession() {
+        receiveOnly = false;
+        observedReceiveTransport = null;
         everyoneInRoom = true;
         ipField.setText("");
         sessionBanner.setText("<html><b>Sessão:</b> Sala geral (Todos)</html>");
@@ -94,7 +98,33 @@ public final class PluginRoutingPanel extends JPanel {
     }
 
     public void bindPeerSession(String ip, String displayName, String receiveScopeHtml) {
+        receiveOnly = false;
+        observedReceiveTransport = null;
         everyoneInRoom = false;
+        String normalized = PeerIpv4.normalize(ip != null ? ip : "");
+        if (!normalized.isEmpty()) {
+            ipField.setText(normalized);
+        } else if (ip != null) {
+            ipField.setText(ip);
+        }
+        String who = displayName != null && !displayName.isBlank() ? displayName : normalized;
+        sessionBanner.setText(SessionPeerLabels.sessionBannerHtml(who, normalized.isEmpty() ? ip : normalized));
+        setReceiveScopeHint(receiveScopeHtml);
+        applyRoutingState();
+    }
+
+    /**
+     * Sessão de recebimento: IP e transporte só leitura (definidos pelo remetente).
+     */
+    public void bindReceiveSession(
+            String ip,
+            String displayName,
+            String receiveScopeHtml,
+            TransportMode observedMode
+    ) {
+        receiveOnly = true;
+        everyoneInRoom = false;
+        observedReceiveTransport = observedMode != null ? observedMode : TransportMode.UNICAST_UDP;
         String normalized = PeerIpv4.normalize(ip != null ? ip : "");
         if (!normalized.isEmpty()) {
             ipField.setText(normalized);
@@ -181,9 +211,20 @@ public final class PluginRoutingPanel extends JPanel {
     private void applyRoutingState() {
         ipLabel.setVisible(!everyoneInRoom);
         ipField.setVisible(!everyoneInRoom);
+        rowHint.setVisible(!everyoneInRoom);
+        if (receiveOnly) {
+            ipField.setEnabled(false);
+            privateTcpToggle.setEnabled(false);
+            transportCombo.setEnabled(false);
+            DefaultComboBoxModel<TransportMode> readOnly = new DefaultComboBoxModel<>();
+            readOnly.addElement(observedReceiveTransport);
+            transportCombo.setModel(readOnly);
+            transportCombo.setSelectedItem(observedReceiveTransport);
+            updateDestinationModeHint();
+            return;
+        }
         ipField.setEnabled(!everyoneInRoom);
         privateTcpToggle.setEnabled(!everyoneInRoom);
-        rowHint.setVisible(!everyoneInRoom);
         if (everyoneInRoom) {
             privateTcpToggle.setSelected(false);
             updatePrivateToggleLabel();

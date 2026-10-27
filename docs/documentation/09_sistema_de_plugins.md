@@ -77,3 +77,9 @@ Na `MainShellFrame`, `createPlugin(ConnectionManager, PluginWorkspace)` registra
 `PluginRoutingPanel` (núcleo) padroniza destino, forma de envio e dica embaixo para chat, screencast e futuros plugins.
 
 `MessageDispatcher` envia com `TransportMode` e `SendTarget`. `PluginTransportCatalog` define quais transportes cada plugin mostra na UI (sala geral vs um IP). Os combos usam textos didáticos (`describeForUi`) com o termo técnico entre parênteses (multicast UDP, UDP unicast, TCP). Na sala geral o campo IP fica desativado; um resumo **“Como esta mensagem vai”** (chat) deixa explícito o transporte escolhido — na sala pode ser multicast ou cópias unicast/TCP para cada pessoa, conforme o plugin. Para um peer use o IP manualmente ou a peer action na lista lateral.
+
+Em abas de **recebimento** (ex. screencast `view:`), `PluginRoutingPanel.bindReceiveSession` deixa IP e forma de envio somente leitura, refletindo o que o remetente usou.
+
+### Avisos de sessão (D24)
+
+`SessionNoticeMessage` (núcleo) sinaliza fases `START` / `END` por `pluginId` e canal (`SessionNoticeChannel`, ex. `screen_cast`). Plugins registram o tipo em `getMessages()` e reagem na UI (ex. fechar aba de recebimento ao `END` de compartilhamento). Campos incluem remetente, escopo (broadcast/direto) e `TransportMode` observado.

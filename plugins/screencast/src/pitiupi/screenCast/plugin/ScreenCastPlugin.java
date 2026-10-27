@@ -11,7 +11,10 @@ import pitiupi.application.peeractions.PeerTarget;
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.GuiManager;
 import pitiupi.models.Menus.MenuCategory;
+import pitiupi.application.session.SessionNoticeChannel;
+import pitiupi.application.session.SessionNoticePhase;
 import pitiupi.models.Messages.Message;
+import pitiupi.models.Messages.SessionNoticeMessage;
 import pitiupi.models.Plugin;
 import pitiupi.screenCast.GUI.ScreenCastMenu;
 import pitiupi.screenCast.GUI.ScreenCastPanel;
@@ -98,11 +101,15 @@ public class ScreenCastPlugin extends Plugin {
 
     @Override
     public List<Class<? extends Message>> getMessages() {
-        return List.of(ScreenCastMessage.class);
+        return List.of(ScreenCastMessage.class, SessionNoticeMessage.class);
     }
 
     @Override
     public void receiveMessage(Message message) {
+        if (message instanceof SessionNoticeMessage notice && screenCastPanel != null) {
+            handleSessionNotice(notice);
+            return;
+        }
         if (message instanceof ScreenCastMessage msg && screenCastPanel != null) {
             if (isOwnOutboundFrame(msg)) {
                 return;
@@ -132,6 +139,27 @@ public class ScreenCastPlugin extends Plugin {
             }
         }
         return ScreenCastReceiveScope.BROADCAST;
+    }
+
+    private void handleSessionNotice(SessionNoticeMessage notice) {
+        if (notice.getChannel() != SessionNoticeChannel.SCREEN_CAST) {
+            return;
+        }
+        if (notice.getPhase() != SessionNoticePhase.END) {
+            return;
+        }
+        if (!getIdentifier().equals(notice.getPluginId())) {
+            return;
+        }
+        String sender = notice.getSenderDisplayName();
+        if (sender == null) {
+            return;
+        }
+        String localName = connectionManager != null ? connectionManager.getUserName() : null;
+        if (localName != null && localName.equals(sender.trim())) {
+            return;
+        }
+        screenCastPanel.closeReceiveTab(sender);
     }
 
 }
