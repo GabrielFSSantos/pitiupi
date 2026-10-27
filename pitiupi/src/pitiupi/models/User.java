@@ -1,6 +1,8 @@
 package pitiupi.models;
 
 import java.net.InetAddress;
+
+import pitiupi.presentation.shell.PeerIpv4;
 /**
  * Representa um usuário identificado na rede e as informações necessárias
  * para acompanhar sua presença através de mensagens de heartbeat.
@@ -68,6 +70,6 @@ public class User {
         if (isBroadcastTarget() || address == null) {
             return userName;
         }
-        return userName + " (" + address.getHostAddress() + ")";
+        return userName + " (" + PeerIpv4.fromInetAddress(address) + ")";
     }
 }

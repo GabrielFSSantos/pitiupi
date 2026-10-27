@@ -2,8 +2,6 @@ package pitiupi.presentation.shell;
 
 import pitiupi.control.ConnectionManager;
 
-import java.net.InetAddress;
-
 /**
  * Identifica mensagens e atividade originadas neste host (eco de rede).
  */
@@ -28,7 +26,7 @@ public final class LocalUserIdentity {
 
     private static String canonicalIpv4(String ip) {
         try {
-            return InetAddress.getByName(ip.trim()).getHostAddress();
+            return PeerIpv4.normalize(ip);
         } catch (Exception ex) {
             return ip.trim();
         }

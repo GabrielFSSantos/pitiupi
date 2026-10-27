@@ -3,8 +3,6 @@ package pitiupi.presentation.shell;
 import pitiupi.application.presence.UserPeerView;
 import pitiupi.control.ConnectionManager;
 
-import java.net.InetAddress;
-
 /**
  * Nomes amigáveis para abas e banner de sessão com peers.
  */
@@ -17,7 +15,7 @@ public final class SessionPeerLabels {
         if (ip == null || ip.isBlank()) {
             return hintName != null && !hintName.isBlank() ? hintName : "";
         }
-        String trimmedIp = ip.trim();
+        String trimmedIp = PeerIpv4.normalize(ip);
         if (hintName != null && !hintName.isBlank() && !hintName.trim().equals(trimmedIp)) {
             return hintName.trim();
         }
@@ -28,7 +26,7 @@ public final class SessionPeerLabels {
             if (view.isSelf() && isLocalIp(trimmedIp)) {
                 return selfLabel(connectionManager);
             }
-            if (view.getInetAddress().map(InetAddress::getHostAddress).orElse("").equals(trimmedIp)) {
+            if (view.getInetAddress().map(PeerIpv4::fromInetAddress).orElse("").equals(trimmedIp)) {
                 String name = view.getDisplayName();
                 if (name != null && !name.isBlank() && !name.equals(trimmedIp)) {
                     return name;

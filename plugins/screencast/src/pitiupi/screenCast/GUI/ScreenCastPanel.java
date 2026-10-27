@@ -7,6 +7,7 @@ import pitiupi.application.messaging.TransportMode;
 import pitiupi.application.presence.UserPeerView;
 import pitiupi.control.ConnectionManager;
 import pitiupi.presentation.shell.PeerDraftPanel;
+import pitiupi.presentation.shell.PeerIpv4;
 import pitiupi.presentation.shell.PluginRoutingPanel;
 import pitiupi.presentation.shell.PluginSessionKeys;
 import pitiupi.presentation.shell.PluginSessionWorkspace;
@@ -350,14 +351,7 @@ public class ScreenCastPanel extends JPanel {
     }
 
     private static String canonicalPeerIp(String ip) {
-        if (ip == null || ip.isBlank()) {
-            return "";
-        }
-        try {
-            return InetAddress.getByName(ip.trim()).getHostAddress();
-        } catch (Exception ex) {
-            return ip.trim();
-        }
+        return PeerIpv4.normalize(ip);
     }
 
     public void focusMulticastSharing() {
@@ -375,7 +369,7 @@ public class ScreenCastPanel extends JPanel {
             return;
         }
         peer.getInetAddress().ifPresent(addr -> {
-            String ip = addr.getHostAddress();
+            String ip = PeerIpv4.fromInetAddress(addr);
             openPeerTab(ip, peer.getDisplayName());
             String key = PluginSessionKeys.peer(canonicalPeerIp(ip));
             sharingByTabKey.put(key, true);
@@ -389,7 +383,7 @@ public class ScreenCastPanel extends JPanel {
         if (peer == null || peer.isBroadcastTarget() || peer.isSelf()) {
             return;
         }
-        peer.getInetAddress().ifPresent(addr -> openPeerTab(addr.getHostAddress(), peer.getDisplayName()));
+        peer.getInetAddress().ifPresent(addr -> openPeerTab(PeerIpv4.fromInetAddress(addr), peer.getDisplayName()));
     }
 
     private void ensureTodosTab() {
@@ -534,7 +528,7 @@ public class ScreenCastPanel extends JPanel {
                 continue;
             }
             if (senderName != null && senderName.equals(view.getDisplayName())) {
-                view.getInetAddress().ifPresent(addr -> peerIpsByViewKey.put(viewKey, addr.getHostAddress()));
+                view.getInetAddress().ifPresent(addr -> peerIpsByViewKey.put(viewKey, PeerIpv4.fromInetAddress(addr)));
                 return;
             }
         }

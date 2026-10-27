@@ -95,11 +95,14 @@ public final class PluginRoutingPanel extends JPanel {
 
     public void bindPeerSession(String ip, String displayName, String receiveScopeHtml) {
         everyoneInRoom = false;
-        if (ip != null) {
+        String normalized = PeerIpv4.normalize(ip != null ? ip : "");
+        if (!normalized.isEmpty()) {
+            ipField.setText(normalized);
+        } else if (ip != null) {
             ipField.setText(ip);
         }
-        String who = displayName != null && !displayName.isBlank() ? displayName : ip;
-        sessionBanner.setText(SessionPeerLabels.sessionBannerHtml(who, ip));
+        String who = displayName != null && !displayName.isBlank() ? displayName : normalized;
+        sessionBanner.setText(SessionPeerLabels.sessionBannerHtml(who, normalized.isEmpty() ? ip : normalized));
         setReceiveScopeHint(receiveScopeHtml);
         applyRoutingState();
     }

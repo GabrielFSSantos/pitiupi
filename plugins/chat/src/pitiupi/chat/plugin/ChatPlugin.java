@@ -14,6 +14,7 @@ import pitiupi.chat.net.ChatMessage;
 import pitiupi.chat.net.LegacyMpChatMessage;
 import pitiupi.control.ConnectionManager;
 import pitiupi.presentation.shell.LocalUserIdentity;
+import pitiupi.presentation.shell.PeerIpv4;
 import pitiupi.control.GuiManager;
 import pitiupi.models.Messages.Message;
 import pitiupi.models.Plugin;
@@ -138,17 +139,17 @@ public class ChatPlugin extends Plugin implements PrivateChatHost {
         if (ip == null || ip.isBlank() || connectionManager == null) {
             return null;
         }
-        try {
-            InetAddress address = InetAddress.getByName(ip);
-            for (UserPeerView view : connectionManager.getPresenceService().listPeerViews()) {
-                if (view.isSelf()) {
-                    continue;
-                }
-                if (view.getInetAddress().isPresent() && view.getInetAddress().get().equals(address)) {
-                    return view.getInstanceId();
-                }
+        String needle = PeerIpv4.normalize(ip);
+        if (needle.isEmpty()) {
+            return null;
+        }
+        for (UserPeerView view : connectionManager.getPresenceService().listPeerViews()) {
+            if (view.isSelf()) {
+                continue;
             }
-        } catch (Exception ignored) {
+            if (view.getInetAddress().map(PeerIpv4::fromInetAddress).orElse("").equals(needle)) {
+                return view.getInstanceId();
+            }
         }
         return null;
     }
@@ -166,7 +167,7 @@ public class ChatPlugin extends Plugin implements PrivateChatHost {
             return true;
         }
         privateChatController.receiveMessage(connection, legacy);
-        String instanceId = peerInstanceIdForActivity(connection.getAddress().getHostAddress());
+        String instanceId = peerInstanceIdForActivity(PeerIpv4.fromInetAddress(connection.getAddress()));
         if (instanceId != null) {
             connectionManager.getPeerActivityInbox().record(instanceId, getIdentifier(), "chat.private.tcp");
         }

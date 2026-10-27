@@ -12,6 +12,7 @@ import pitiupi.chat.net.LegacyMpChatMessage;
 import pitiupi.control.ConnectionManager;
 import pitiupi.models.User;
 import pitiupi.presentation.shell.LocalNetworkInfo;
+import pitiupi.presentation.shell.PeerIpv4;
 import pitiupi.presentation.shell.LocalUserIdentity;
 import pitiupi.presentation.shell.PeerDraftPanel;
 import pitiupi.presentation.shell.PluginRoutingPanel;
@@ -245,14 +246,7 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
     }
 
     private static String canonicalPeerIp(String ip) {
-        if (ip == null || ip.isBlank()) {
-            return "";
-        }
-        try {
-            return InetAddress.getByName(ip.trim()).getHostAddress();
-        } catch (Exception ex) {
-            return ip.trim();
-        }
+        return PeerIpv4.normalize(ip);
     }
 
     private void selectRoomSession() {
@@ -275,7 +269,7 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
             return;
         }
         peer.getInetAddress().ifPresent(addr ->
-                openPeerTab(addr.getHostAddress(), peer.getDisplayName()));
+                openPeerTab(PeerIpv4.fromInetAddress(addr), peer.getDisplayName()));
     }
 
     public void enablePrivateTcpForPeer(UserPeerView peer) {
@@ -415,7 +409,7 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
                 if (privateChatController != null) {
                     privateChatController.openChat(user);
                 }
-                appendSystemLine(privateKey(user.getAddress().getHostAddress()),
+                appendSystemLine(privateKey(PeerIpv4.fromInetAddress(user.getAddress())),
                         "Canal TCP privado conectando… envie de novo em instantes.");
                 return;
             }

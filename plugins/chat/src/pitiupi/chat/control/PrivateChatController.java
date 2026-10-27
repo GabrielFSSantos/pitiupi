@@ -5,6 +5,7 @@ import pitiupi.control.ConnectionManager;
 import pitiupi.models.User;
 import pitiupi.net.tcp.TcpConnection;
 import pitiupi.presentation.shell.LocalNetworkInfo;
+import pitiupi.presentation.shell.PeerIpv4;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,14 +30,14 @@ public class PrivateChatController {
     }
 
     private static String addressKey(TcpConnection connection) {
-        return connection.getAddress().getHostAddress();
+        return PeerIpv4.fromInetAddress(connection.getAddress());
     }
 
     public void openChat(User user) {
         if (user == null || user.getAddress() == null) {
             return;
         }
-        String address = user.getAddress().getHostAddress();
+        String address = PeerIpv4.fromInetAddress(user.getAddress());
         if (connections.containsKey(address)) {
             if (uiSink != null) {
                 uiSink.onPrivateChannelReady(address);
@@ -77,7 +78,7 @@ public class PrivateChatController {
         if (user == null || user.getAddress() == null || text == null || text.isBlank()) {
             return false;
         }
-        String address = user.getAddress().getHostAddress();
+        String address = PeerIpv4.fromInetAddress(user.getAddress());
         TcpConnection connection = connections.get(address);
         if (connection == null) {
             return false;
@@ -104,6 +105,6 @@ public class PrivateChatController {
         if (user == null || user.getAddress() == null) {
             return false;
         }
-        return connections.containsKey(user.getAddress().getHostAddress());
+        return connections.containsKey(PeerIpv4.fromInetAddress(user.getAddress()));
     }
 }
