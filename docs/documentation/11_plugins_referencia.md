@@ -38,6 +38,6 @@ Os plugins de referência são **exemplos de sala de aula**, não produtos compl
 | --- | --- | --- |
 | **chat** | texto, sala geral, unicast/multicast/TCP, TCP privado básico | imagens, moderação, histórico persistente, criptografia |
 | **screencast** | stream read-only, avisos de sessão | controle remoto do mouse/teclado, áudio |
-| **ping** (exercício do aluno) | RTT, ping uma vez/contínuo, parar e avisar o peer | ICMP do SO, gráficos, SLA |
+| **ping** (exercício do aluno) | chrome de sessão v1 (`PluginRoutingPanel`, abas ↑/↓), RTT, UDP apenas | TCP privado, ICMP do SO, gráficos, SLA |
 
 Para evoluir: copie o padrão (`Plugin` + mensagens + painel na aba) e acrescente features no **seu** JAR — sem inflar o núcleo.

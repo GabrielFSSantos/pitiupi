@@ -13,4 +13,18 @@ class PluginTransportCatalogTest {
         assertTrue(modes.contains(TransportMode.MULTICAST_UDP));
         assertFalse(modes.contains(TransportMode.TCP));
     }
+
+    @Test
+    void pingBroadcastExcludesTcp() {
+        var modes = PluginTransportCatalog.forBroadcast(PluginTransportCatalog.PluginKind.PING);
+        assertTrue(modes.contains(TransportMode.MULTICAST_UDP));
+        assertFalse(modes.contains(TransportMode.TCP));
+    }
+
+    @Test
+    void pingSinglePeerIsUdpOnly() {
+        var modes = PluginTransportCatalog.forSinglePeer(PluginTransportCatalog.PluginKind.PING);
+        assertTrue(modes.contains(TransportMode.UNICAST_UDP));
+        assertFalse(modes.contains(TransportMode.TCP));
+    }
 }

@@ -78,19 +78,18 @@ Use `PeerIpv4` e `LocalNetworkInfo.bestLocalIpv4()` para IP legível no Windows.
 
 ## Passo 5 — `PingPanel` (UI)
 
-`JPanel` com:
+Siga o mesmo chrome do screencast: `PluginSessionWorkspace` + `PluginRoutingPanel` (`PluginKind.PING`, sem TCP privado).
 
-- `SessionTabBar` — aba fixa **Todos** + `addTabIfAbsent` quando chega tráfego de um peer (**sem** mudar a aba ativa da shell).
+- **Destino e transporte** no topo (IP, forma de envio, banner da sessão).
+- Toolbar: **Enviar ping** (uma vez) e **Ping contínuo** (toggle só em abas de peer **↑**; na sala **Todos** só o envio único).
+- `SessionTabBar`: sala `Todos ↑`; peers que você abre `Nome ↑`; recebimento passivo `Nome ↓` (`view:<ip>`).
+- `+ Nova` / `PeerDraftPanel` para IP manual.
 - `JTextArea` monoespaçada por aba; linhas como `[HH:mm:ss] pong ← Alice · RTT 42 ms`.
-- Botão **Parar todos os pings contínuos** chamando o controller.
+- Abas **↓**: `bindReceiveSession` — controles de envio desabilitados.
 
-**Não** use `JFrame`. No `PingPlugin`:
+**Não** use `JFrame`. No `PingPlugin`: `bindShellWorkspaceContent(panel)`.
 
-```java
-bindShellWorkspaceContent(panel);
-```
-
-A aba só abre quando o usuário clicar na galeria **Plugins** ou numa peer action.
+A aba da shell só abre quando o usuário clicar na galeria **Plugins** ou numa peer action (sem enviar ping automaticamente).
 
 ## Passo 6 — `PingPlugin`
 
@@ -107,14 +106,12 @@ A aba só abre quando o usuário clicar na galeria **Plugins** ou numa peer acti
 
 **Peer actions sugeridas:**
 
-| id | Label | Alvo |
-| --- | --- | --- |
-| `ping.once` | Ping uma vez | um peer |
-| `ping.continuous` | Ping contínuo | um peer |
-| `ping.stop` | Parar ping | um peer |
-| `ping.all.once` | Ping para todos (uma vez) | Todos → `MULTICAST_UDP` |
+| id | Label | Alvo | Comportamento |
+| --- | --- | --- | --- |
+| `ping.peer` | Enviar ping para esta pessoa | um peer | Abre/foca o plugin e a aba `↑` com o IP — **sem** disparar ping |
+| `ping.room` | Abrir ping na sala (Todos) | Todos | Abre a aba sala — **sem** disparar ping |
 
-Em cada ação de peer único: `workspace.openOrFocusTab(getIdentifier(), getDisplayName())` e chame o controller.
+O envio fica nos botões do painel.
 
 `receiveMessage`: despache para o controller com `SwingUtilities.invokeLater`.
 
@@ -126,8 +123,8 @@ Em cada ação de peer único: `workspace.openOrFocusTab(getIdentifier(), getDis
 2. Aba **Configurações** → **Instalar JAR…** (ou copie para `~/pitiupi/plugins/`).
 3. **Reinicie** o Pitiupi (obrigatório após mudar plugins).
 4. Dois processos no mesmo PC: portas **5000** e **5001**, nomes diferentes.
-5. Peer action **Ping uma vez** → veja RTT no log.
-6. **Ping contínuo** → linhas a cada ~1 s; **Parar ping** → o outro vê “parou o ping contínuo”.
+5. Lista lateral → **Enviar ping para esta pessoa** → aba `↑` com IP; clique **Enviar ping** → RTT no log.
+6. Toggle **Ping contínuo** na aba `↑` → linhas a cada ~1 s; desligar o toggle → o outro vê “parou o ping contínuo” na aba `↓`.
 7. Com colega na LAN: mesma porta, JAR instalado nos dois.
 
 Instalação usa o mesmo `PluginStore` da aba **Configurações** (`installFromFile` + reinício). O núcleo expõe `pitiupi.tools.PluginStoreCli` para testes sem interface gráfica.
@@ -141,7 +138,7 @@ O chat usa a mesma ideia de abas de sessão, mas adiciona roteamento TCP privado
 - [ ] SPI e `getIdentifier` únicos
 - [ ] Três mensagens registradas
 - [ ] RTT calculado no `Pong`
-- [ ] Aba passiva ao receber ping de peer novo
+- [ ] Aba passiva `↓` ao receber ping de peer novo (sem roubar foco da shell)
 - [ ] Contínuo + parar com aviso ao peer
 - [ ] Reinício após instalar JAR
 - [ ] Teste com segundo usuário (5001 ou outro PC)

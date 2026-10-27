@@ -9,7 +9,8 @@ public final class PluginTransportCatalog {
 
     public enum PluginKind {
         CHAT,
-        SCREEN_CAST
+        SCREEN_CAST,
+        PING
     }
 
     private PluginTransportCatalog() {
@@ -22,7 +23,7 @@ public final class PluginTransportCatalog {
                     TransportMode.UNICAST_UDP,
                     TransportMode.TCP
             );
-            case SCREEN_CAST -> List.of(
+            case SCREEN_CAST, PING -> List.of(
                     TransportMode.MULTICAST_UDP,
                     TransportMode.UNICAST_UDP
             );
@@ -35,6 +36,7 @@ public final class PluginTransportCatalog {
                     TransportMode.UNICAST_UDP,
                     TransportMode.TCP
             );
+            case PING -> List.of(TransportMode.UNICAST_UDP);
         };
     }
 }
