@@ -3,8 +3,8 @@
 | Módulo | Build | Java |
 | --- | --- | --- |
 | `pitiupi` | Ant | 17 |
-| `plugins/chat` | Ant | 25 |
-| `plugins/screencast` | Ant | 25 |
+| `plugins/chat` | Ant | 17 |
+| `plugins/screencast` | Ant | 17 |
 
 ```bash
 cd pitiupi && ant jar

@@ -73,12 +73,12 @@ O núcleo carrega **todos os `*.jar`** em `PITIUPI_HOME/plugins`. Detalhes: [pit
 
 | Ferramenta | Uso |
 | --- | --- |
-| **JDK** com `javac` | Compilação (OpenJDK **25** recomendado; núcleo Java 17) |
+| **JDK** com `javac` | Compilação **Java 17+** (núcleo e plugins usam bytecode 17) |
 | **Apache Ant** | Módulos NetBeans |
 | **python3** | Script `scripts/pitiupi.sh` (ler o catálogo) |
 
 ```bash
-sudo apt install openjdk-25-jdk ant
+sudo apt install openjdk-21-jdk ant
 ./scripts/pitiupi.sh check
 cd pitiupi && ant test    # testes JUnit do núcleo
 ```

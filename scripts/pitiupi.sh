@@ -240,6 +240,14 @@ check_tools() {
     registry_python validate
     printf 'OK plugins.registry.json\n'
   fi
+  if command -v javac >/dev/null 2>&1; then
+    local javac_major
+    javac_major="$(javac -version 2>&1 | grep -oE '[0-9]+' | head -1)"
+    if [[ -n "${javac_major}" && "${javac_major}" -lt 17 ]]; then
+      printf 'ERRO: javac precisa ser Java 17 ou superior (atual: %s)\n' "$(javac -version 2>&1)" >&2
+      ok=1
+    fi
+  fi
   return "${ok}"
 }
 

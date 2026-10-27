@@ -2,13 +2,14 @@
 
 ## Pré-requisitos
 
-- **JDK completo** (`java` e `javac`) — OpenJDK 25 recomendado; o núcleo usa `javac.source/target=17`, plugins Ant usam 25.
+- **JDK completo** (`java` e `javac`) — **Java 17 ou superior** (17, 21 ou 25). Núcleo e plugins compilam com `javac.source/target=17`.
 - Apache Ant (`pitiupi`, `plugins/chat`, `plugins/screencast`)
 
 Ubuntu / WSL:
 
 ```bash
-sudo apt install openjdk-25-jdk ant
+sudo apt install openjdk-21-jdk ant
+# ou: openjdk-17-jdk
 which javac ant
 ```
 
