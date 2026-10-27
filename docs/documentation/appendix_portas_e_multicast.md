@@ -29,6 +29,10 @@ Executar o Pitiupi no WSL e peers no Windows (ou vice-versa) pode falhar em mult
 - todos os peers no mesmo ambiente (Linux nativo ou VMs), ou
 - dois PCs físicos na mesma sub-rede.
 
+## Escolha de interface (multicast)
+
+O núcleo associa o socket multicast à interface de rede preferida: **cabo (Ethernet) antes de Wi‑Fi**; em cabo com link-local APIPA, prioriza IPv4 **`169.254.*`**. Isso não substitui a exigência de **mesma sub-rede** entre os dois PCs — `169.254.x` e `192.168.x` ao mesmo tempo em hosts diferentes não compartilham heartbeat.
+
 ## Checklist — dois PCs na mesma Wi‑Fi
 
 1. **Mesma porta no login** (ex.: `5000` nos dois). Portas diferentes isolam a sala.

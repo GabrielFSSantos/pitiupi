@@ -11,14 +11,19 @@ import java.util.Locale;
  */
 public final class LocalNetworkInfo {
 
+    private static final String APIPA_PREFIX = "169.254.";
+
     private LocalNetworkInfo() {
     }
 
     /**
-     * Interface preferida para LAN (Wi‑Fi/cabo), ignorando bridges Docker/WSL/VPN virtuais quando possível.
+     * Interface preferida para LAN: cabo antes de Wi‑Fi; APIPA (169.254.x) antes de outro IPv4 no cabo.
      */
     public static NetworkInterface preferredNetworkInterface() {
         try {
+            NetworkInterface wiredApipa = null;
+            NetworkInterface wiredOther = null;
+            NetworkInterface wireless = null;
             NetworkInterface fallback = null;
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
@@ -26,12 +31,30 @@ public final class LocalNetworkInfo {
                 if (!isCandidateInterface(ni)) {
                     continue;
                 }
-                if (isPreferredLanInterfaceName(ni.getName())) {
-                    return ni;
-                }
                 if (fallback == null) {
                     fallback = ni;
                 }
+                String name = ni.getName();
+                if (isWiredLanInterfaceName(name)) {
+                    if (hasApipaIpv4(ni)) {
+                        if (wiredApipa == null) {
+                            wiredApipa = ni;
+                        }
+                    } else if (wiredOther == null) {
+                        wiredOther = ni;
+                    }
+                } else if (isWirelessLanInterfaceName(name) && wireless == null) {
+                    wireless = ni;
+                }
+            }
+            if (wiredApipa != null) {
+                return wiredApipa;
+            }
+            if (wiredOther != null) {
+                return wiredOther;
+            }
+            if (wireless != null) {
+                return wireless;
             }
             return fallback;
         } catch (Exception ex) {
@@ -43,7 +66,7 @@ public final class LocalNetworkInfo {
         try {
             NetworkInterface preferred = preferredNetworkInterface();
             if (preferred != null) {
-                String fromPreferred = firstIpv4OnInterface(preferred);
+                String fromPreferred = bestIpv4OnInterface(preferred);
                 if (fromPreferred != null) {
                     return fromPreferred;
                 }
@@ -54,7 +77,7 @@ public final class LocalNetworkInfo {
                 if (!isCandidateInterface(ni)) {
                     continue;
                 }
-                String ip = firstIpv4OnInterface(ni);
+                String ip = bestIpv4OnInterface(ni);
                 if (ip != null) {
                     return ip;
                 }
@@ -80,7 +103,7 @@ public final class LocalNetworkInfo {
         if (ni.isVirtual() || isVirtualInterfaceName(ni.getName())) {
             return false;
         }
-        return firstIpv4OnInterface(ni) != null;
+        return bestIpv4OnInterface(ni) != null;
     }
 
     private static boolean isVirtualInterfaceName(String name) {
@@ -97,18 +120,55 @@ public final class LocalNetworkInfo {
                 || n.startsWith("tailscale");
     }
 
-    private static boolean isPreferredLanInterfaceName(String name) {
+    private static boolean isWiredLanInterfaceName(String name) {
+        if (name == null) {
+            return false;
+        }
+        String n = name.toLowerCase(Locale.ROOT);
+        return n.startsWith("eth")
+                || n.startsWith("eno")
+                || n.startsWith("enp")
+                || n.startsWith("ens");
+    }
+
+    private static boolean isWirelessLanInterfaceName(String name) {
         if (name == null) {
             return false;
         }
         String n = name.toLowerCase(Locale.ROOT);
         return n.startsWith("wlan")
                 || n.startsWith("wlp")
-                || n.startsWith("wl")
-                || n.startsWith("eth")
-                || n.startsWith("eno")
-                || n.startsWith("enp")
-                || n.startsWith("ens");
+                || n.startsWith("wl");
+    }
+
+    private static boolean hasApipaIpv4(NetworkInterface ni) {
+        return apipaIpv4OnInterface(ni) != null;
+    }
+
+    private static String apipaIpv4OnInterface(NetworkInterface ni) {
+        try {
+            Enumeration<InetAddress> addresses = ni.getInetAddresses();
+            while (addresses.hasMoreElements()) {
+                InetAddress addr = addresses.nextElement();
+                if (addr instanceof Inet4Address && !addr.isLoopbackAddress()) {
+                    String host = addr.getHostAddress();
+                    if (host != null && host.startsWith(APIPA_PREFIX)) {
+                        return host;
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+            return null;
+        }
+        return null;
+    }
+
+    private static String bestIpv4OnInterface(NetworkInterface ni) {
+        String apipa = apipaIpv4OnInterface(ni);
+        if (apipa != null) {
+            return apipa;
+        }
+        return firstIpv4OnInterface(ni);
     }
 
     private static String firstIpv4OnInterface(NetworkInterface ni) {
