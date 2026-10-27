@@ -1,7 +1,8 @@
 # Sistema de plugins
 
-O sistema de plugins permite extensão modular sem alterar o núcleo. O contrato
-está em `pitiupi.models.Plugin` (classe abstrata).
+O sistema de plugins permite extensão modular sem alterar o núcleo. O contrato está em `pitiupi.models.Plugin` (classe abstrata).
+
+**Breaking change (pós-v1):** plugins devem implementar apenas `createPlugin(ConnectionManager, PluginWorkspace)`. A API antiga com `GuiManager` e menus por categoria foi removida.
 
 ## Interface Plugin
 
@@ -11,8 +12,7 @@ Métodos obrigatórios:
 | --- | --- |
 | `getName()`, `getAuthor()`, `getVersion()`, `getIdentifier()` | Identificação (o `identifier` distingue plugins em conexões TCP dedicadas) |
 | `getDisplayName()` | Texto na galeria e título de aba (padrão: `getName()`) |
-| `createPlugin(ConnectionManager, PluginWorkspace)` | Inicialização na shell: painel na aba, peer actions, rede |
-| `createPlugin(ConnectionManager, GuiManager)` | Legado — adapter na carga; não usar em plugins novos |
+| `createPlugin(ConnectionManager, PluginWorkspace)` | Inicialização: `bindShellWorkspaceContent`, `installPeerActions`, rede |
 | `getMessages()` | Lista de classes `Message` que o plugin desserializa |
 | `receiveMessage(Message)` | Processamento após o `PluginManager` identificar o tipo |
 

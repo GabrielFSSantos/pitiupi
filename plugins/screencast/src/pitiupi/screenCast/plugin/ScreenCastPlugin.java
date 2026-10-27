@@ -9,14 +9,11 @@ import pitiupi.application.presence.UserPeerView;
 import pitiupi.application.peeractions.PeerActionTarget;
 import pitiupi.application.peeractions.PeerTarget;
 import pitiupi.control.ConnectionManager;
-import pitiupi.control.GuiManager;
-import pitiupi.models.Menus.MenuCategory;
 import pitiupi.application.session.SessionNoticeChannel;
 import pitiupi.application.session.SessionNoticePhase;
 import pitiupi.models.Messages.Message;
 import pitiupi.models.Messages.SessionNoticeMessage;
 import pitiupi.models.Plugin;
-import pitiupi.screenCast.GUI.ScreenCastMenu;
 import pitiupi.screenCast.GUI.ScreenCastPanel;
 import pitiupi.screenCast.GUI.ScreenCastReceiveScope;
 import pitiupi.screenCast.net.ScreenCastMessage;
@@ -60,12 +57,6 @@ public class ScreenCastPlugin extends Plugin {
         screenCastPanel.setPluginId(getIdentifier());
         bindShellWorkspaceContent(screenCastPanel);
         installPeerActions(workspace.peerActions());
-    }
-
-    @Override
-    public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager) {
-        this.screenCastPanel = new ScreenCastPanel(connectionManager);
-        guiManager.createMenu(MenuCategory.Streaming, new ScreenCastMenu(screenCastPanel));
     }
 
     @Override

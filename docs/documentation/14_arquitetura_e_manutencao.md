@@ -10,7 +10,6 @@
 | Usuários online, peer actions | `pitiupi.presentation.shell.NetworkUsersPanel`, `PeerActionBroker` |
 | Facade rede para plugins | `pitiupi.control.ConnectionManager` |
 | Workspace na aba (SPI) | `pitiupi.api.plugin.PluginWorkspace`, `ShellPluginWorkspace` |
-| Menus legados (adapter) | `pitiupi.control.GuiManager` — deprecado; preferir peer actions |
 | UDP | `pitiupi.net.udp.SocketUDP` |
 | TCP servidor e mapa de conexões | `pitiupi.net.tcp.SocketTCP`, `TcpConnectionManager` |
 | Conexão TCP por peer | `pitiupi.net.tcp.TcpConnection` |
@@ -18,8 +17,6 @@
 | Heartbeat | `pitiupi.control.HeartbeatManager`, `HeartbeatMessage` |
 | Carregar JARs, despacho | `pitiupi.control.plugins.PluginManager` |
 | Contrato plugin | `pitiupi.models.Plugin`, `pitiupi.models.Messages.Message` |
-| Menus por categoria | `pitiupi.models.Menus.*` |
-
 ## Dependências entre módulos
 
 ```

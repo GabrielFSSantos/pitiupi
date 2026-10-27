@@ -7,9 +7,7 @@ import pitiupi.application.peeractions.PeerActionTarget;
 import pitiupi.application.peeractions.PeerTarget;
 import pitiupi.application.presence.UserPeerView;
 import pitiupi.control.ConnectionManager;
-import pitiupi.control.GuiManager;
 import pitiupi.control.PeerListener;
-import pitiupi.models.Menus.MenuCategory;
 import pitiupi.models.User;
 import pitiupi.presentation.shell.ui.ShellUi;
 
@@ -28,10 +26,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * Lista lateral com Todos e peer actions (sem badges de atividade na v1).
@@ -40,20 +35,12 @@ public final class NetworkUsersPanel extends JPanel implements PeerListener {
 
     private final DefaultListModel<DisplayPeer> listModel = new DefaultListModel<>();
     private final JList<DisplayPeer> userList = new JList<>(listModel);
-    private final JPopupMenu menu = new JPopupMenu();
-    private final Map<MenuCategory, JMenu> legacyCategories = new HashMap<>();
     private final ConnectionManager connectionManager;
 
     public NetworkUsersPanel(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(200, 0));
-
-        for (MenuCategory category : MenuCategory.values()) {
-            JMenu cat = new JMenu(category.toString());
-            menu.add(cat);
-            legacyCategories.put(category, cat);
-        }
 
         userList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
@@ -114,40 +101,13 @@ public final class NetworkUsersPanel extends JPanel implements PeerListener {
             }
             popup.add(pluginMenu);
         }
-        for (JMenu legacy : legacyCategories.values()) {
-            if (legacy.getItemCount() > 0 && target == PeerActionTarget.SINGLE_PEER && !peer.view.isBroadcastTarget()) {
-                popup.addSeparator();
-                JMenu copy = new JMenu(legacy.getText());
-                for (int i = 0; i < legacy.getItemCount(); i++) {
-                    copy.add(legacy.getItem(i));
-                }
-                popup.add(copy);
-            }
-        }
         if (popup.getComponentCount() > 0) {
             popup.show(userList, x, y);
         }
     }
 
-    public void initUnicastMenu(JMenuItem menuItem, Consumer<User> action) {
-        menuItem.addActionListener(e -> {
-            DisplayPeer selected = userList.getSelectedValue();
-            if (selected == null || selected.view.isBroadcastTarget()) {
-                return;
-            }
-            User user = selected.toUser();
-            if (user.getAddress() != null) {
-                action.accept(user);
-            }
-        });
-    }
-
-    public void addUnicastMenu(MenuCategory category, JMenuItem menuItem) {
-        legacyCategories.get(category).add(menuItem);
-    }
-
     @Override
-    public void onPeersChanged(List<User> peers) {
+    public void onPeersChanged(List<pitiupi.models.User> peers) {
         refreshFromPresence();
     }
 
@@ -160,7 +120,7 @@ public final class NetworkUsersPanel extends JPanel implements PeerListener {
         });
     }
 
-    record DisplayPeer(UserPeerView view) {
+    private record DisplayPeer(UserPeerView view) {
         @Override
         public String toString() {
             return view.getDisplayName();

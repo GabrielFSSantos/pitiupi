@@ -1,6 +1,6 @@
-# Guia para desenvolvedor e agente
+# Guia para desenvolvimento
 
-Esta documentação descreve **apenas** a ferramenta Pitiupi neste repositório: build, rede, plugins e convenções de código. Quem clona o projeto não precisa de pastas ou ferramentas de meta-desenvolvimento externas; mantenha referências técnicas e tutoriais limitados ao que está em `docs/` e no código do próprio repo.
+Esta documentação descreve a ferramenta Pitiupi neste repositório: build, rede, plugins e convenções de código.
 
 ## Leitura mínima antes de mudar código
 
@@ -21,23 +21,21 @@ Esta documentação descreve **apenas** a ferramenta Pitiupi neste repositório:
 
 ## Gate de build
 
-Compilar núcleo e os dois plugins do catálogo:
-
 ```bash
 cd pitiupi && ant jar && ant test
 cd plugins/chat && ant jar
 cd plugins/screencast && ant jar
 ```
 
-Ou na raiz do clone: `./scripts/pitiupi.sh build --all`.
+Ou na raiz: `./scripts/pitiupi.sh build --all`.
 
-Requer JDK e Ant no PATH. Teste manual em rede: [15_testes_e_gate.md](15_testes_e_gate.md).
+Testes manuais em rede: [15_testes_e_gate.md](15_testes_e_gate.md).
 
 ## Convenções
 
 - Código e identificadores em inglês (pacotes `pitiupi.*`).
 - Documentação em português (BR) em `docs/`.
-- Evitar alterar o núcleo para necessidades de um único plugin — preferir extensão via `Plugin`.
+- Evitar alterar o núcleo para um único plugin — preferir extensão via `Plugin` e `PluginWorkspace`.
 
 ## Decisões e débitos
 

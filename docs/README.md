@@ -16,7 +16,7 @@ Entrada na raiz do repositório: [README.md](../README.md).
 | --- | --- |
 | **Aluno (TP)** | [documentation/00_quickstart.md](documentation/00_quickstart.md) → [10_tutorial_plugin.md](documentation/10_tutorial_plugin.md) → [17_tutorial_ping_aula.md](documentation/17_tutorial_ping_aula.md) → [11_plugins_referencia.md](documentation/11_plugins_referencia.md) |
 | **Monitor / docência** | [documentation/01_visao_disciplina_e_tp.md](documentation/01_visao_disciplina_e_tp.md) → [15_testes_e_gate.md](documentation/15_testes_e_gate.md) |
-| **Desenvolvedor** | [documentation/13_guia_dev_e_agente.md](documentation/13_guia_dev_e_agente.md) → [14_arquitetura_e_manutencao.md](documentation/14_arquitetura_e_manutencao.md) |
+| **Desenvolvedor** | [documentation/13_guia_desenvolvimento.md](documentation/13_guia_desenvolvimento.md) → [14_arquitetura_e_manutencao.md](documentation/14_arquitetura_e_manutencao.md) |
 | **Professor / banca** | [documentation/16_fundamentacao_redes.md](documentation/16_fundamentacao_redes.md) → [references/README.md](references/README.md) |
 
 **Idioma:** documentação em PT-BR; pacotes e classes Java como no código.

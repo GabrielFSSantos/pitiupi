@@ -12,9 +12,24 @@ Este guia complementa [09_sistema_de_plugins.md](09_sistema_de_plugins.md). Use 
 
 ```java
 public class MeuPlugin extends Plugin {
+    private PluginWorkspace workspace;
+
     @Override
-    public void createPlugin(ConnectionManager cm, GuiManager gui) {
-        // registrar menus, abrir janelas
+    public void createPlugin(ConnectionManager cm, PluginWorkspace workspace) {
+        this.workspace = workspace;
+        MeuPanel panel = new MeuPanel(cm);
+        bindShellWorkspaceContent(panel);
+        installPeerActions(workspace.peerActions());
+    }
+
+    @Override
+    public void installPeerActions(PeerActionsRegistrar registrar) {
+        registrar.register(PeerAction.of(
+                "meuplugin.abrir",
+                "Abrir",
+                PeerActionTarget.ALL_PEERS,
+                target -> workspace.openOrFocusTab(getIdentifier(), getDisplayName())
+        ));
     }
 
     @Override
@@ -49,25 +64,9 @@ Arquivo `src/META-INF/services/pitiupi.models.Plugin`:
 pacote.MeuPlugin
 ```
 
-## 5. Categoria no menu
+## 5. Registrar no catálogo
 
-Escolha onde o plugin aparece na barra **Plugin**:
-
-| `MenuCategory` | Uso |
-| --- | --- |
-| `Social` | Chat, presença |
-| `Jogos` | Jogos entre peers |
-| `Streaming` | Screen cast, mídia |
-
-Exemplo:
-
-```java
-guiManager.createMenu(MenuCategory.Jogos, new MeuMenu(...));
-```
-
-## 6. Registrar no catálogo
-
-Adicione uma entrada em [`plugins.registry.json`](../../plugins.registry.json) na raiz do repo:
+Adicione uma entrada em [`plugins.registry.json`](../../plugins.registry.json):
 
 ```json
 {
@@ -81,29 +80,15 @@ Adicione uma entrada em [`plugins.registry.json`](../../plugins.registry.json) n
 
 O `id` é o que você passa para `./scripts/pitiupi.sh run --plugins xadrez`.
 
-## 7. Build e instalação
+## 6. Build e instalação
 
 ```bash
 ./scripts/pitiupi.sh build --plugins xadrez
-# ou, manualmente:
-cd pitiupi.xadrez && ant jar
-ln -sf ../../pitiupi.xadrez/dist/pitiupi.xadrez.jar ../pitiupi/plugins/xadrez.jar
 ```
 
-Reinicie o Pitiupi após trocar JARs.
+JARs de runtime ficam em `PITIUPI_HOME/plugins` (ver [00_quickstart.md](00_quickstart.md)).
 
-## 8. Teste
+## 7. Próximos passos
 
-Duas instâncias, mesma rede, portas distintas se no mesmo host. Ver [00_quickstart.md](00_quickstart.md).
-
-## TCP dedicado (avançado)
-
-Se o plugin precisa de canal TCP com handshake por `getIdentifier()`, estude `plugins/chat` (`receivePrivateConnection`, `receiveBytes`). Use `MessageDispatcher` para envios didáticos. Ver [11_plugins_referencia.md](11_plugins_referencia.md).
-
-## Erros frequentes
-
-| Problema | Causa provável |
-| --- | --- |
-| Plugin não aparece | SPI ausente ou JAR fora de `plugins/` |
-| `ClassNotFoundException` na recepção | Classe da mensagem não no JAR do remetente/destino |
-| Peers não se veem | Multicast bloqueado — [appendix_portas_e_multicast.md](appendix_portas_e_multicast.md) |
+- [11_plugins_referencia.md](11_plugins_referencia.md) — chat e screenCast
+- [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md) — plugin didático Ping (opcional, fora do commit)

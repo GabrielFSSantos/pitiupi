@@ -20,7 +20,7 @@ Referência para **código Java**, **rede P2P** e **plugins**. Índice geral: [d
 | 11 | [11_plugins_referencia.md](11_plugins_referencia.md) | chat e screencast |
 | 17 | [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md) | Exercício Ping (aula) |
 | 12 | [12_menus_unicast_multicast.md](12_menus_unicast_multicast.md) | MenuCategory e ações |
-| 13 | [13_guia_dev_e_agente.md](13_guia_dev_e_agente.md) | Leitura para dev/agente |
+| 13 | [13_guia_desenvolvimento.md](13_guia_desenvolvimento.md) | Guia de desenvolvimento |
 | 14 | [14_arquitetura_e_manutencao.md](14_arquitetura_e_manutencao.md) | Onde editar cada comportamento |
 | 15 | [15_testes_e_gate.md](15_testes_e_gate.md) | Build gate e testes manuais |
 | 16 | [16_fundamentacao_redes.md](16_fundamentacao_redes.md) | Teoria ↔ código |

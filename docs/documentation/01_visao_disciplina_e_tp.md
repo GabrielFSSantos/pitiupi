@@ -16,7 +16,7 @@ Cada equipe/aluno entrega um **módulo Java separado** que:
 
 1. Compila para JAR e carrega via `pitiupi/plugins/`.
 2. Define mensagens (`extends Message`) e o fluxo entre peers.
-3. Integra menus/janelas via `GuiManager`.
+3. Integra UI na aba central via `PluginWorkspace` e peer actions na lista lateral.
 4. Inclui README do módulo (build + protocolo).
 
 Exemplos de tema: chat temático, tabuleiro (xadrez/damas), compartilhamento de arquivo, quiz síncrono.

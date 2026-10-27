@@ -2,7 +2,6 @@ package pitiupi.presentation.shell;
 
 import pitiupi.api.plugin.ShellPluginWorkspace;
 import pitiupi.control.ConnectionManager;
-import pitiupi.control.GuiManager;
 import pitiupi.control.plugins.PluginManager;
 import pitiupi.models.Plugin;
 
@@ -22,7 +21,6 @@ public final class MainShellFrame extends JFrame implements ShellHost {
     private final PluginManager pluginManager = new PluginManager();
     private final ConnectionManager connectionManager;
     private final NetworkUsersPanel networkUsersPanel;
-    private final GuiManager guiManager;
     private final TabWorkspacePanel tabWorkspace;
     private final PluginGalleryPanel galleryPanel;
     private final SettingsPanel settingsPanel;
@@ -48,8 +46,6 @@ public final class MainShellFrame extends JFrame implements ShellHost {
         networkUsersPanel = new NetworkUsersPanel(connectionManager);
         ShellMenuBar menuBar = new ShellMenuBar();
         setJMenuBar(menuBar);
-
-        guiManager = new GuiManager(this, menuBar, networkUsersPanel);
 
         JPanel center = new JPanel(new BorderLayout());
         center.add(tabWorkspace.getRootPanel(), BorderLayout.CENTER);
@@ -90,11 +86,10 @@ public final class MainShellFrame extends JFrame implements ShellHost {
     }
 
     private void loadPlugins() {
-        pluginManager.loadPlugins(connectionManager, guiManager, (plugin) -> new ShellPluginWorkspace(
+        pluginManager.loadPlugins(connectionManager, (plugin) -> new ShellPluginWorkspace(
                 plugin.getIdentifier(),
                 plugin,
                 connectionManager,
-                guiManager,
                 connectionManager.getPeerActionBroker(),
                 connectionManager.getInviteInboxService(),
                 tabWorkspace,

@@ -7,9 +7,7 @@ package pitiupi.models;
 import pitiupi.api.plugin.InviteDetails;
 import pitiupi.api.plugin.PeerActionsRegistrar;
 import pitiupi.api.plugin.PluginWorkspace;
-import pitiupi.api.plugin.ShellPluginWorkspace;
 import pitiupi.control.ConnectionManager;
-import pitiupi.control.GuiManager;
 import pitiupi.models.Messages.Message;
 import pitiupi.net.tcp.TcpConnection;
 
@@ -54,24 +52,9 @@ public abstract class Plugin {
     }
 
     /**
-     * Inicializa o plugin.
-     *
-     * <p>Este método é chamado pela aplicação após o carregamento do plugin.</p>
-     *
-     * @param connectionManager interface com o sistema de conexões da aplicação.
-     * @param guiManager interface com a janela principal da aplicação
+     * Inicializa o plugin na aba central (shell) e registra peer actions.
      */
-    public abstract void createPlugin(ConnectionManager connectionManager, GuiManager guiManager);
-
-    /**
-     * Inicialização via workspace (Onda C+). O adaptador chama o legado e {@link #installPeerActions}.
-     */
-    public void createPlugin(ConnectionManager connectionManager, PluginWorkspace workspace) {
-        if (workspace instanceof ShellPluginWorkspace shell) {
-            createPlugin(connectionManager, shell.guiManager());
-            installPeerActions(workspace.peerActions());
-        }
-    }
+    public abstract void createPlugin(ConnectionManager connectionManager, PluginWorkspace workspace);
 
     public void installPeerActions(PeerActionsRegistrar registrar) {
     }
@@ -87,19 +70,9 @@ public abstract class Plugin {
 
     /**
      * Retorna uma mensagem utilizada pelo plugin.
-     *
-     * @return mensagem criada pelo plugin.
      */
     public abstract List<Class<? extends Message>> getMessages();
 
-    /**
-     * Recebe uma mensagem enviada pela aplicação.
-     *
-     * <p>A mensagem é recebida em formato serializado. O plugin deve verificar
-     * se a mensagem pertence ao seu tipo e realizar o processamento necessário.</p>
-     *
-     * @param message mensagem serializada recebida.
-     */
     public abstract void receiveMessage(Message message);
 
     public boolean receiveAllTypes() {return false;}

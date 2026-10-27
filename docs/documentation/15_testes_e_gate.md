@@ -10,6 +10,8 @@ cd pitiupi && ant test
 
 Falha se `java`, `javac` ou Ant estiverem ausentes.
 
+Pacotes com testes automatizados (JUnit 5): `platform` (`PitiupiHome`, `ConfigLoader`), `plugins.store`, `application.presence`, `application.peeractions`, `application.invites`, `application.messaging`, `application.activity`, `presentation.shell`, `control` (goodbye), `net.tcp` (fechamento de conexões), `models`.
+
 ## Gate de build (produto)
 
 Na raiz do clone:

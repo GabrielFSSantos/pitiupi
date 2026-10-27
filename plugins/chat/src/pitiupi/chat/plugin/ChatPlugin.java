@@ -12,7 +12,6 @@ import pitiupi.chat.control.PrivateChatHost;
 import pitiupi.chat.net.ChatMessage;
 import pitiupi.chat.net.LegacyMpChatMessage;
 import pitiupi.control.ConnectionManager;
-import pitiupi.control.GuiManager;
 import pitiupi.models.Messages.Message;
 import pitiupi.models.Plugin;
 import pitiupi.models.User;
@@ -42,10 +41,6 @@ public class ChatPlugin extends Plugin implements PrivateChatHost {
         privateChatController.setUiSink(chatPanel);
         bindShellWorkspaceContent(chatPanel);
         installPeerActions(workspace.peerActions());
-    }
-
-    @Override
-    public void createPlugin(ConnectionManager connectionManager, GuiManager guiManager) {
     }
 
     @Override

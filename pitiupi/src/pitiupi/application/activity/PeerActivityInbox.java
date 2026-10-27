@@ -30,12 +30,6 @@ public final class PeerActivityInbox {
         };
     }
 
-    /** @deprecated use {@link #recordCounted} */
-    @Deprecated
-    public void record(String peerInstanceId, String pluginId, String peerActionId) {
-        recordCounted(peerInstanceId, pluginId, peerActionId, null);
-    }
-
     public void recordBroadcast(String pluginId, String peerActionId) {
         recordCounted(BROADCAST_PEER_KEY, pluginId, peerActionId, PeerActivityFocusTokens.broadcast());
     }
@@ -72,12 +66,6 @@ public final class PeerActivityInbox {
 
     public int totalCountedForPeer(String peerInstanceId) {
         return sum(countedByPeerAndAction.getOrDefault(peerKey(peerInstanceId), Map.of()));
-    }
-
-    /** @deprecated use {@link #totalCountedForPeer} */
-    @Deprecated
-    public int totalForPeer(String peerInstanceId) {
-        return totalCountedForPeer(peerInstanceId);
     }
 
     public boolean hasIndicatorForPeer(String peerInstanceId) {

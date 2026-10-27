@@ -1,6 +1,8 @@
 package pitiupi.models;
 
 import org.junit.jupiter.api.Test;
+import pitiupi.api.plugin.PluginWorkspace;
+import pitiupi.control.ConnectionManager;
 import pitiupi.models.Messages.Message;
 
 import javax.swing.JPanel;
@@ -36,8 +38,7 @@ class PluginDisplayNameTest {
             }
 
             @Override
-            public void createPlugin(pitiupi.control.ConnectionManager connectionManager,
-                                     pitiupi.control.GuiManager guiManager) {
+            public void createPlugin(ConnectionManager connectionManager, PluginWorkspace workspace) {
             }
 
             @Override
@@ -77,8 +78,7 @@ class PluginDisplayNameTest {
             }
 
             @Override
-            public void createPlugin(pitiupi.control.ConnectionManager connectionManager,
-                                     pitiupi.control.GuiManager guiManager) {
+            public void createPlugin(ConnectionManager connectionManager, PluginWorkspace workspace) {
             }
 
             @Override

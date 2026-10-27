@@ -4,7 +4,6 @@ import pitiupi.application.invites.InviteInboxService;
 import pitiupi.application.peeractions.PeerActionBroker;
 import pitiupi.application.peeractions.PluginPeerActionsRegistrar;
 import pitiupi.control.ConnectionManager;
-import pitiupi.control.GuiManager;
 import pitiupi.models.Plugin;
 import pitiupi.presentation.shell.ShellHost;
 import pitiupi.presentation.shell.TabWorkspacePanel;
@@ -12,14 +11,13 @@ import pitiupi.presentation.shell.TabWorkspacePanel;
 import javax.swing.JComponent;
 
 /**
- * Workspace com abas e barra de status (Onda D).
+ * Workspace com abas e barra de status.
  */
 public final class ShellPluginWorkspace implements PluginWorkspace {
 
     private final String pluginId;
     private final Plugin plugin;
     private final ConnectionManager connectionManager;
-    private final GuiManager guiManager;
     private final TabWorkspacePanel tabWorkspace;
     private final ShellHost shellHost;
     private final PluginPeerActionsRegistrar registrar;
@@ -28,7 +26,6 @@ public final class ShellPluginWorkspace implements PluginWorkspace {
             String pluginId,
             Plugin plugin,
             ConnectionManager connectionManager,
-            GuiManager guiManager,
             PeerActionBroker peerActionBroker,
             InviteInboxService inviteInboxService,
             TabWorkspacePanel tabWorkspace,
@@ -37,17 +34,12 @@ public final class ShellPluginWorkspace implements PluginWorkspace {
         this.pluginId = pluginId;
         this.plugin = plugin;
         this.connectionManager = connectionManager;
-        this.guiManager = guiManager;
         this.tabWorkspace = tabWorkspace;
         this.shellHost = shellHost;
         this.registrar = new PluginPeerActionsRegistrar(peerActionBroker, pluginId);
         peerActionBroker.registerPlugin(pluginId);
         peerActionBroker.registerPluginMetadata(pluginId, plugin.getDisplayName());
         inviteInboxService.setInviteHandler(pluginId, plugin::onInviteAccepted);
-    }
-
-    public GuiManager guiManager() {
-        return guiManager;
     }
 
     @Override

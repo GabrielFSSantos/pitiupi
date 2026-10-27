@@ -11,7 +11,7 @@
 | D7 | Plugins via JAR + Java SPI | Carregamento dinâmico sem recompilar o núcleo | [09_sistema_de_plugins.md](documentation/09_sistema_de_plugins.md) |
 | D8 | Classloader por JAR de plugin | Isolar dependências; desserialização com `PluginObjectInputStream` | [09_sistema_de_plugins.md](documentation/09_sistema_de_plugins.md) |
 | D9 | Plugins em `PITIUPI_HOME/plugins` | Dados do usuário fora do clone Git; `PITIUPI_HOME` ou `~/pitiupi` | [00_quickstart.md](documentation/00_quickstart.md) |
-| D10 | Erros com `ErrorCode` | Mensagens PT na UI; `PitiupiException` no domínio | [13_guia_dev_e_agente.md](documentation/13_guia_dev_e_agente.md) |
+| D10 | Erros com `ErrorCode` | Mensagens PT na UI; `PitiupiException` no domínio | [13_guia_desenvolvimento.md](documentation/13_guia_desenvolvimento.md) |
 | D11 | Reinício após instalar/remover JAR | Mutar `plugins/` exige reiniciar o app para recarregar SPI | [04_inicializacao_e_gui.md](documentation/04_inicializacao_e_gui.md) |
 | D16 | UI em abas; sem `JFrame` de plugin | Conteúdo na `MainShellFrame`; galeria e peer actions abrem abas | [04_inicializacao_e_gui.md](documentation/04_inicializacao_e_gui.md) |
 | D17 | Goodbye + timeout de presença | `GoodbyeMessage` em multicast ao fechar; timeout ~15 s mantido | [08_heartbeat_e_presenca.md](documentation/08_heartbeat_e_presenca.md) |

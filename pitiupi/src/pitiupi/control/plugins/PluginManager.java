@@ -4,7 +4,6 @@ import pitiupi.Main;
 import pitiupi.api.plugin.PluginWorkspace;
 import pitiupi.models.Plugin;
 import pitiupi.control.ConnectionManager;
-import pitiupi.control.GuiManager;
 import pitiupi.errors.ErrorCode;
 import pitiupi.models.Messages.Message;
 import pitiupi.platform.PitiupiHome;
@@ -112,7 +111,6 @@ public class PluginManager {
 
     public void loadPlugins(
             ConnectionManager connectionManager,
-            GuiManager guiManager,
             Function<Plugin, PluginWorkspace> workspaceFactory
     ) {
         File pluginDir = PitiupiHome.get().pluginsDirectory().toFile();
