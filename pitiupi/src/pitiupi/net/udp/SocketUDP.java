@@ -13,6 +13,7 @@ import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import pitiupi.presentation.shell.LocalNetworkInfo;
 import pitiupi.control.ConnectionManager;
 import pitiupi.control.plugins.PluginManager;
 import pitiupi.models.Messages.GoodbyeMessage;
@@ -39,6 +40,7 @@ public class SocketUDP extends Thread {
     private MulticastSocket multicastSocket;
 
     private InetAddress address;
+    private NetworkInterface multicastInterface;
 
     private final ConnectionManager connectionManager;
     private final PluginManager pluginManager;
@@ -62,11 +64,19 @@ public class SocketUDP extends Thread {
         try {
             this.address = InetAddress.getByName(SocketUDP.INET_ADDR);
 
-            multicastSocket = new MulticastSocket(connectionManager.getPort());
+            int port = connectionManager.getPort();
+            multicastSocket = new MulticastSocket(port);
             multicastSocket.setSendBufferSize(256000);
             multicastSocket.setReceiveBufferSize(256000);
             multicastSocket.setReuseAddress(true);
-            multicastSocket.joinGroup(address);
+            multicastSocket.setTimeToLive(1);
+            multicastInterface = LocalNetworkInfo.preferredNetworkInterface();
+            if (multicastInterface != null) {
+                multicastSocket.setNetworkInterface(multicastInterface);
+                multicastSocket.joinGroup(new InetSocketAddress(address, port), multicastInterface);
+            } else {
+                multicastSocket.joinGroup(address);
+            }
         }
         catch (UnknownHostException ex) {
             System.getLogger(SocketUDP.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
@@ -118,7 +128,12 @@ public class SocketUDP extends Thread {
         running = false;
         if (multicastSocket != null) {
             try {
-                multicastSocket.leaveGroup(address);
+                int port = connectionManager.getPort();
+                if (multicastInterface != null) {
+                    multicastSocket.leaveGroup(new InetSocketAddress(address, port), multicastInterface);
+                } else {
+                    multicastSocket.leaveGroup(address);
+                }
             } catch (IOException ex) {
                 System.out.println(ex);
             }

@@ -29,10 +29,18 @@ Executar o Pitiupi no WSL e peers no Windows (ou vice-versa) pode falhar em mult
 - todos os peers no mesmo ambiente (Linux nativo ou VMs), ou
 - dois PCs físicos na mesma sub-rede.
 
+## Checklist — dois PCs na mesma Wi‑Fi
+
+1. **Mesma porta no login** (ex.: `5000` nos dois). Portas diferentes isolam a sala.
+2. **Configurações → Sua conexão:** IPs na mesma sub-rede (ex. ambos `192.168.0.x` ou `192.168.1.x`). Se um for `172.x` (WSL/Docker) e outro `192.168.x`, o multicast da aula não cruza.
+3. **Firewall:** liberar **UDP entrada e saída** na porta do login (Windows Defender / `ufw`).
+4. **Roteador:** desativar *isolamento de clientes* / *AP isolation* / Wi‑Fi de visitantes.
+5. Aguardar até **~15 s** após abrir os dois apps (heartbeat a cada 5 s).
+
 ## Sintomas
 
 | Sintoma | Verificar |
 | --- | --- |
-| Lista de usuários vazia | Porta igual entre peers? Mesma sub-rede? Firewall? |
-| Plugin não recebe | Desserialização / SPI / JAR em `plugins/` |
-| TCP falha | Peer ativo no heartbeat? IP correto? |
+| Lista só com **Todos**, sem peers | Porta igual? Mesma sub-rede? Firewall UDP? AP isolation? WSL num dos PCs? |
+| Plugin não recebe | Desserialização / SPI / JAR em `PITIUPI_HOME/plugins` |
+| TCP falha | Peer visível na lista? IP correto? |
