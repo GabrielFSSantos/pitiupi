@@ -305,8 +305,11 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
     @Override
     public void onPrivateChannelReady(String peerIp) {
         SwingUtilities.invokeLater(() -> {
-            appendSystemLine(peerKey(canonicalPeerIp(peerIp)), "Canal TCP privado conectado com " + peerIp + ".");
-            if (peerKey(canonicalPeerIp(peerIp)).equals(activeConversationKey)) {
+            String canonical = canonicalPeerIp(peerIp);
+            String resolved = SessionPeerLabels.resolveDisplayName(connectionManager, canonical, peerIp);
+            ensurePeerTabForIncoming(canonical, resolved);
+            appendSystemLine(peerKey(canonical), "Canal TCP privado conectado com " + resolved + ".");
+            if (peerKey(canonical).equals(activeConversationKey)) {
                 flushTranscriptToPane();
             }
         });
@@ -505,7 +508,12 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
     public void receiveLegacyMessage(String tipo, String nome, String ip, String text) {
         runOnEdt(() -> {
             LegacyMpChatMessage legacy = new LegacyMpChatMessage(nome, ip, tipo, text);
-            String bucket = ip != null && !ip.isBlank() ? peerKey(canonicalPeerIp(ip)) : ROOM_KEY;
+            String bucket = ROOM_KEY;
+            if (ip != null && !ip.isBlank()) {
+                String canonical = canonicalPeerIp(ip);
+                ensurePeerTabForIncoming(canonical, nome);
+                bucket = peerKey(canonical);
+            }
             appendLegacyLine(bucket, legacy);
         });
     }
