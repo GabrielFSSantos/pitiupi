@@ -2,6 +2,7 @@ package pitiupi.chat.plugin;
 
 import pitiupi.api.plugin.PeerActionsRegistrar;
 import pitiupi.api.plugin.PluginWorkspace;
+import pitiupi.api.plugin.PeerActivityFocusTokens;
 import pitiupi.application.activity.PeerActivityInbox;
 import pitiupi.application.peeractions.PeerAction;
 import pitiupi.application.peeractions.PeerActionTarget;
@@ -41,6 +42,7 @@ public class ChatPlugin extends Plugin implements PrivateChatHost {
         this.workspace = workspace;
         this.privateChatController = new PrivateChatController(connectionManager, this);
         this.chatPanel = new ChatPanel(connectionManager);
+        chatPanel.setPluginId(getIdentifier());
         chatPanel.setPrivateChatController(privateChatController);
         privateChatController.setUiSink(chatPanel);
         bindShellWorkspaceContent(chatPanel);
@@ -119,6 +121,10 @@ public class ChatPlugin extends Plugin implements PrivateChatHost {
     }
 
     private void recordChatActivity(ChatMessage msg) {
+        String localName = connectionManager.getUserName();
+        if (localName != null && msg.getName() != null && localName.equals(msg.getName().trim())) {
+            return;
+        }
         if (LocalUserIdentity.isLocalSender(connectionManager, msg.getName(), msg.getSenderIp())) {
             return;
         }
@@ -126,12 +132,17 @@ public class ChatPlugin extends Plugin implements PrivateChatHost {
         String tag = msg.getTransportLabel();
         boolean multicast = tag != null && tag.toLowerCase().contains("multicast");
         if (multicast) {
-            inbox.recordBroadcast(getIdentifier(), "chat.focus");
+            inbox.recordBroadcastCounted(getIdentifier(), "chat.focus", PeerActivityFocusTokens.broadcast());
             return;
         }
         String instanceId = peerInstanceIdForActivity(msg.getSenderIp());
         if (instanceId != null) {
-            inbox.record(instanceId, getIdentifier(), "chat.peer");
+            inbox.recordCounted(
+                    instanceId,
+                    getIdentifier(),
+                    "chat.peer",
+                    PeerActivityFocusTokens.peerInstance(instanceId)
+            );
         }
     }
 
@@ -169,7 +180,12 @@ public class ChatPlugin extends Plugin implements PrivateChatHost {
         privateChatController.receiveMessage(connection, legacy);
         String instanceId = peerInstanceIdForActivity(PeerIpv4.fromInetAddress(connection.getAddress()));
         if (instanceId != null) {
-            connectionManager.getPeerActivityInbox().record(instanceId, getIdentifier(), "chat.private.tcp");
+            connectionManager.getPeerActivityInbox().recordCounted(
+                    instanceId,
+                    getIdentifier(),
+                    "chat.private.tcp",
+                    PeerActivityFocusTokens.peerInstance(instanceId)
+            );
         }
         return true;
     }

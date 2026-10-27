@@ -4,6 +4,7 @@ import pitiupi.application.messaging.MessageDispatcher;
 import pitiupi.application.messaging.PluginTransportCatalog;
 import pitiupi.application.messaging.SendTarget;
 import pitiupi.application.messaging.TransportMode;
+import pitiupi.api.plugin.PeerActivityFocusTokens;
 import pitiupi.application.presence.UserPeerView;
 import pitiupi.control.ConnectionManager;
 import pitiupi.presentation.shell.PeerDraftPanel;
@@ -77,6 +78,7 @@ public class ScreenCastPanel extends JPanel {
     private final JPanel bodyCards = new JPanel(bodyLayout);
     private final Map<String, JPanel> bodyPanels = new HashMap<>();
     private PeerDraftPanel draftPanel;
+    private String pluginId;
 
     public ScreenCastPanel(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
@@ -147,14 +149,31 @@ public class ScreenCastPanel extends JPanel {
         sessionTabs.selectTab(PluginSessionKeys.ROOM);
     }
 
+    public void setPluginId(String pluginId) {
+        this.pluginId = pluginId;
+    }
+
     private void onSessionTabClosed(String key) {
         if (PluginSessionKeys.PEER_DRAFT.equals(key)) {
             if (draftPanel != null) {
                 draftPanel.clearIpField();
             }
             SwingUtilities.invokeLater(this::restoreSessionAfterDraftClosed);
+            return;
         }
+        if (key != null && key.startsWith("view:")) {
+            peerIpsByViewKey.remove(key);
+            receiveScopes.remove(key);
+            bodyPanels.remove(key);
+            return;
+        }
+        boolean wasSharing = isSharingForTab(key);
         sharingByTabKey.remove(key);
+        if (wasSharing && key != null && key.equals(shareContextTabKey)) {
+            cancelShareTimer();
+            setShareToggleSelectedSilently(false);
+            applySharingForActiveTab();
+        }
     }
 
     private void restoreSessionAfterDraftClosed() {
@@ -190,6 +209,48 @@ public class ScreenCastPanel extends JPanel {
         if (!isSharingForTab(key)) {
             refreshOutboundBodyForTab(key);
         }
+        reportActivityFocusForSession(key);
+    }
+
+    private void reportActivityFocusForSession(String key) {
+        if (pluginId == null || key == null || PluginSessionKeys.PEER_DRAFT.equals(key)) {
+            return;
+        }
+        var focus = connectionManager.getPeerActivityFocus();
+        if (PluginSessionKeys.ROOM.equals(key)) {
+            focus.setFocusedChannel(pluginId, PeerActivityFocusTokens.broadcast());
+            return;
+        }
+        if (key.startsWith("peer:")) {
+            String ip = key.substring("peer:".length());
+            focus.setFocusedChannel(pluginId, resolvePeerFocusToken(ip));
+            return;
+        }
+        if (key.startsWith("view:")) {
+            ScreenCastReceiveScope scope = receiveScopes.getOrDefault(key, ScreenCastReceiveScope.BROADCAST);
+            if (scope == ScreenCastReceiveScope.BROADCAST) {
+                focus.setFocusedChannel(pluginId, PeerActivityFocusTokens.broadcast());
+            } else {
+                String ip = peerIpsByViewKey.get(key);
+                if (ip != null && !ip.isBlank()) {
+                    focus.setFocusedChannel(pluginId, resolvePeerFocusToken(ip));
+                }
+            }
+        }
+    }
+
+    private String resolvePeerFocusToken(String ip) {
+        String canonical = canonicalPeerIp(ip);
+        for (UserPeerView view : connectionManager.getPresenceService().listPeerViews()) {
+            if (view.isBroadcastTarget() || view.isSelf()) {
+                continue;
+            }
+            if (view.getInstanceId() != null
+                    && view.getInetAddress().map(PeerIpv4::fromInetAddress).orElse("").equals(canonical)) {
+                return PeerActivityFocusTokens.peerInstance(view.getInstanceId());
+            }
+        }
+        return PeerActivityFocusTokens.peerIp(canonical);
     }
 
     private void persistShareStateForContextTab() {
@@ -354,29 +415,18 @@ public class ScreenCastPanel extends JPanel {
         return PeerIpv4.normalize(ip);
     }
 
-    public void focusMulticastSharing() {
+    public void focusMulticastSession() {
         ensureTodosTab();
-        sharingByTabKey.put(PluginSessionKeys.ROOM, true);
+        sharingByTabKey.put(PluginSessionKeys.ROOM, false);
         sessionTabs.selectTab(PluginSessionKeys.ROOM);
         routingPanel.bindRoomSession();
         routingPanel.selectTransport(TransportMode.MULTICAST_UDP);
-        setShareToggleSelectedSilently(true);
+        setShareToggleSelectedSilently(false);
         applySharingForActiveTab();
     }
 
     public void focusPeerSharing(UserPeerView peer) {
-        if (peer == null || peer.isBroadcastTarget() || peer.isSelf()) {
-            return;
-        }
-        peer.getInetAddress().ifPresent(addr -> {
-            String ip = PeerIpv4.fromInetAddress(addr);
-            openPeerTab(ip, peer.getDisplayName());
-            String key = PluginSessionKeys.peer(canonicalPeerIp(ip));
-            sharingByTabKey.put(key, true);
-            routingPanel.selectTransport(TransportMode.UNICAST_UDP);
-            setShareToggleSelectedSilently(true);
-            applySharingForActiveTab();
-        });
+        focusPeerAddress(peer);
     }
 
     public void focusPeerAddress(UserPeerView peer) {

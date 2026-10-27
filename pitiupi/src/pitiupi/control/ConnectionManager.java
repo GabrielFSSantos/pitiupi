@@ -1,5 +1,6 @@
 package pitiupi.control;
 
+import pitiupi.application.activity.PeerActivityFocus;
 import pitiupi.application.activity.PeerActivityInbox;
 import pitiupi.application.invites.InviteInboxService;
 import pitiupi.application.peeractions.PeerActionBroker;
@@ -26,6 +27,7 @@ public class ConnectionManager {
     private final PeerActionBroker peerActionBroker;
     private final InviteInboxService inviteInboxService;
     private final PeerActivityInbox peerActivityInbox;
+    private final PeerActivityFocus peerActivityFocus;
 
     private SocketTCP socketTCP;
     private SocketUDP socketUDP;
@@ -49,6 +51,8 @@ public class ConnectionManager {
         peerActionBroker = new PeerActionBroker();
         inviteInboxService = new InviteInboxService(heartbeatManager);
         peerActivityInbox = new PeerActivityInbox();
+        peerActivityFocus = new PeerActivityFocus();
+        peerActivityInbox.setFocus(peerActivityFocus);
         presenceService = new PresenceService(heartbeatManager, inviteInboxService, peerActivityInbox);
         inviteInboxService.setOnNotificationsChanged(heartbeatManager::notifyPeerListeners);
         peerActivityInbox.setOnChanged(heartbeatManager::notifyPeerListeners);
@@ -71,6 +75,10 @@ public class ConnectionManager {
 
     public PeerActivityInbox getPeerActivityInbox() {
         return peerActivityInbox;
+    }
+
+    public PeerActivityFocus getPeerActivityFocus() {
+        return peerActivityFocus;
     }
 
     public void setInviteAcceptedUiListener(Consumer<String> listener) {

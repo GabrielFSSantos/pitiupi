@@ -64,6 +64,12 @@ public final class MainShellFrame extends JFrame implements ShellHost {
             if (activeId != null) {
                 connectionManager.getPeerActionBroker().setActivePlugin(activeId);
             }
+            for (Plugin plugin : pluginManager.getLoadedPlugins()) {
+                String pluginId = plugin.getIdentifier();
+                if (activeId == null || !activeId.equals(pluginId)) {
+                    connectionManager.getPeerActivityFocus().clear(pluginId);
+                }
+            }
         });
         tabWorkspace.setOnSettingsTabSelected(settingsPanel::onTabSelected);
         tabWorkspace.setOnPluginTabClosed(pluginManager::notifyShellTabClosed);

@@ -4,6 +4,7 @@ import java.util.List;
 
 import pitiupi.api.plugin.PeerActionsRegistrar;
 import pitiupi.api.plugin.PluginWorkspace;
+import pitiupi.api.plugin.PeerActivityFocusTokens;
 import pitiupi.application.activity.PeerActivityInbox;
 import pitiupi.application.peeractions.PeerAction;
 import pitiupi.application.presence.UserPeerView;
@@ -55,6 +56,7 @@ public class ScreenCastPlugin extends Plugin {
         this.connectionManager = connectionManager;
         this.workspace = workspace;
         this.screenCastPanel = new ScreenCastPanel(connectionManager);
+        screenCastPanel.setPluginId(getIdentifier());
         bindShellWorkspaceContent(screenCastPanel);
         installPeerActions(workspace.peerActions());
     }
@@ -80,17 +82,17 @@ public class ScreenCastPlugin extends Plugin {
                 PeerActionTarget.ALL_PEERS,
                 target -> {
                     workspace.openOrFocusTab(getIdentifier(), getDisplayName());
-                    screenCastPanel.focusMulticastSharing();
+                    screenCastPanel.focusMulticastSession();
                 }
         ));
         registrar.register(PeerAction.of(
                 "screencast.peer",
-                "Compartilhar com este peer",
+                "Preparar compartilhamento com este peer",
                 PeerActionTarget.SINGLE_PEER,
                 target -> {
                     workspace.openOrFocusTab(getIdentifier(), getDisplayName());
                     if (target instanceof PeerTarget.Single single) {
-                        screenCastPanel.focusPeerSharing(single.peer());
+                        screenCastPanel.focusPeerAddress(single.peer());
                     }
                 }
         ));
@@ -146,11 +148,16 @@ public class ScreenCastPlugin extends Plugin {
                         && msg.getName() != null
                         && msg.getName().equals(view.getDisplayName())
                         && view.getInstanceId() != null) {
-                    inbox.record(view.getInstanceId(), getIdentifier(), "screencast.peer");
+                    inbox.signal(
+                            view.getInstanceId(),
+                            getIdentifier(),
+                            "screencast.peer",
+                            PeerActivityFocusTokens.peerInstance(view.getInstanceId())
+                    );
                     return;
                 }
             }
         }
-        inbox.recordBroadcast(getIdentifier(), "screencast.multicast");
+        inbox.signalBroadcast(getIdentifier(), "screencast.multicast", PeerActivityFocusTokens.broadcast());
     }
 }

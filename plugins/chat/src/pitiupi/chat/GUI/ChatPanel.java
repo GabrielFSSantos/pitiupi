@@ -4,6 +4,7 @@ import pitiupi.application.messaging.MessageDispatcher;
 import pitiupi.application.messaging.PluginTransportCatalog;
 import pitiupi.application.messaging.SendTarget;
 import pitiupi.application.messaging.TransportMode;
+import pitiupi.api.plugin.PeerActivityFocusTokens;
 import pitiupi.application.presence.UserPeerView;
 import pitiupi.chat.control.PrivateChatController;
 import pitiupi.chat.control.PrivateChatUiSink;
@@ -68,6 +69,7 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
     private PrivateChatController privateChatController;
     private PeerDraftPanel draftPanel;
     private Runnable pendingTranscriptFlush;
+    private String pluginId;
 
     public ChatPanel(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
@@ -98,6 +100,10 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
             applyConversationKeyFromRouting();
         });
         selectRoomSession();
+    }
+
+    public void setPluginId(String pluginId) {
+        this.pluginId = pluginId;
     }
 
     private void initSessionTabs() {
@@ -146,6 +152,7 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
         if (PluginSessionKeys.ROOM.equals(key)) {
             routingPanel.bindRoomSession();
             switchActiveConversation(ROOM_KEY);
+            reportActivityFocusForRoom();
             return;
         }
         if (key.startsWith("peer:") && !PluginSessionKeys.PEER_DRAFT.equals(key)) {
@@ -153,7 +160,38 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
             String name = peerDisplayNames.getOrDefault(ip, ip);
             routingPanel.bindPeerSession(ip, name);
             switchActiveConversation(resolveConversationKey());
+            reportActivityFocusForPeerIp(ip);
         }
+    }
+
+    private void reportActivityFocusForRoom() {
+        if (pluginId == null) {
+            return;
+        }
+        connectionManager.getPeerActivityFocus()
+                .setFocusedChannel(pluginId, PeerActivityFocusTokens.broadcast());
+    }
+
+    private void reportActivityFocusForPeerIp(String ip) {
+        if (pluginId == null) {
+            return;
+        }
+        connectionManager.getPeerActivityFocus()
+                .setFocusedChannel(pluginId, resolvePeerFocusToken(ip));
+    }
+
+    private String resolvePeerFocusToken(String ip) {
+        String canonical = canonicalPeerIp(ip);
+        for (UserPeerView view : connectionManager.getPresenceService().listPeerViews()) {
+            if (view.isBroadcastTarget() || view.isSelf()) {
+                continue;
+            }
+            if (view.getInstanceId() != null
+                    && view.getInetAddress().map(PeerIpv4::fromInetAddress).orElse("").equals(canonical)) {
+                return PeerActivityFocusTokens.peerInstance(view.getInstanceId());
+            }
+        }
+        return PeerActivityFocusTokens.peerIp(canonical);
     }
 
     private void openDraftPeerTab() {
@@ -260,6 +298,7 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
     }
 
     public void focusGeneralRoom() {
+        reportActivityFocusForRoom();
         sessionTabs.selectTab(PluginSessionKeys.ROOM);
     }
 
@@ -420,7 +459,7 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
                 appendSystemLine(activeConversationKey, "Informe um IP válido para enviar a um peer.");
                 return;
             }
-            String ip = LocalNetworkInfo.bestLocalIpv4();
+            String ip = PeerIpv4.normalize(LocalNetworkInfo.bestLocalIpv4());
             ChatMessage message = new ChatMessage(
                     connectionManager.getUserName(),
                     text,

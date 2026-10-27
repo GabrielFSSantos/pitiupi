@@ -70,7 +70,8 @@ public final class NetworkUsersPanel extends JPanel implements PeerListener {
                 if (value instanceof DisplayPeer peer) {
                     label.setText(ShellUi.formatPeerListLabel(
                             peer.view.getDisplayName(),
-                            peer.view.getNotificationCount()
+                            peer.view.getNotificationCount(),
+                            peer.view.hasActivityIndicator()
                     ));
                 }
                 return label;
@@ -101,6 +102,10 @@ public final class NetworkUsersPanel extends JPanel implements PeerListener {
         connectionManager.getPeerActivityInbox().setOnChanged(this::refreshFromPresence);
     }
 
+    private static boolean isIndicatorAction(String actionId) {
+        return actionId != null && actionId.startsWith("screencast.");
+    }
+
     private void showPeerActions(DisplayPeer peer, PeerActionTarget target, int x, int y) {
         JPopupMenu popup = new JPopupMenu();
         PeerActionBroker broker = connectionManager.getPeerActionBroker();
@@ -119,8 +124,11 @@ public final class NetworkUsersPanel extends JPanel implements PeerListener {
                 int pending = activityPeerKey != null
                         ? activity.countForAction(activityPeerKey, group.pluginId(), action.getId())
                         : 0;
+                boolean indicator = activityPeerKey != null
+                        && activity.hasIndicatorForAction(activityPeerKey, group.pluginId(), action.getId());
+                boolean indicatorOnly = indicator && pending == 0 && isIndicatorAction(action.getId());
                 JMenuItem item = new JMenuItem(
-                        ShellUi.formatActionLabelWithBadge(action.getLabel(), pending)
+                        ShellUi.formatActionLabelWithBadge(action.getLabel(), pending, indicatorOnly)
                 );
                 item.addActionListener(e -> {
                     if (activityPeerKey != null) {

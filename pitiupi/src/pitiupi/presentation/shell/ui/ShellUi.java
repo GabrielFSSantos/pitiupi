@@ -130,13 +130,35 @@ public final class ShellUi {
         scroll.setViewportBorder(BorderFactory.createEmptyBorder());
     }
 
-    public static String formatPeerListLabel(String displayName, int notificationCount) {
-        if (notificationCount <= 0) {
+    public static String formatPeerListLabel(String displayName, int notificationCount, boolean activityIndicator) {
+        if (notificationCount <= 0 && !activityIndicator) {
             return displayName;
         }
-        return "<html>" + notificationBadgePrefix()
-                + escapeHtml(displayName)
-                + " <span style='color:" + NOTIFICATION_COUNT_COLOR + "'>(" + notificationCount + ")</span></html>";
+        StringBuilder html = new StringBuilder("<html>");
+        if (activityIndicator || notificationCount > 0) {
+            html.append(notificationBadgePrefix());
+        }
+        html.append(escapeHtml(displayName));
+        if (notificationCount > 0) {
+            html.append(" <span style='color:").append(NOTIFICATION_COUNT_COLOR).append("'>(")
+                    .append(notificationCount).append(")</span>");
+        }
+        html.append("</html>");
+        return html.toString();
+    }
+
+    public static String formatPeerListLabel(String displayName, int notificationCount) {
+        return formatPeerListLabel(displayName, notificationCount, false);
+    }
+
+    public static String formatActionLabelWithBadge(String label, int pendingCount, boolean indicatorOnly) {
+        if (pendingCount <= 0 && !indicatorOnly) {
+            return label;
+        }
+        if (indicatorOnly) {
+            return "<html>" + notificationBadgePrefix() + escapeHtml(label) + "</html>";
+        }
+        return formatActionLabelWithBadge(label, pendingCount);
     }
 
     public static String formatActionLabelWithBadge(String label, int pendingCount) {

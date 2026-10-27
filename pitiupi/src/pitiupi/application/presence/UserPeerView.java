@@ -12,6 +12,7 @@ public final class UserPeerView {
     private final String instanceId;
     private final InetAddress inetAddress;
     private final int notificationCount;
+    private final boolean activityIndicator;
     private final boolean isSelf;
     private final boolean isBroadcastTarget;
 
@@ -23,10 +24,23 @@ public final class UserPeerView {
             boolean isSelf,
             boolean isBroadcastTarget
     ) {
+        this(displayName, instanceId, inetAddress, notificationCount, false, isSelf, isBroadcastTarget);
+    }
+
+    public UserPeerView(
+            String displayName,
+            String instanceId,
+            InetAddress inetAddress,
+            int notificationCount,
+            boolean activityIndicator,
+            boolean isSelf,
+            boolean isBroadcastTarget
+    ) {
         this.displayName = displayName;
         this.instanceId = instanceId;
         this.inetAddress = inetAddress;
         this.notificationCount = notificationCount;
+        this.activityIndicator = activityIndicator;
         this.isSelf = isSelf;
         this.isBroadcastTarget = isBroadcastTarget;
     }
@@ -47,6 +61,10 @@ public final class UserPeerView {
         return notificationCount;
     }
 
+    public boolean hasActivityIndicator() {
+        return activityIndicator;
+    }
+
     public boolean isSelf() {
         return isSelf;
     }
@@ -56,6 +74,6 @@ public final class UserPeerView {
     }
 
     public static UserPeerView broadcastTarget() {
-        return new UserPeerView("Todos", null, null, 0, false, true);
+        return new UserPeerView("Todos", null, null, 0, false, false, true);
     }
 }
