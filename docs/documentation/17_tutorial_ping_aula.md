@@ -1,134 +1,147 @@
 # Tutorial de aula — plugin Ping
 
-Material para o aluno implementar um plugin **Ping/Pong** com medição de RTT (round-trip time). A solução em Java **não** entra no repositório oficial; apenas este tutorial e a pasta [`plugins/ping/`](../../plugins/ping/) (README + `.gitignore`).
+Exercício para montar o plugin **mais simples** do Pitiupi: medir **RTT** (tempo de ida e volta) com mensagens `Ping` / `Pong` na rede, igual a um `ping` de laboratório — mas usando o **mesmo mecanismo de plugins** do chat e do screencast.
 
-Índice geral: [README.md](README.md).
+A solução Java **não** entra no Git: só este tutorial e [`plugins/ping/README.md`](../../plugins/ping/README.md). O professor valida localmente; o aluno implementa no próprio `plugins/ping/` (gitignored).
 
-## Objetivos
+Índice: [README.md](README.md) · Plugins de referência: [11_plugins_referencia.md](11_plugins_referencia.md).
 
-- Estender `Plugin` e registrar SPI.
-- Mensagens `Serializable` que estendem `Message`.
-- `ConnectionManager`: multicast UDP, unicast UDP e TCP.
-- UI na aba central: `JPanel` + `bindShellWorkspaceContent` (sem `JFrame`); abrir pela galeria **Plugins** ou peer actions.
-- Instalar JAR em `PITIUPI_HOME/plugins` e testar com um colega.
+## O que você vai aprender
+
+| Componente do núcleo | Para que serve no Ping |
+| --- | --- |
+| `Plugin` + SPI | O Pitiupi descobre seu JAR e chama `createPlugin` |
+| `Message` serializável | `PingMessage`, `PongMessage`, `PingStopMessage` |
+| `getMessages()` / `receiveMessage` | O núcleo entrega só os tipos que você registrou |
+| `MessageDispatcher` | Envia UDP unicast/multicast sem montar socket manual |
+| `PluginWorkspace` | Galeria e peer actions abrem a aba central |
+| `PeerAction` | Menu ao clicar em um usuário na lista lateral |
+| `SessionTabBar` | Abas por peer (passivas ao receber, como no chat) |
+
+## Limitações didáticas (de propósito)
+
+- Não é ICMP do sistema operacional — são mensagens Java na LAN.
+- Sem gráficos nem histórico em arquivo.
+- Transporte padrão: **UDP unicast** para um peer; multicast só no “ping para todos (uma vez)”.
+- Não há moderação, login extra nem criptografia.
 
 ## Pré-requisitos
 
-- Pitiupi com login (nome + porta).
-- [09_sistema_de_plugins.md](09_sistema_de_plugins.md).
-- JDK, Ant; núcleo em `pitiupi/dist/pitiupi.jar`.
-
-## Estrutura sugerida (projeto do aluno)
-
-```
-plugins/ping/                 # ou projeto fora do repo oficial
-├── build.xml
-├── nbproject/
-├── src/
-│   ├── META-INF/services/pitiupi.models.Plugin
-│   └── br/ufsj/redes/ping/
-│       ├── PingPlugin.java
-│       ├── PingMessage.java
-│       ├── PongMessage.java
-│       └── PingPanel.java
-└── dist/pitiupi.ping.jar
-```
-
-Modelo Ant: copiar [`plugins/chat`](../chat) e ajustar classpath para `../../pitiupi/dist/pitiupi.jar`.
+1. Pitiupi abrindo com login (nome + porta).
+2. [`09_sistema_de_plugins.md`](09_sistema_de_plugins.md).
+3. JDK 17 + Ant.
+4. Núcleo compilado: `pitiupi/dist/pitiupi.jar`.
 
 ## Passo 1 — Projeto Ant
 
-1. Copiar `plugins/chat`.
-2. JAR de saída: `dist/pitiupi.ping.jar`.
-3. Classpath de compilação: JAR do núcleo.
+1. Copie `plugins/chat` para `plugins/ping` (somente na sua máquina).
+2. Renomeie o projeto para `pitiupi.ping` e o JAR de saída para `dist/pitiupi.ping.jar`.
+3. Classpath de compilação: `../../pitiupi/dist/pitiupi.jar`.
 
 **Verificação:** `ant jar` sem erros.
 
-## Passo 2 — `PingPlugin`
+## Passo 2 — SPI
 
-| Método | Exemplo |
-| --- | --- |
-| `getName()` | `"Ping"` |
-| `getDisplayName()` | `"Ping na rede"` |
-| `getIdentifier()` | `"pitiupi.ping"` (único na sala) |
+Arquivo `src/META-INF/services/pitiupi.models.Plugin`:
 
-Em `createPlugin(ConnectionManager cm, PluginWorkspace workspace)`:
-
-```java
-pingPanel = new PingPanel(cm);
-bindShellWorkspaceContent(pingPanel);
-installPeerActions(workspace.peerActions());
 ```
-
-**Não** chame `openOrFocusTab` no boot — a aba abre quando o usuário clicar na galeria ou usar peer action.
-
-Peer actions sugeridas: “Enviar ping” (peer único), “Ping para todos”.
-
-**Verificação:** após instalar o JAR e reiniciar, só **Plugins** e **Configurações** no boot; botão na galeria abre a aba Ping.
+pitiupi.ping.plugin.PingPlugin
+```
 
 ## Passo 3 — Mensagens
 
-`PingMessage` e `PongMessage` com `pingId` (UUID) e timestamps para RTT.
+Três classes em `pitiupi.ping.net`, todas estendendo `pitiupi.models.Messages.Message`:
 
-Registrar em `getMessages()`:
+1. **`PingMessage`** — campos: `pingId` (UUID), `sentAtMillis`, `senderName`, `senderIp`, `mode` (`ONCE` ou `CONTINUOUS_TICK`), `sessionId` (para série contínua).
+2. **`PongMessage`** — `pingId`, `echoSentAtMillis` (copiado do ping), `responderName`, `responderIp`.
+3. **`PingStopMessage`** — `sessionId`, `senderName`, `senderIp` (avisa que o contínuo parou).
 
-```java
-return List.of(PingMessage.class, PongMessage.class);
-```
-
-Em `receiveMessage`: ao receber ping, responder pong; ao receber pong, calcular RTT e atualizar a UI com `SwingUtilities.invokeLater`.
-
-## Passo 4 — `PingPanel`
-
-Botões para multicast, unicast UDP e TCP; área de log ou label com último RTT em ms. Para um peer, use campo IP como no `ChatPanel` ou peer action na lista lateral.
-
-## Passo 5 — Transportes
-
-Use `pitiupi.application.messaging.MessageDispatcher` no núcleo:
+Registre em `PingPlugin.getMessages()`:
 
 ```java
-MessageDispatcher.send(connectionManager, pingMessage, SendTarget.broadcastAll(), TransportMode.MULTICAST_UDP);
-MessageDispatcher.send(connectionManager, pingMessage, SendTarget.singlePeer(addr), TransportMode.UNICAST_UDP);
-MessageDispatcher.send(connectionManager, pingMessage, SendTarget.singlePeer(addr), TransportMode.TCP);
+return List.of(PingMessage.class, PongMessage.class, PingStopMessage.class);
 ```
 
-| Destino | Transporte didático | Observação |
-| --- | --- | --- |
-| Todos | Multicast UDP | Padrão em sala |
-| Todos | Unicast UDP | Loop em cada peer online (demo) |
-| Um peer | Unicast UDP / TCP | IP da lista ou manual |
+**Por quê:** o núcleo só desserializa tipos declarados; evita que outro plugin receba seus bytes por engano.
 
-Não alterar o endereço multicast do núcleo (`224.0.0.3`).
+## Passo 4 — `PingController` (lógica)
 
-## Passo 6 — SPI e instalação
+Classe em `pitiupi.ping.control` **sem Swing**:
 
-`META-INF/services/pitiupi.models.Plugin`:
+- Ao **enviar** ping: grave `pendingByPingId.put(pingId, sentAtMillis)` e use `MessageDispatcher.send(..., UNICAST_UDP)`.
+- Ao **receber** `PingMessage`: responda com `PongMessage` (eco do `sentAtMillis`).
+- Ao **receber** `PongMessage`: `rtt = now - pending.remove(pingId)` e notifique a UI.
+- **Contínuo:** `javax.swing.Timer` a cada 1 s envia `CONTINUOUS_TICK` com o mesmo `sessionId`.
+- **Parar:** cancele o timer local e envie `PingStopMessage` ao peer.
 
+Use `PeerIpv4` e `LocalNetworkInfo.bestLocalIpv4()` para IP legível no Windows.
+
+## Passo 5 — `PingPanel` (UI)
+
+`JPanel` com:
+
+- `SessionTabBar` — aba fixa **Todos** + `addTabIfAbsent` quando chega tráfego de um peer (**sem** mudar a aba ativa da shell).
+- `JTextArea` monoespaçada por aba; linhas como `[HH:mm:ss] pong ← Alice · RTT 42 ms`.
+- Botão **Parar todos os pings contínuos** chamando o controller.
+
+**Não** use `JFrame`. No `PingPlugin`:
+
+```java
+bindShellWorkspaceContent(panel);
 ```
-br.ufsj.redes.ping.PingPlugin
-```
 
-Copiar JAR para `~/pitiupi/plugins/` (ou instalar pela aba Configurações) e **reiniciar**.
+A aba só abre quando o usuário clicar na galeria **Plugins** ou numa peer action.
 
-## Critérios de sucesso
+## Passo 6 — `PingPlugin`
 
-| # | Critério |
+| Método | Valor |
 | --- | --- |
-| C1 | JAR carrega sem exceção |
-| C2 | Pelo menos um transporte funciona entre duas instâncias |
-| C3 | RTT em ms após o pong |
-| C4 | README do aluno com build e transporte usado |
+| `getIdentifier()` | `pitiupi.ping` (único na sala) |
+| `getDisplayName()` | `Ping na rede` |
 
-## Anti-padrões
+`createPlugin(ConnectionManager, PluginWorkspace)`:
 
-- Commitar solução no repo oficial.
-- Busy-wait na EDT.
-- Objetos não `Serializable`.
-- Mesmo `getIdentifier()` que outro plugin.
+1. Crie `PingController` e `PingPanel`.
+2. `bindShellWorkspaceContent(panel)`.
+3. `installPeerActions(workspace.peerActions())`.
 
-## Referências
+**Peer actions sugeridas:**
 
-- [10_tutorial_plugin.md](10_tutorial_plugin.md)
-- [05_udp_multicast.md](05_udp_multicast.md)
-- [06_tcp_conexoes.md](06_tcp_conexoes.md)
-- [04_inicializacao_e_gui.md](04_inicializacao_e_gui.md)
+| id | Label | Alvo |
+| --- | --- | --- |
+| `ping.once` | Ping uma vez | um peer |
+| `ping.continuous` | Ping contínuo | um peer |
+| `ping.stop` | Parar ping | um peer |
+| `ping.all.once` | Ping para todos (uma vez) | Todos → `MULTICAST_UDP` |
+
+Em cada ação de peer único: `workspace.openOrFocusTab(getIdentifier(), getDisplayName())` e chame o controller.
+
+`receiveMessage`: despache para o controller com `SwingUtilities.invokeLater`.
+
+`onShellTabClosed`: pare todos os timers contínuos.
+
+## Passo 7 — Instalar e testar
+
+1. `ant jar` → `dist/pitiupi.ping.jar`.
+2. Aba **Configurações** → **Instalar JAR…** (ou copie para `~/pitiupi/plugins/`).
+3. **Reinicie** o Pitiupi (obrigatório após mudar plugins).
+4. Dois processos no mesmo PC: portas **5000** e **5001**, nomes diferentes.
+5. Peer action **Ping uma vez** → veja RTT no log.
+6. **Ping contínuo** → linhas a cada ~1 s; **Parar ping** → o outro vê “parou o ping contínuo”.
+7. Com colega na LAN: mesma porta, JAR instalado nos dois.
+
+Instalação usa o mesmo `PluginStore` da aba **Configurações** (`installFromFile` + reinício). O núcleo expõe `pitiupi.tools.PluginStoreCli` para testes sem interface gráfica.
+
+## Passo 8 — Comparar com o chat
+
+O chat usa a mesma ideia de abas de sessão, mas adiciona roteamento TCP privado e HTML. No Ping mantenha **só** UDP e texto em `JTextArea` — ideal para entender o fluxo antes de copiar padrões para um plugin novo.
+
+## Checklist do aluno
+
+- [ ] SPI e `getIdentifier` únicos
+- [ ] Três mensagens registradas
+- [ ] RTT calculado no `Pong`
+- [ ] Aba passiva ao receber ping de peer novo
+- [ ] Contínuo + parar com aviso ao peer
+- [ ] Reinício após instalar JAR
+- [ ] Teste com segundo usuário (5001 ou outro PC)

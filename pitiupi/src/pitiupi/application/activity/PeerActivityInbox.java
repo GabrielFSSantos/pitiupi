@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Pendências de atividade por peer: contagem (chat) ou indicador (screencast).
+ * Pendências de atividade por peer (núcleo). Badges na lista lateral adiados na v1 — D23.
  */
 public final class PeerActivityInbox {
 

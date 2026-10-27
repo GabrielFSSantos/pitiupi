@@ -51,6 +51,8 @@ MeusPlugins.plugins.NomeDaClasse
 Para serem carregados, os plugins devem estar empacotados como arquivos JAR
 e colocados no diretório plugins da aplicação.
 
+O catálogo de build (`plugins.registry.json`) cobre só **chat** e **screencast** no CI. Exercícios (ex. [ping](17_tutorial_ping_aula.md)) ficam fora do repositório — o aluno instala o JAR localmente após `ant jar`.
+
 ### Carregamento de plugins
 
 O `PluginManager.loadPlugins()` (chamado pela `MainShellFrame`):

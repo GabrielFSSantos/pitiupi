@@ -1,6 +1,6 @@
 # Plugin Ping (exercício de aula)
 
-Material didático para o aluno **implementar** um plugin de Ping/Pong com medição de RTT. Este diretório no repositório oficial contém apenas planejamento e referências — **não** inclua código Java ou JAR da solução no commit.
+Material didático para o aluno **implementar** um plugin de Ping/Pong com medição de RTT. No Git ficam só este README e o [tutorial](../../docs/documentation/17_tutorial_ping_aula.md). Código e `build.xml` locais estão no `.gitignore` (`src/`, `nbproject/`, `dist/`).
 
 ## Onde está o tutorial
 
@@ -13,8 +13,6 @@ Tutorial canônico (passo a passo): [docs/documentation/17_tutorial_ping_aula.md
 3. Build: `ant jar` → `dist/pitiupi.ping.jar`.
 4. Instalar em `PITIUPI_HOME/plugins/` e reiniciar o Pitiupi.
 5. Abrir o plugin pela aba **Plugins** na galeria (aba não abre sozinha no boot).
-
-Quando o JAR estiver pronto para o time, registre uma entrada em [`plugins.registry.json`](../../plugins.registry.json) na raiz do clone (id `ping`, `dir`: `plugins/ping`, etc.).
 
 ## Pré-requisitos
 

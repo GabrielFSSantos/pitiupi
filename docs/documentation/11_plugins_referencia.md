@@ -28,4 +28,16 @@ Dois módulos buildáveis no catálogo; o chat unifica o antigo mpChat (multicas
 
 ## Exercício Ping
 
-Material em [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md) e pasta `plugins/ping/` (sem JAR no repositório).
+Material em [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md) e pasta `plugins/ping/` (sem código/JAR no repositório). Não entra no `plugins.registry.json` nem no gate CI.
+
+## Limitações didáticas (não são bugs)
+
+Os plugins de referência são **exemplos de sala de aula**, não produtos completos:
+
+| Plugin | Inclui | Não inclui (de propósito) |
+| --- | --- | --- |
+| **chat** | texto, sala geral, unicast/multicast/TCP, TCP privado básico | imagens, moderação, histórico persistente, criptografia |
+| **screencast** | stream read-only, avisos de sessão | controle remoto do mouse/teclado, áudio |
+| **ping** (exercício do aluno) | RTT, ping uma vez/contínuo, parar e avisar o peer | ICMP do SO, gráficos, SLA |
+
+Para evoluir: copie o padrão (`Plugin` + mensagens + painel na aba) e acrescente features no **seu** JAR — sem inflar o núcleo.

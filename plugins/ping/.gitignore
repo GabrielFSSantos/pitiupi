@@ -1,5 +1,7 @@
 /dist/
 /build/
 /out/
-/nbproject/private/
+/nbproject/
+/src/
+/build.xml
 *.jar

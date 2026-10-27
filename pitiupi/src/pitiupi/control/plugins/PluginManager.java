@@ -1,7 +1,6 @@
 package pitiupi.control.plugins;
 
 import pitiupi.Main;
-import pitiupi.api.plugin.LegacyPluginWorkspace;
 import pitiupi.api.plugin.PluginWorkspace;
 import pitiupi.models.Plugin;
 import pitiupi.control.ConnectionManager;
@@ -109,19 +108,6 @@ public class PluginManager {
         if (plugin != null) {
             plugin.onShellTabClosed();
         }
-    }
-
-    /** @deprecated use {@link #loadPlugins(ConnectionManager, GuiManager, Function)} com {@link pitiupi.api.plugin.ShellPluginWorkspace} */
-    @Deprecated
-    public void loadPlugins(ConnectionManager connectionManager, GuiManager guiManager) {
-        loadPlugins(connectionManager, guiManager, plugin -> new LegacyPluginWorkspace(
-                plugin.getIdentifier(),
-                plugin,
-                connectionManager,
-                guiManager,
-                connectionManager.getPeerActionBroker(),
-                connectionManager.getInviteInboxService()
-        ));
     }
 
     public void loadPlugins(
