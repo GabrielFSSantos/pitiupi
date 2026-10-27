@@ -2,10 +2,11 @@
 
 | Item | Prioridade | Notas |
 | --- | --- | --- |
-| Testes JUnit para desserialização e framing TCP | Média | Sem rede real |
+| Testes JUnit framing TCP com socket mock | Média | Rede real coberta manualmente na LAN |
 | CI (GitHub Actions) com `ant jar` + `ant test` | Baixa | Requer imagem com Ant/JDK |
-| Captura de tela nativa no WSL | Baixa | Limitação de ambiente; validar em Windows/Linux com display |
+| REQ-11 badges na lista lateral | Baixa | D23 — ver `decision-register.md` |
+| Automação GUI 2 instâncias / 2 PCs | Baixa | Limitação Swing; aceite manual |
 
-Itens concluídos recentemente: shell com abas e peer actions (D16–D18); chat unificado (D19); docs alinhadas à shell v1 (Onda G); suíte JUnit no núcleo (`ant test`); tutorial Ping em [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md).
+**Concluído (refinamento v1):** shell abas + peer actions; SPI `PluginWorkspace`; suíte JUnit no núcleo; tutorial Ping; deploy LAN documentado no repositório de desenvolvimento do mantenedor (fora deste clone).
 
 Ao fechar um item, atualizar esta tabela e o doc técnico relacionado.

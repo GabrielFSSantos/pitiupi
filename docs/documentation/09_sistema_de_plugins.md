@@ -82,6 +82,12 @@ Na `MainShellFrame`, `createPlugin(ConnectionManager, PluginWorkspace)` registra
 
 Em abas de **recebimento** (ex. screencast `view:`), `PluginRoutingPanel.bindReceiveSession` deixa IP e forma de envio somente leitura, refletindo o que o remetente usou.
 
+## Segurança e plugins externos (aula)
+
+- Instale apenas JARs de fontes confiáveis (`PITIUPI_HOME/plugins` ou aba Configurações).
+- O núcleo desserializa mensagens de rede com classloader por plugin; mensagens malformadas devem ser ignoradas, mas **não** há sandbox — um JAR malicioso tem o mesmo poder de um programa local.
+- Não há atualização automática de plugins pelo núcleo na v1.
+
 ### Avisos de sessão (D24)
 
 `SessionNoticeMessage` (núcleo) sinaliza fases `START` / `END` por `pluginId` e canal (`SessionNoticeChannel`, ex. `screen_cast`). Plugins registram o tipo em `getMessages()` e reagem na UI (ex. fechar aba de recebimento ao `END` de compartilhamento). Campos incluem remetente, escopo (broadcast/direto) e `TransportMode` observado.
