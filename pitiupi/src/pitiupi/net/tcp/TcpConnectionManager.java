@@ -205,9 +205,11 @@ class TcpConnectionManager implements PeerListener {
      * @param reason motivo do encerramento informado aos peers.
      */
     public void closeAllConnections(String reason) {
-        for (List<TcpConnection> connections : privateConnections.values()) {
-            for (TcpConnection connection : connections) {
-                InfoMessage.sendSystemInfo(connection, InfoType.CONNECTION_CLOSED, reason);
+        synchronized (privateConnections) {
+            for (List<TcpConnection> connections : new ArrayList<>(privateConnections.values())) {
+                for (TcpConnection connection : new ArrayList<>(connections)) {
+                    InfoMessage.sendSystemInfo(connection, InfoType.CONNECTION_CLOSED, reason);
+                }
             }
         }
         closeAllConnections();
@@ -221,18 +223,19 @@ class TcpConnectionManager implements PeerListener {
      */
 
     public void closeAllConnections() {
-        for (TcpConnection connection : publicConnections.values()) {
+        for (TcpConnection connection : new ArrayList<>(publicConnections.values())) {
             closeConnection(connection);
         }
 
         synchronized (privateConnections) {
-            for (List<TcpConnection> connectionsList : privateConnections.values()) {
-                for (TcpConnection connection : connectionsList) {
+            for (List<TcpConnection> connectionsList : new ArrayList<>(privateConnections.values())) {
+                for (TcpConnection connection : new ArrayList<>(connectionsList)) {
                     closeConnection(connection);
                 }
-                privateConnections.clear();
             }
+            privateConnections.clear();
         }
+        publicConnections.clear();
     }
 
     /**
