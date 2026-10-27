@@ -48,30 +48,16 @@ public final class PresenceService {
 
     public List<UserPeerView> listPeerViews() {
         List<UserPeerView> views = new ArrayList<>();
-        int broadcastCounted = peerActivityInbox != null
-                ? peerActivityInbox.totalCountedForPeer(PeerActivityInbox.BROADCAST_PEER_KEY)
-                : 0;
-        boolean broadcastIndicator = peerActivityInbox != null
-                && peerActivityInbox.hasIndicatorForPeer(PeerActivityInbox.BROADCAST_PEER_KEY);
-        views.add(new UserPeerView("Todos", null, null, broadcastCounted, broadcastIndicator, false, true));
+        views.add(new UserPeerView("Todos", null, null, 0, false, false, true));
         String selfId = heartbeatManager.getInstanceId();
         for (User user : heartbeatManager.getPeers()) {
             boolean isSelf = selfId.equals(user.getInstanceId());
-            int notifications = 0;
-            if (inviteInboxService != null && user.getInstanceId() != null) {
-                notifications += inviteInboxService.getNotificationCount(user.getInstanceId());
-            }
-            boolean activityIndicator = false;
-            if (peerActivityInbox != null && user.getInstanceId() != null) {
-                notifications += peerActivityInbox.totalCountedForPeer(user.getInstanceId());
-                activityIndicator = peerActivityInbox.hasIndicatorForPeer(user.getInstanceId());
-            }
             views.add(new UserPeerView(
                     user.getUserName(),
                     user.getInstanceId(),
                     user.getAddress(),
-                    notifications,
-                    activityIndicator,
+                    0,
+                    false,
                     isSelf,
                     false
             ));

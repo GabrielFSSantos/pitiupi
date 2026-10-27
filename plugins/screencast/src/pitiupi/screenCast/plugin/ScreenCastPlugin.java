@@ -4,8 +4,6 @@ import java.util.List;
 
 import pitiupi.api.plugin.PeerActionsRegistrar;
 import pitiupi.api.plugin.PluginWorkspace;
-import pitiupi.api.plugin.PeerActivityFocusTokens;
-import pitiupi.application.activity.PeerActivityInbox;
 import pitiupi.application.peeractions.PeerAction;
 import pitiupi.application.presence.UserPeerView;
 import pitiupi.application.peeractions.PeerActionTarget;
@@ -110,7 +108,6 @@ public class ScreenCastPlugin extends Plugin {
                 return;
             }
             ScreenCastReceiveScope scope = classifyIncoming(msg);
-            recordScreenCastActivity(msg, scope);
             screenCastPanel.receiveScreenCastMessage(msg, scope);
         }
     }
@@ -137,27 +134,4 @@ public class ScreenCastPlugin extends Plugin {
         return ScreenCastReceiveScope.BROADCAST;
     }
 
-    private void recordScreenCastActivity(ScreenCastMessage msg, ScreenCastReceiveScope scope) {
-        if (connectionManager == null) {
-            return;
-        }
-        PeerActivityInbox inbox = connectionManager.getPeerActivityInbox();
-        if (scope == ScreenCastReceiveScope.DIRECT) {
-            for (UserPeerView view : connectionManager.getPresenceService().listPeerViews()) {
-                if (!view.isBroadcastTarget()
-                        && msg.getName() != null
-                        && msg.getName().equals(view.getDisplayName())
-                        && view.getInstanceId() != null) {
-                    inbox.signal(
-                            view.getInstanceId(),
-                            getIdentifier(),
-                            "screencast.peer",
-                            PeerActivityFocusTokens.peerInstance(view.getInstanceId())
-                    );
-                    return;
-                }
-            }
-        }
-        inbox.signalBroadcast(getIdentifier(), "screencast.multicast", PeerActivityFocusTokens.broadcast());
-    }
 }

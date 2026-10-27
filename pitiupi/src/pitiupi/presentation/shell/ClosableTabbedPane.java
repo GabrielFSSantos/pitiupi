@@ -116,6 +116,39 @@ public final class ClosableTabbedPane {
         tabbedPane.setSelectedIndex(newIndex);
     }
 
+    public void addTabIfAbsent(String key, String title, JComponent content, boolean closable) {
+        addTabIfAbsent(key, title, title, content, closable);
+    }
+
+    /**
+     * Cria a aba se não existir, sem mudar a aba selecionada.
+     */
+    public void addTabIfAbsent(String key, String title, String tooltip, JComponent content, boolean closable) {
+        reconcileKeyListWithTabPane();
+        dedupeKey(key);
+        int index = indexOfKey(key);
+        if (index >= 0 && index < tabbedPane.getTabCount()) {
+            setTabHeader(index, title, tooltip, closable, key);
+            reindex();
+            return;
+        }
+        int selectedBefore = tabbedPane.getSelectedIndex();
+        tabbedPane.addTab(title, null);
+        int newIndex = tabbedPane.getTabCount() - 1;
+        orderedKeys.add(key);
+        setTabHeader(newIndex, title, tooltip, closable, key);
+        reindex();
+        if (selectedBefore >= 0 && selectedBefore < tabbedPane.getTabCount()) {
+            boolean prev = suppressSelectionEvents;
+            suppressSelectionEvents = true;
+            try {
+                tabbedPane.setSelectedIndex(selectedBefore);
+            } finally {
+                suppressSelectionEvents = prev;
+            }
+        }
+    }
+
     public void closeTab(String key) {
         closeTab(key, closeFallbackKey);
     }

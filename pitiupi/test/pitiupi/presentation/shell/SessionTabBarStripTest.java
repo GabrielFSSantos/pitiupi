@@ -26,4 +26,13 @@ class SessionTabBarStripTest {
         bar.selectTab(PluginSessionKeys.PEER_DRAFT);
         assertEquals(PluginSessionKeys.PEER_DRAFT, bar.selectedKey());
     }
+
+    @Test
+    void addTabIfAbsentDoesNotChangeSelection() {
+        SessionTabBar bar = new SessionTabBar();
+        bar.addOrSelectTab(PluginSessionKeys.ROOM, "Sala geral", new JPanel(), false);
+        bar.addTabIfAbsent(PluginSessionKeys.PEER_DRAFT, "Nova conversa", "draft", new JPanel(), true);
+        assertEquals(PluginSessionKeys.ROOM, bar.selectedKey());
+        assertEquals(2, bar.getTabCount());
+    }
 }

@@ -4,7 +4,6 @@ import pitiupi.application.messaging.MessageDispatcher;
 import pitiupi.application.messaging.PluginTransportCatalog;
 import pitiupi.application.messaging.SendTarget;
 import pitiupi.application.messaging.TransportMode;
-import pitiupi.api.plugin.PeerActivityFocusTokens;
 import pitiupi.application.presence.UserPeerView;
 import pitiupi.chat.control.PrivateChatController;
 import pitiupi.chat.control.PrivateChatUiSink;
@@ -69,8 +68,6 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
     private PrivateChatController privateChatController;
     private PeerDraftPanel draftPanel;
     private Runnable pendingTranscriptFlush;
-    private String pluginId;
-
     public ChatPanel(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
         this.routingPanel = new PluginRoutingPanel(
@@ -100,10 +97,6 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
             applyConversationKeyFromRouting();
         });
         selectRoomSession();
-    }
-
-    public void setPluginId(String pluginId) {
-        this.pluginId = pluginId;
     }
 
     private void initSessionTabs() {
@@ -152,7 +145,6 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
         if (PluginSessionKeys.ROOM.equals(key)) {
             routingPanel.bindRoomSession();
             switchActiveConversation(ROOM_KEY);
-            reportActivityFocusForRoom();
             return;
         }
         if (key.startsWith("peer:") && !PluginSessionKeys.PEER_DRAFT.equals(key)) {
@@ -160,38 +152,7 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
             String name = peerDisplayNames.getOrDefault(ip, ip);
             routingPanel.bindPeerSession(ip, name);
             switchActiveConversation(resolveConversationKey());
-            reportActivityFocusForPeerIp(ip);
         }
-    }
-
-    private void reportActivityFocusForRoom() {
-        if (pluginId == null) {
-            return;
-        }
-        connectionManager.getPeerActivityFocus()
-                .setFocusedChannel(pluginId, PeerActivityFocusTokens.broadcast());
-    }
-
-    private void reportActivityFocusForPeerIp(String ip) {
-        if (pluginId == null) {
-            return;
-        }
-        connectionManager.getPeerActivityFocus()
-                .setFocusedChannel(pluginId, resolvePeerFocusToken(ip));
-    }
-
-    private String resolvePeerFocusToken(String ip) {
-        String canonical = canonicalPeerIp(ip);
-        for (UserPeerView view : connectionManager.getPresenceService().listPeerViews()) {
-            if (view.isBroadcastTarget() || view.isSelf()) {
-                continue;
-            }
-            if (view.getInstanceId() != null
-                    && view.getInetAddress().map(PeerIpv4::fromInetAddress).orElse("").equals(canonical)) {
-                return PeerActivityFocusTokens.peerInstance(view.getInstanceId());
-            }
-        }
-        return PeerActivityFocusTokens.peerIp(canonical);
     }
 
     private void openDraftPeerTab() {
@@ -283,6 +244,18 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
         showBodyCard(CARD_MAIN);
     }
 
+    private void ensurePeerTabForIncoming(String ip, String displayName) {
+        String canonical = canonicalPeerIp(ip);
+        String resolved = SessionPeerLabels.resolveDisplayName(connectionManager, canonical, displayName);
+        peerDisplayNames.put(canonical, resolved);
+        String tabKey = PluginSessionKeys.peer(canonical);
+        sessionTabs.addTabIfAbsent(tabKey, resolved, canonical, new JPanel(), true);
+        if (tabKey.equals(sessionTabs.selectedKey())) {
+            routingPanel.bindPeerSession(canonical, resolved);
+            switchActiveConversation(resolveConversationKey());
+        }
+    }
+
     private static String canonicalPeerIp(String ip) {
         return PeerIpv4.normalize(ip);
     }
@@ -298,7 +271,6 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
     }
 
     public void focusGeneralRoom() {
-        reportActivityFocusForRoom();
         sessionTabs.selectTab(PluginSessionKeys.ROOM);
     }
 
@@ -324,9 +296,7 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
         String bucket = bucketForIncoming(message);
         if (!ROOM_KEY.equals(bucket) && message.getSenderIp() != null && !message.getSenderIp().isBlank()) {
             String canonical = canonicalPeerIp(message.getSenderIp());
-            if (!sessionTabs.hasTab(PluginSessionKeys.peer(canonical))) {
-                openPeerTab(canonical, message.getName());
-            }
+            ensurePeerTabForIncoming(canonical, message.getName());
             bucket = peerKey(canonical);
         }
         appendChatLine(bucket, message);
@@ -569,9 +539,21 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
     private void prependLine(String bucket, String htmlLine) {
         StringBuilder buf = transcripts.computeIfAbsent(bucket, k -> new StringBuilder());
         buf.insert(0, htmlLine + "<br>");
-        if (bucket.equals(activeConversationKey)) {
+        if (bucket.equals(activeConversationKey) && isSessionTabShowingBucket(bucket)) {
             scheduleFlushTranscriptToPane();
         }
+    }
+
+    private boolean isSessionTabShowingBucket(String bucket) {
+        String key = sessionTabs.selectedKey();
+        if (ROOM_KEY.equals(bucket)) {
+            return PluginSessionKeys.ROOM.equals(key);
+        }
+        if (key != null && key.startsWith("peer:") && !PluginSessionKeys.PEER_DRAFT.equals(key)) {
+            String tabIp = canonicalPeerIp(key.substring("peer:".length()));
+            return peerKey(tabIp).equals(bucket);
+        }
+        return false;
     }
 
     private void scheduleFlushTranscriptToPane() {

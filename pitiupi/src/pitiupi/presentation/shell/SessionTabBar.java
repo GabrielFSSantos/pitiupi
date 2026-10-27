@@ -101,6 +101,11 @@ public final class SessionTabBar {
         alignAddButtonToStrip();
     }
 
+    public void addTabIfAbsent(String key, String title, String tooltip, JComponent content, boolean closable) {
+        tabs.addTabIfAbsent(key, title, tooltip, content, closable);
+        alignAddButtonToStrip();
+    }
+
     public void selectTab(String key) {
         tabs.selectTab(key);
     }

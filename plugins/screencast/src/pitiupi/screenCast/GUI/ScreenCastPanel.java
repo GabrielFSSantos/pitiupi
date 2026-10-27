@@ -562,10 +562,11 @@ public class ScreenCastPanel extends JPanel {
                 }
                 receiveScopes.put(viewKey, scope != null ? scope : ScreenCastReceiveScope.BROADCAST);
                 resolveSenderIp(message.getName(), viewKey);
-                sessionTabs.addOrSelectTab(viewKey, message.getName(), message.getName(), new JPanel(), true);
+                sessionTabs.addTabIfAbsent(viewKey, message.getName(), message.getName(), new JPanel(), true);
                 setBodyContent(viewKey, new JScrollPane(new JLabel(new ImageIcon(image))));
-                sessionTabs.selectTab(viewKey);
-                showBodyCard(viewKey);
+                if (viewKey.equals(sessionTabs.selectedKey())) {
+                    showBodyCard(viewKey);
+                }
             } catch (IOException ex) {
                 updateTabError(viewKey, message.getName(), "Erro ao ler imagem: " + ex.getMessage(), scope);
             }
@@ -588,8 +589,10 @@ public class ScreenCastPanel extends JPanel {
         receiveScopes.put(tabKey, scope != null ? scope : ScreenCastReceiveScope.BROADCAST);
         JLabel label = new JLabel("<html><p style='color:#c62828'>" + error + "</p></html>");
         setBodyContent(tabKey, label);
-        sessionTabs.addOrSelectTab(tabKey, title, title, new JPanel(), true);
-        showBodyCard(tabKey);
+        sessionTabs.addTabIfAbsent(tabKey, title, title, new JPanel(), true);
+        if (tabKey.equals(sessionTabs.selectedKey())) {
+            showBodyCard(tabKey);
+        }
     }
 
     private void ensureBodyPanel(String key) {

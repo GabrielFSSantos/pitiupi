@@ -1,6 +1,5 @@
 package pitiupi.presentation.shell;
 
-import pitiupi.application.activity.PeerActivityInbox;
 import pitiupi.application.peeractions.GroupedPeerActions;
 import pitiupi.application.peeractions.PeerAction;
 import pitiupi.application.peeractions.PeerActionBroker;
@@ -35,7 +34,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * Lista lateral com Todos, badges e peer actions.
+ * Lista lateral com Todos e peer actions (sem badges de atividade na v1).
  */
 public final class NetworkUsersPanel extends JPanel implements PeerListener {
 
@@ -68,11 +67,7 @@ public final class NetworkUsersPanel extends JPanel implements PeerListener {
                 JLabel label = (JLabel) super.getListCellRendererComponent(
                         list, value, index, isSelected, cellHasFocus);
                 if (value instanceof DisplayPeer peer) {
-                    label.setText(ShellUi.formatPeerListLabel(
-                            peer.view.getDisplayName(),
-                            peer.view.getNotificationCount(),
-                            peer.view.hasActivityIndicator()
-                    ));
+                    label.setText(peer.view.getDisplayName());
                 }
                 return label;
             }
@@ -98,12 +93,6 @@ public final class NetworkUsersPanel extends JPanel implements PeerListener {
 
         connectionManager.addPeerListener(this);
         refreshFromPresence();
-        connectionManager.getInviteInboxService().setOnNotificationsChanged(this::refreshFromPresence);
-        connectionManager.getPeerActivityInbox().setOnChanged(this::refreshFromPresence);
-    }
-
-    private static boolean isIndicatorAction(String actionId) {
-        return actionId != null && actionId.startsWith("screencast.");
     }
 
     private void showPeerActions(DisplayPeer peer, PeerActionTarget target, int x, int y) {
@@ -113,45 +102,17 @@ public final class NetworkUsersPanel extends JPanel implements PeerListener {
                 ? new PeerTarget.All()
                 : new PeerTarget.Single(peer.view);
 
-        PeerActivityInbox activity = connectionManager.getPeerActivityInbox();
-        String activityPeerKey = peer.view.isBroadcastTarget()
-                ? PeerActivityInbox.BROADCAST_PEER_KEY
-                : peer.view.getInstanceId();
-
         for (GroupedPeerActions group : broker.getAllActionsFor(target)) {
             JMenu pluginMenu = new JMenu(group.pluginDisplayName());
             for (PeerAction action : group.actions()) {
-                int pending = activityPeerKey != null
-                        ? activity.countForAction(activityPeerKey, group.pluginId(), action.getId())
-                        : 0;
-                boolean indicator = activityPeerKey != null
-                        && activity.hasIndicatorForAction(activityPeerKey, group.pluginId(), action.getId());
-                boolean indicatorOnly = indicator && pending == 0 && isIndicatorAction(action.getId());
-                JMenuItem item = new JMenuItem(
-                        ShellUi.formatActionLabelWithBadge(action.getLabel(), pending, indicatorOnly)
-                );
+                JMenuItem item = new JMenuItem(action.getLabel());
                 item.addActionListener(e -> {
-                    if (activityPeerKey != null) {
-                        activity.clearAction(activityPeerKey, group.pluginId(), action.getId());
-                    }
                     broker.setActivePlugin(group.pluginId());
                     action.getHandler().run(peerTarget);
                 });
                 pluginMenu.add(item);
             }
             popup.add(pluginMenu);
-        }
-        if (peer.view.getNotificationCount() > 0 && !peer.view.isBroadcastTarget()) {
-            JMenuItem accept = new JMenuItem("Aceitar convite");
-            accept.addActionListener(e -> {
-                String pluginId = connectionManager.getInviteInboxService()
-                        .acceptFirstInviteFrom(peer.view.getInstanceId());
-                if (pluginId != null) {
-                    connectionManager.getPeerActionBroker().setActivePlugin(pluginId);
-                    connectionManager.notifyInviteAcceptedForUi(pluginId);
-                }
-            });
-            popup.add(accept);
         }
         for (JMenu legacy : legacyCategories.values()) {
             if (legacy.getItemCount() > 0 && target == PeerActionTarget.SINGLE_PEER && !peer.view.isBroadcastTarget()) {
@@ -202,11 +163,7 @@ public final class NetworkUsersPanel extends JPanel implements PeerListener {
     record DisplayPeer(UserPeerView view) {
         @Override
         public String toString() {
-            String name = view.getDisplayName();
-            if (view.getNotificationCount() > 0) {
-                return name + " (" + view.getNotificationCount() + ")";
-            }
-            return name;
+            return view.getDisplayName();
         }
 
         User toUser() {
