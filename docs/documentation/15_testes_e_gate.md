@@ -34,7 +34,7 @@ Depois, para runtime local:
 ./scripts/pitiupi.sh link --all
 ```
 
-## Checklist manual — uma máquina (5000 / 5001)
+## Testes manuais — uma máquina (5000 / 5001)
 
 - [ ] Duas instâncias com portas distintas; nomes diferentes
 - [ ] Peers visíveis na lista em até ~15 s
@@ -43,7 +43,7 @@ Depois, para runtime local:
 - [ ] Compose do chat sem barra de rolagem vazio em janela ~1024×768
 - [ ] Encerrar uma instância remove o peer após timeout de heartbeat
 
-## Checklist manual — dois PCs (mesma Wi‑Fi)
+## Testes manuais — dois PCs (mesma Wi‑Fi)
 
 Mesma **porta** em ambos (ex. 5000), **mesmos JARs** em `~/pitiupi/plugins` em cada máquina:
 

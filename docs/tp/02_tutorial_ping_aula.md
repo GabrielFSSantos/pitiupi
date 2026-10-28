@@ -2,7 +2,7 @@
 
 Exercício para montar o plugin **mais simples** do Pitiupi: medir **RTT** (tempo de ida e volta) com mensagens `Ping` / `Pong` na rede, igual a um `ping` de laboratório — mas usando o **mesmo mecanismo de plugins** do chat e do screencast.
 
-A solução completa **não** entra no repositório público: o aluno desenvolve em `plugins/ping/` na máquina local (fora do gate CI). Este tutorial traz escopo, trechos e verificações — você implementa o restante.
+A solução completa **não** entra no repositório público: o exercício é montado em `plugins/ping/` na máquina local (fora do gate CI). Este tutorial descreve escopo, trechos e passos — o restante é implementado em sala.
 
 Índice TP: [README.md](README.md) · Plugins de referência: [11_plugins_referencia.md](../documentation/11_plugins_referencia.md).
 
@@ -37,8 +37,6 @@ A solução completa **não** entra no repositório público: o aluno desenvolve
 1. Copie `plugins/chat` para `plugins/ping` (somente na sua máquina).
 2. Renomeie o projeto para `pitiupi.ping` e o JAR de saída para `dist/pitiupi.ping.jar`.
 3. Classpath de compilação: `../../pitiupi/dist/pitiupi.jar`.
-
-**Verificação:** `ant jar` sem erros.
 
 ## Passo 2 — SPI
 
@@ -143,13 +141,3 @@ O chat usa a mesma ideia de abas de sessão, mas adiciona roteamento TCP privado
 | Aba não abre | Esqueceu `bindShellWorkspaceContent` ou peer action só abre UI (envio é no painel) |
 
 Mais geral: [10_tutorial_plugin.md](../documentation/10_tutorial_plugin.md#problemas-comuns).
-
-## Checklist do aluno
-
-- [ ] SPI e `getIdentifier` únicos
-- [ ] Três mensagens registradas
-- [ ] RTT calculado no `Pong`
-- [ ] Aba passiva `↓` ao receber ping de peer novo (sem roubar foco da shell)
-- [ ] Contínuo + parar com aviso ao peer
-- [ ] Reinício após instalar JAR
-- [ ] Teste com segundo usuário (5001 ou outro PC)

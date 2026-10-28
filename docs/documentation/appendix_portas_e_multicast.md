@@ -37,7 +37,7 @@ O núcleo associa o socket multicast à interface de rede preferida: **cabo (Eth
 
 Ao abrir conversa pela lista de presença, o campo de destino usa **`PeerIpv4`**: IPv4 pontilhado legível, sem forma IPv6-mapeada (`::ffff:…`) nem sufixo de zona (`%7`). Ver [decision-register.md](../decision-register.md) (D22).
 
-## Checklist — dois PCs na mesma Wi‑Fi
+## Dois PCs na mesma Wi‑Fi
 
 1. **Mesma porta no login** (ex.: `5000` nos dois). Portas diferentes isolam a sala.
 2. **Configurações → Sua conexão:** IPs na mesma sub-rede (ex. ambos `192.168.0.x` ou `192.168.1.x`). Se um for `172.x` (WSL/Docker) e outro `192.168.x`, o multicast entre esses hosts não cruza.

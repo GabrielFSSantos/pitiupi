@@ -2,18 +2,7 @@
 
 Complementa [09_sistema_de_plugins.md](09_sistema_de_plugins.md). Use `plugins/chat` como **modelo de estrutura** (Ant, SPI, painel).
 
-Os exemplos abaixo são **parciais** — você completa métodos, UI e testes.
-
-## Verificações progressivas
-
-| Etapa | O que fazer | Sucesso | Erro comum |
-| --- | --- | --- | --- |
-| Projeto Ant | Copiar `plugins/chat` → `plugins/meuPlugin`, ajustar JAR | `ant jar` OK | Classpath sem `pitiupi.jar` |
-| Classe `Plugin` | Estender `Plugin`, metadados | Compila | `createPlugin` com assinatura antiga |
-| SPI | `META-INF/services/pitiupi.models.Plugin` | Classe listada no JAR | Arquivo fora de `src/` |
-| Mensagem | Uma classe `extends Message` | Em `getMessages()` | Tipo não registrado → ignorado na rede |
-| Instalação | JAR em `PITIUPI_HOME/plugins` + reinício | Plugin na galeria | Esqueceu reiniciar |
-| Rede | Duas instâncias, portas diferentes | Peer na lista | Portas iguais no mesmo PC ou firewall |
+Os exemplos abaixo são **parciais** — complete métodos, UI e testes conforme o seu módulo.
 
 ## 1. Novo projeto
 

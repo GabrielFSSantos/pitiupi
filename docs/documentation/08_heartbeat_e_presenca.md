@@ -72,7 +72,7 @@ Lista de peers ativos
 | Timeout de ausência | ~15 s | Peer some após queda ou fechamento sem goodbye |
 | Goodbye | multicast ao sair | Remove peer mais rápido que só timeout |
 
-Em **Wi‑Fi de laboratório**, heartbeat usa o mesmo multicast que o chat na sala geral — mesma porta no login, mesma sub-rede, sem isolamento AP→AP. Checklist: [appendix_portas_e_multicast.md](appendix_portas_e_multicast.md).
+Em **Wi‑Fi de laboratório**, heartbeat usa o mesmo multicast que o chat na sala geral — mesma porta no login, mesma sub-rede, sem isolamento AP→AP. Ver [appendix_portas_e_multicast.md](appendix_portas_e_multicast.md).
 
 ```mermaid
 flowchart LR
