@@ -19,7 +19,7 @@ Não descreva funcionalidade futura como se já existisse.
 
 ## Código nos exemplos
 
-- Trechos de tutorial são **ilustrativos** quando indicado; o aluno completa o plugin (ver [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md)).
+- Trechos de tutorial são **ilustrativos** quando indicado; complete o plugin conforme [10_tutorial_plugin.md](10_tutorial_plugin.md).
 - APIs citadas devem existir no núcleo atual (`PluginWorkspace`, `createPlugin(ConnectionManager, PluginWorkspace)`).
 
 ## Diagramas

@@ -1,6 +1,6 @@
 # Tutorial — criar um plugin
 
-Complementa [09_sistema_de_plugins.md](09_sistema_de_plugins.md). Exercício guiado completo: [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md). Use `plugins/chat` como **modelo de estrutura** (Ant, SPI, painel).
+Complementa [09_sistema_de_plugins.md](09_sistema_de_plugins.md). Use `plugins/chat` como **modelo de estrutura** (Ant, SPI, painel).
 
 Os exemplos abaixo são **parciais** — você completa métodos, UI e testes.
 
@@ -90,9 +90,9 @@ pacote.MeuPlugin
 
 Confirme com `jar tf dist/seu.jar | grep META-INF/services`.
 
-## 5. Catálogo (opcional para TP)
+## 5. Catálogo (opcional)
 
-Para build com `./scripts/pitiupi.sh`, adicione entrada em [`plugins.registry.json`](../../plugins.registry.json). Exercícios locais podem instalar só o JAR pela aba **Configurações**.
+Para build com `./scripts/pitiupi.sh`, adicione entrada em [`plugins.registry.json`](../../plugins.registry.json). Módulos só locais podem instalar o JAR pela aba **Configurações** sem entrar no catálogo.
 
 ## 6. Build e instalação
 
@@ -119,5 +119,4 @@ cd plugins/meuPlugin && ant jar
 
 ## Próximos passos
 
-- [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md) — exercício Ping (RTT, UDP)
 - [11_plugins_referencia.md](11_plugins_referencia.md) — chat e screencast

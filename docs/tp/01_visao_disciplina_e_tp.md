@@ -29,7 +29,7 @@ Exemplos de tema: chat temático, tabuleiro (xadrez/damas), compartilhamento de 
 | `plugins/screencast` | Payload maior / streaming de imagem |
 | `plugins/chat` | Multicast, unicast, TCP e canal TCP privado |
 
-Detalhes: [11_plugins_referencia.md](11_plugins_referencia.md).
+Detalhes: [11_plugins_referencia.md](../documentation/11_plugins_referencia.md).
 
 ## Critérios genéricos (ajustar na disciplina)
 
@@ -42,6 +42,6 @@ Detalhes: [11_plugins_referencia.md](11_plugins_referencia.md).
 
 ## Para monitores
 
-- Roteiro de build: [00_quickstart.md](00_quickstart.md).
-- Checklist de entrega: [15_testes_e_gate.md](15_testes_e_gate.md).
-- Fundamentação para dúvidas de alunos: [16_fundamentacao_redes.md](16_fundamentacao_redes.md).
+- Roteiro de build: [00_quickstart.md](../documentation/00_quickstart.md).
+- Checklist de entrega: [03_checklist_entrega.md](03_checklist_entrega.md).
+- Fundamentação para dúvidas de alunos: [16_fundamentacao_redes.md](../documentation/16_fundamentacao_redes.md).

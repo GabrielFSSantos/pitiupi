@@ -51,7 +51,7 @@ MeusPlugins.plugins.NomeDaClasse
 Para serem carregados, os plugins devem estar empacotados como arquivos JAR
 e colocados no diretório plugins da aplicação.
 
-O catálogo de build (`plugins.registry.json`) cobre só **chat** e **screencast** no CI. Exercícios (ex. [ping](17_tutorial_ping_aula.md)) ficam fora do repositório — o aluno instala o JAR localmente após `ant jar`.
+O catálogo de build (`plugins.registry.json`) cobre **chat** e **screencast** no gate de CI. Outros módulos podem ser buildados localmente e instalados via JAR em `PITIUPI_HOME/plugins` sem entrar no catálogo.
 
 ### Carregamento de plugins
 
@@ -82,7 +82,7 @@ Na `MainShellFrame`, `createPlugin(ConnectionManager, PluginWorkspace)` registra
 
 Em abas de **recebimento** (ex. screencast `view:`), `PluginRoutingPanel.bindReceiveSession` deixa IP e forma de envio somente leitura, refletindo o que o remetente usou.
 
-## Segurança e plugins externos (aula)
+## Segurança e plugins de terceiros
 
 - Instale apenas JARs de fontes confiáveis (`PITIUPI_HOME/plugins` ou aba Configurações).
 - O núcleo desserializa mensagens de rede com classloader por plugin; mensagens malformadas devem ser ignoradas, mas **não** há sandbox — um JAR malicioso tem o mesmo poder de um programa local.

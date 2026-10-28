@@ -16,9 +16,8 @@ Convenções editoriais: [documentation/00_convencoes.md](documentation/00_conve
 
 | Leitor | Trilha |
 | --- | --- |
-| **Aluno (TP)** | [00_quickstart](documentation/00_quickstart.md) → [09_sistema_de_plugins](documentation/09_sistema_de_plugins.md) → [10_tutorial_plugin](documentation/10_tutorial_plugin.md) → [17_tutorial_ping_aula](documentation/17_tutorial_ping_aula.md) → [11_plugins_referencia](documentation/11_plugins_referencia.md) |
+| **Primeiro uso** | [00_quickstart](documentation/00_quickstart.md) → [09_sistema_de_plugins](documentation/09_sistema_de_plugins.md) → [10_tutorial_plugin](documentation/10_tutorial_plugin.md) → [11_plugins_referencia](documentation/11_plugins_referencia.md) |
 | **Redes (conceito + código)** | [16_fundamentacao_redes](documentation/16_fundamentacao_redes.md) → [05](documentation/05_udp_multicast.md)–[08](documentation/08_heartbeat_e_presenca.md) → [appendix_portas_e_multicast](documentation/appendix_portas_e_multicast.md) |
-| **Monitor / docência** | [01_visao_disciplina_e_tp](documentation/01_visao_disciplina_e_tp.md) → [15_testes_e_gate](documentation/15_testes_e_gate.md) |
 | **Desenvolvedor núcleo** | [13_guia_desenvolvimento](documentation/13_guia_desenvolvimento.md) → [14_arquitetura_e_manutencao](documentation/14_arquitetura_e_manutencao.md) → [04_inicializacao_e_gui](documentation/04_inicializacao_e_gui.md) |
 
 ## Manutenção rápida

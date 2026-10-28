@@ -46,18 +46,13 @@ Código de entrada: `plugins/screencast/src/pitiupi/screenCast/plugin/ScreenCast
 
 **Limitação:** largura de banda e MTU — frames grandes podem sofrer perda em UDP; adequado para demonstração, não para produção.
 
-## Exercício Ping
+## Limitações (não são bugs)
 
-Material em [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md) e pasta `plugins/ping/` (sem código/JAR no repositório). Não entra no `plugins.registry.json` nem no gate CI.
-
-## Limitações didáticas (não são bugs)
-
-Os plugins de referência são **exemplos de sala de aula**, não produtos completos:
+Os plugins de referência são **exemplos de demonstração**, não produtos completos:
 
 | Plugin | Inclui | Não inclui (de propósito) |
 | --- | --- | --- |
 | **chat** | texto, sala geral, unicast/multicast/TCP, TCP privado básico | imagens, moderação, histórico persistente, criptografia |
 | **screencast** | stream read-only, avisos de sessão | controle remoto do mouse/teclado, áudio |
-| **ping** (exercício do aluno) | chrome de sessão v1 (`PluginRoutingPanel`, abas ↑/↓), RTT, UDP apenas | TCP privado, ICMP do SO, gráficos, SLA |
 
-Para evoluir: copie o padrão (`Plugin` + mensagens + painel na aba) e acrescente features no **seu** JAR — sem inflar o núcleo.
+Para evoluir: copie o padrão (`Plugin` + mensagens + painel na aba) e acrescente features no seu JAR — sem inflar o núcleo. Ver [10_tutorial_plugin.md](10_tutorial_plugin.md).

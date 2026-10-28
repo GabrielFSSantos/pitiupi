@@ -4,7 +4,7 @@ Exercício para montar o plugin **mais simples** do Pitiupi: medir **RTT** (temp
 
 A solução completa **não** entra no repositório público: o aluno desenvolve em `plugins/ping/` na máquina local (fora do gate CI). Este tutorial traz escopo, trechos e verificações — você implementa o restante.
 
-Índice: [README.md](README.md) · Plugins de referência: [11_plugins_referencia.md](11_plugins_referencia.md).
+Índice TP: [README.md](README.md) · Plugins de referência: [11_plugins_referencia.md](../documentation/11_plugins_referencia.md).
 
 ## O que você vai aprender
 
@@ -28,7 +28,7 @@ A solução completa **não** entra no repositório público: o aluno desenvolve
 ## Pré-requisitos
 
 1. Pitiupi abrindo com login (nome + porta).
-2. [`09_sistema_de_plugins.md`](09_sistema_de_plugins.md).
+2. [`09_sistema_de_plugins.md`](../documentation/09_sistema_de_plugins.md).
 3. JDK 17 + Ant.
 4. Núcleo compilado: `pitiupi/dist/pitiupi.jar`.
 
@@ -142,7 +142,7 @@ O chat usa a mesma ideia de abas de sessão, mas adiciona roteamento TCP privado
 | `ClassCastException` | Versões diferentes do JAR entre PCs |
 | Aba não abre | Esqueceu `bindShellWorkspaceContent` ou peer action só abre UI (envio é no painel) |
 
-Mais geral: [10_tutorial_plugin.md](10_tutorial_plugin.md#problemas-comuns).
+Mais geral: [10_tutorial_plugin.md](../documentation/10_tutorial_plugin.md#problemas-comuns).
 
 ## Checklist do aluno
 

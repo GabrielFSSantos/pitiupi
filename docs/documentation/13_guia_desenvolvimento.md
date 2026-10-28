@@ -13,7 +13,7 @@ Esta documentação descreve a ferramenta Pitiupi neste repositório: build, red
 
 | Tarefa | Ler primeiro |
 | --- | --- |
-| Novo plugin (aluno) | [10_tutorial_plugin.md](10_tutorial_plugin.md), [11_plugins_referencia.md](11_plugins_referencia.md) |
+| Novo plugin | [10_tutorial_plugin.md](10_tutorial_plugin.md), [11_plugins_referencia.md](11_plugins_referencia.md) |
 | Bug UDP / multicast | [05_udp_multicast.md](05_udp_multicast.md), [appendix_portas_e_multicast.md](appendix_portas_e_multicast.md) |
 | Bug TCP / conexão | [06_tcp_conexoes.md](06_tcp_conexoes.md) |
 | Presença / lista de usuários | [08_heartbeat_e_presenca.md](08_heartbeat_e_presenca.md) |

@@ -7,8 +7,7 @@ pitiupi/                   # clone (este repositório)
 ├── pitiupi/               # núcleo P2P (executável)
 ├── plugins/
 │   ├── chat/              # chat unificado (UDP/multicast/TCP + TCP privado)
-│   ├── screencast/        # compartilhamento de tela
-│   └── ping/              # exercício de aula (só doc)
+│   └── screencast/        # compartilhamento de tela
 └── docs/
 ```
 
@@ -25,4 +24,4 @@ pitiupi/                   # clone (este repositório)
 | `plugins/chat` | `ant jar` | `dist/pitiupi.chat.jar` | `pitiupi.chat.plugin.ChatPlugin` |
 | `plugins/screencast` | `ant jar` | `dist/pitiupi.screenCast.jar` | `pitiupi.screenCast.plugin.ScreenCastPlugin` |
 
-Ver [10_tutorial_plugin.md](10_tutorial_plugin.md) e [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md).
+Novo módulo: [10_tutorial_plugin.md](10_tutorial_plugin.md).

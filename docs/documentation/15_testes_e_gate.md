@@ -50,14 +50,6 @@ Mesma **porta** em ambos (ex. 5000), **mesmos JARs** em `~/pitiupi/plugins` em c
 - [ ] Presença e linha **Todos**
 - [ ] Troca de mensagens no chat (multicast e, se possível, unicast/TCP)
 - [ ] Compartilhamento de tela entre os dois (ambiente com captura de tela funcional — no WSL a captura nativa pode falhar)
-- [ ] Plugin Ping do aluno (tutorial [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md)) medindo RTT — recomendado antes da entrega final
-
-## Checklist plugin de aluno
-
-- [ ] JAR em `PITIUPI_HOME/plugins` + SPI correto
-- [ ] README do módulo com build e formato das mensagens
-- [ ] UI na aba (`PluginWorkspace`), sem `JFrame` principal
-- [ ] Demonstração mínima professor ↔ aluno ou aluno ↔ aluno
 
 ## Melhorias futuras
 

@@ -10,9 +10,8 @@ plugins. A comunicação de rede utiliza dois protocolos de transporte: UDP,
 empregado principalmente na descoberta e comunicação multicast entre as 
 instâncias, e TCP, utilizado para comunicação direta e persistente entre peers.
 
-O projeto foi desenvolvido como suporte às práticas da disciplina de Redes de 
-Computadores, servindo também como base para experimentação de aplicações 
-distribuídas e desenvolvimento de projetos acadêmicos.
+O projeto serve como base para experimentação de aplicações distribuídas e 
+desenvolvimento de extensões via plugins.
 
 Índice: [README.md](README.md).
 

@@ -11,7 +11,7 @@
 - Grupo: **`224.0.0.3`** (fixo no código do núcleo).
 - Buffer UDP: **256000** bytes (configuração em `SocketUDP`).
 
-Todos os peers na mesma LAN devem usar a **mesma porta** para participar do mesmo “grupo lógico” da aula (portas diferentes = grupos isolados).
+Todos os peers na mesma LAN devem usar a **mesma porta** para participar do mesmo grupo lógico de peers (portas diferentes = grupos isolados).
 
 ## Mesmo computador
 
@@ -40,7 +40,7 @@ Ao abrir conversa pela lista de presença, o campo de destino usa **`PeerIpv4`**
 ## Checklist — dois PCs na mesma Wi‑Fi
 
 1. **Mesma porta no login** (ex.: `5000` nos dois). Portas diferentes isolam a sala.
-2. **Configurações → Sua conexão:** IPs na mesma sub-rede (ex. ambos `192.168.0.x` ou `192.168.1.x`). Se um for `172.x` (WSL/Docker) e outro `192.168.x`, o multicast da aula não cruza.
+2. **Configurações → Sua conexão:** IPs na mesma sub-rede (ex. ambos `192.168.0.x` ou `192.168.1.x`). Se um for `172.x` (WSL/Docker) e outro `192.168.x`, o multicast entre esses hosts não cruza.
 3. **Firewall:** liberar **UDP entrada e saída** na porta do login (Windows Defender / `ufw`).
 4. **Roteador:** desativar *isolamento de clientes* / *AP isolation* / Wi‑Fi de visitantes.
 5. Aguardar até **~15 s** após abrir os dois apps (heartbeat a cada 5 s).

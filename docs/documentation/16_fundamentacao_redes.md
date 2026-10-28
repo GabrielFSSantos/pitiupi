@@ -50,7 +50,7 @@ Doc: [09_sistema_de_plugins.md](09_sistema_de_plugins.md).
 | Situação | Transporte típico | Motivo |
 | --- | --- | --- |
 | Lista de usuários / heartbeat | UDP multicast | Todos os peers sem conexão prévia |
-| Sala geral (chat, ping broadcast) | UDP multicast ou cópias unicast/TCP conforme combo | Didático: aluno vê diferença na UI |
+| Sala geral (chat, broadcast) | UDP multicast ou cópias unicast/TCP conforme combo | Escolha explícita na UI do plugin |
 | Mensagem para um IP | UDP unicast ou TCP | Destino explícito |
 | Fluxo contínuo (tela, TCP privado chat) | TCP | Fluxo e framing no núcleo |
 

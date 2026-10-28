@@ -1,20 +1,17 @@
-# Plugin Ping (exercício de aula)
+# Plugin Ping (exercício local)
 
-Material didático para o aluno **implementar** um plugin de Ping/Pong com medição de RTT. No Git ficam só este README e o [tutorial](../../docs/documentation/17_tutorial_ping_aula.md). Código e `build.xml` locais estão no `.gitignore` (`src/`, `nbproject/`, `dist/`).
+Pasta opcional para desenvolver um módulo de Ping/Pong com medição de RTT. O código de solução **não** faz parte do gate CI do repositório.
 
-## Onde está o tutorial
+Tutorial passo a passo: [docs/tp/02_tutorial_ping_aula.md](../../docs/tp/02_tutorial_ping_aula.md).
 
-Tutorial canônico (passo a passo): [docs/documentation/17_tutorial_ping_aula.md](../../docs/documentation/17_tutorial_ping_aula.md).
+## Fluxo de trabalho
 
-## Como o aluno trabalha
-
-1. Copiar a estrutura de [`plugins/chat`](../chat) para um projeto local (ou criar `plugins/ping` com `src/` apenas no fork pessoal).
-2. Implementar `PingPlugin`, mensagens e `PingPanel` (`JPanel` + `bindShellWorkspaceContent`).
-3. Build: `ant jar` → `dist/pitiupi.ping.jar`.
-4. Instalar em `PITIUPI_HOME/plugins/` e reiniciar o Pitiupi.
-5. Abrir o plugin pela aba **Plugins** na galeria (aba não abre sozinha no boot).
+1. Copiar a estrutura de [`plugins/chat`](../chat) para `plugins/ping` (local).
+2. Implementar `PingPlugin`, mensagens e painel (`bindShellWorkspaceContent`).
+3. `ant jar` → instalar JAR em `PITIUPI_HOME/plugins/` e reiniciar o Pitiupi.
+4. Abrir o plugin pela galeria **Plugins**.
 
 ## Pré-requisitos
 
-- Núcleo compilado: `../../pitiupi/dist/pitiupi.jar`
-- Leitura: [09_sistema_de_plugins.md](../../docs/documentation/09_sistema_de_plugins.md)
+- Núcleo: `../../pitiupi/dist/pitiupi.jar`
+- SPI e mensagens: [09_sistema_de_plugins.md](../../docs/documentation/09_sistema_de_plugins.md)

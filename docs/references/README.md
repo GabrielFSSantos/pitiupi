@@ -1,6 +1,6 @@
 # Referências — Pitiupi
 
-Bibliografia e notas curtas para apoiar a disciplina de Redes de Computadores. **Fonte única** para citações longas — capítulos em `documentation/` linkam aqui em vez de repetir bibliografia.
+Bibliografia e notas curtas para apoiar o estudo de Redes de Computadores. **Fonte única** para citações longas — capítulos em `documentation/` linkam aqui em vez de repetir bibliografia.
 
 **Sugestões de livro-texto:** Kurose & Ross — *Redes de Computadores e a Internet*; Tanenbaum — *Redes de Computadores*; Peterson & Davie — *Redes de Computadores*.
 
