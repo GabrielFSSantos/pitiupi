@@ -1,5 +1,6 @@
 # Comunicação UDP
 
+**Teoria:** UDP envia datagramas sem conexão; multicast replica um pacote na LAN para todos os membros do grupo. **No Pitiupi:** presença e muitas mensagens de plugins usam o mesmo `MulticastSocket` na porta do login. **Limitação:** sem garantia de entrega nem ordem — plugins com imagens grandes devem considerar perda e MTU.
 
 A classe `SocketUDP` é responsável pela comunicação UDP da aplicação.
 
@@ -20,7 +21,7 @@ O SocketUDP suporta dois modos de envio:
 Durante sua inicialização, o `SocketUDP`:
 
 1. obtém o endereço do grupo multicast;
-2. cria um `MulticastSocket` utilizando a porta configurada na `MainWindow`;
+2. cria um `MulticastSocket` na **porta escolhida no login** (mesma porta TCP da sala);
 3. configura os buffers de envio e recepção;
 4. habilita o reuso do endereço;
 5. ingressa no grupo multicast.
@@ -83,3 +84,30 @@ do grupo multicast e fecha o `MulticastSocket`.
 
 A variável `running` é utilizada para sinalizar que o processo de recepção deve ser
 encerrado.
+
+### Interface de rede
+
+`LocalNetworkInfo.preferredNetworkInterface()` escolhe a interface para o multicast: **Ethernet antes de Wi‑Fi**; em cabo APIPA (`169.254.*`) prioriza esse endereço. Em sala **só Wi‑Fi**, a interface wireless é usada normalmente. Requisito: peers na **mesma sub-rede** e multicast permitido — ver [appendix_portas_e_multicast.md](appendix_portas_e_multicast.md).
+
+### Sequência didática (plugin → peer B)
+
+```mermaid
+sequenceDiagram
+    participant UI as Plugin_UI
+    participant Disp as MessageDispatcher
+    participant CM as ConnectionManager
+    participant UDP as SocketUDP
+    participant LAN as LAN_UDP
+    participant UDPb as SocketUDP_peerB
+    participant PM as PluginManager_peerB
+
+    UI->>Disp: enviar Message + modo + destino
+    Disp->>CM: send UDP
+    CM->>UDP: sendUnicast ou sendMulticast
+    UDP->>LAN: DatagramPacket
+    LAN->>UDPb: receive
+    UDPb->>PM: byte[] desserializado
+    PM->>UI: receiveMessage no plugin
+```
+
+**Falhas comuns:** firewall bloqueando UDP na porta do login; portas diferentes entre peers; isolamento de clientes no Wi‑Fi; WSL num lado e Windows nativo no outro.

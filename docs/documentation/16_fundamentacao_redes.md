@@ -45,8 +45,20 @@ SPI e classloader por JAR — padrão de plug-in em aplicações Java.
 
 Doc: [09_sistema_de_plugins.md](09_sistema_de_plugins.md).
 
+## Quando o Pitiupi usa cada transporte
+
+| Situação | Transporte típico | Motivo |
+| --- | --- | --- |
+| Lista de usuários / heartbeat | UDP multicast | Todos os peers sem conexão prévia |
+| Sala geral (chat, ping broadcast) | UDP multicast ou cópias unicast/TCP conforme combo | Didático: aluno vê diferença na UI |
+| Mensagem para um IP | UDP unicast ou TCP | Destino explícito |
+| Fluxo contínuo (tela, TCP privado chat) | TCP | Fluxo e framing no núcleo |
+
+UDP não é “sempre mais rápido” nem TCP “resolve tudo”: perda e ordem ainda importam na aplicação; TCP adiciona handshake e estado por peer.
+
 ## Leitura complementar
 
 - [references/notas/udp_vs_tcp.md](../references/notas/udp_vs_tcp.md)
+- [references/README.md](../references/README.md) (bibliografia)
 - [references/notas/multicast_lan.md](../references/notas/multicast_lan.md)
 - [references/notas/java_spi_plugins.md](../references/notas/java_spi_plugins.md)

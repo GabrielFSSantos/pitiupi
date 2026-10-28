@@ -2,7 +2,7 @@
 
 Exercício para montar o plugin **mais simples** do Pitiupi: medir **RTT** (tempo de ida e volta) com mensagens `Ping` / `Pong` na rede, igual a um `ping` de laboratório — mas usando o **mesmo mecanismo de plugins** do chat e do screencast.
 
-A solução Java **não** entra no Git: só este tutorial e [`plugins/ping/README.md`](../../plugins/ping/README.md). O professor valida localmente; o aluno implementa no próprio `plugins/ping/` (gitignored).
+A solução completa **não** entra no repositório público: o aluno desenvolve em `plugins/ping/` na máquina local (fora do gate CI). Este tutorial traz escopo, trechos e verificações — você implementa o restante.
 
 Índice: [README.md](README.md) · Plugins de referência: [11_plugins_referencia.md](11_plugins_referencia.md).
 
@@ -132,6 +132,17 @@ Instalação usa o mesmo `PluginStore` da aba **Configurações** (`installFromF
 ## Passo 8 — Comparar com o chat
 
 O chat usa a mesma ideia de abas de sessão, mas adiciona roteamento TCP privado e HTML. No Ping mantenha **só** UDP e texto em `JTextArea` — ideal para entender o fluxo antes de copiar padrões para um plugin novo.
+
+## Problemas comuns (Ping)
+
+| Sintoma | Diagnóstico |
+| --- | --- |
+| RTT não aparece | `Pong` sem `pingId` correspondente em `pendingByPingId` |
+| Peer não recebe | Tipo não listado em `getMessages()` ou UDP bloqueado |
+| `ClassCastException` | Versões diferentes do JAR entre PCs |
+| Aba não abre | Esqueceu `bindShellWorkspaceContent` ou peer action só abre UI (envio é no painel) |
+
+Mais geral: [10_tutorial_plugin.md](10_tutorial_plugin.md#problemas-comuns).
 
 ## Checklist do aluno
 

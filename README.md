@@ -2,7 +2,7 @@
 
 Ferramenta **P2P** para práticas de Redes de Computadores: núcleo em Java com arquitetura de **plugins** (conversa na rede e compartilhamento de tela).
 
-**Documentação completa:** [docs/README.md](docs/README.md) · **Quickstart:** [docs/documentation/00_quickstart.md](docs/documentation/00_quickstart.md)
+**Documentação:** [docs/README.md](docs/README.md) (trilhas aluno, redes e dev) · **Quickstart:** [docs/documentation/00_quickstart.md](docs/documentation/00_quickstart.md) · **Convenções:** [docs/documentation/00_convencoes.md](docs/documentation/00_convencoes.md)
 
 ---
 

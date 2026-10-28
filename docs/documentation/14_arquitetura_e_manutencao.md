@@ -1,5 +1,38 @@
 # Arquitetura e manutenção
 
+## Visão em camadas
+
+```mermaid
+flowchart TB
+    subgraph presentation [presentation.shell]
+        Login[LoginDialog]
+        Shell[MainShellFrame]
+    end
+    subgraph control [control]
+        CM[ConnectionManager]
+        HB[HeartbeatManager]
+        PM[PluginManager]
+    end
+    subgraph application [application]
+        Disp[MessageDispatcher]
+        Presence[PresenceService]
+    end
+    subgraph netlayer [net]
+        UDP[SocketUDP]
+        TCP[SocketTCP]
+    end
+    Login --> Shell
+    Shell --> CM
+    CM --> UDP
+    CM --> TCP
+    CM --> HB
+    CM --> PM
+    PM --> Disp
+    HB --> Presence
+```
+
+Boot detalhado: [04_inicializacao_e_gui.md](04_inicializacao_e_gui.md).
+
 ## Onde editar
 
 | Comportamento | Pacote / classe |

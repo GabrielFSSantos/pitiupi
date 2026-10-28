@@ -1,4 +1,4 @@
-# Menus e ações na lista (histórico)
+# Transporte na UI e peer actions
 
 Na v1 atual, plugins **não** registram menus na barra superior nem submenus legados por categoria.
 

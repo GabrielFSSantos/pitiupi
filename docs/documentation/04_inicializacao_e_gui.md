@@ -62,7 +62,7 @@ A interface gráfica é Swing, organizada em shell (`pitiupi.presentation.shell`
 | Região | Componente |
 |--------|------------|
 | Centro | `TabWorkspacePanel` — aba **Plugins** (galeria; abre plugin sob demanda), abas de plugin **fecháveis** (×), aba **Configurações** |
-| Leste | `NetworkUsersPanel` — “Usuários nesta rede”, badges de convite, peer actions |
+| Leste | `NetworkUsersPanel` — “Usuários nesta rede”, peer actions (badges na lista: **D23**, adiados — ver [decision-register.md](../decision-register.md)) |
 | Sul | Barra de status (porta e nome local) |
 | Menu | `ShellMenuBar` — apenas **Ajuda → Sobre** (sair pelo X da janela) |
 
@@ -77,7 +77,7 @@ Ao iniciar, só as abas **Plugins** e **Configurações** ficam visíveis. Cada 
 
 O **chat** usa campo de mensagem compacto (~2 linhas, quebra de linha; barra de rolagem vertical só se o texto não couber). O histórico ocupa a maior parte da altura da aba (divisor proporcional ao abrir a janela).
 
-Canal TCP privado do chat fica no mesmo `ChatPanel` (histórico separado por conversa: sala geral, peer por IP, privado com toggle). A lista lateral usa `PeerActivityInbox` (bolinha vermelha e contagem; no menu, ● na ação correspondente).
+Canal TCP privado do chat fica no mesmo `ChatPanel` (histórico separado por conversa: sala geral, peer por IP, privado com toggle). O núcleo mantém `PeerActivityInbox` para atividade por peer; indicadores visuais completos na lista lateral ainda não fazem parte da v1 (**D23**).
 
 Ao fechar a aba superior de **Compartilhar tela** (×), o núcleo chama `Plugin.onShellTabClosed()` — o plugin interrompe captura e envio (toggle desligado). Reabrir pela galeria deve mostrar compartilhamento inativo.
 
@@ -87,30 +87,66 @@ Textos da UI (destino, combo de forma de envio e linha **“Como esta mensagem v
 
 Ver [12_menus_unicast_multicast.md](12_menus_unicast_multicast.md).
 
-## Diagrama de comunicação
+## Boot (sequência)
 
+```mermaid
+sequenceDiagram
+    participant Main
+    participant Home as PitiupiHome
+    participant Login as LoginDialog
+    participant Shell as MainShellFrame
+    participant CM as ConnectionManager
+    participant PM as PluginManager
+
+    Main->>Home: ensureLayout()
+    Main->>Login: showLogin()
+    Login-->>Main: nome + porta
+    Main->>Shell: new MainShellFrame(nome, porta)
+    Shell->>CM: iniciar UDP/TCP/heartbeat
+    Shell->>PM: carregar JARs SPI
+    PM-->>Shell: createPlugin(cm, workspace)
 ```
-                         +------------------+
-                         |  MainShellFrame  |
-                         +--------+---------+
-                                  |
-             +--------------------+--------------------+
-             |                    |                    |
-             v                    v                    v
-      HeartbeatManager       SocketUDP            SocketTCP
-             |                    |                    |
-             v                    v                    v
-         Heartbeat           UDP Multicast       TCP Connections
-                                  |                    |
-                                  +---------+----------+
-                                            |
-                                            v
-                                         Plugins
-                                            |
-                                            v
-                                        Message
+
+## Camadas de comunicação
+
+```mermaid
+flowchart TB
+    subgraph ui [presentation.shell]
+        Shell[MainShellFrame]
+        Users[NetworkUsersPanel]
+    end
+    subgraph app [application + control]
+        CM[ConnectionManager]
+        HB[HeartbeatManager]
+        Disp[MessageDispatcher]
+    end
+    subgraph net [net]
+        UDP[SocketUDP]
+        TCP[SocketTCP]
+    end
+    subgraph ext [plugins]
+        PL[Plugin JARs]
+    end
+    Shell --> CM
+    Users --> CM
+    CM --> UDP
+    CM --> TCP
+    CM --> HB
+    Disp --> CM
+    PL --> Disp
+    UDP --> PL
+    TCP --> PL
 ```
 
 O UDP multicast sustenta presença e mensagens broadcast/unicast; o TCP sustenta
 canais diretos com framing de mensagens. Detalhes em [05](05_udp_multicast.md)
 e [06](06_tcp_conexoes.md).
+
+### Exemplo: um envio UDP até outro peer
+
+1. Plugin chama `MessageDispatcher` (ou `ConnectionManager`) com `TransportMode` e destino.
+2. Mensagem serializada (`Message.toByteArray()`).
+3. `SocketUDP` monta `DatagramPacket` (multicast `224.0.0.3` ou unicast ao IP do peer).
+4. Peer receptor: thread de `SocketUDP.receive()` desserializa e `PluginManager` entrega ao plugin que declarou o tipo em `getMessages()`.
+
+Ver [07_mensagens_e_serializacao.md](07_mensagens_e_serializacao.md).

@@ -1,14 +1,27 @@
 # Tutorial — criar um plugin
 
-Este guia complementa [09_sistema_de_plugins.md](09_sistema_de_plugins.md). Use `plugins/chat` como modelo.
+Complementa [09_sistema_de_plugins.md](09_sistema_de_plugins.md). Exercício guiado completo: [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md). Use `plugins/chat` como **modelo de estrutura** (Ant, SPI, painel).
+
+Os exemplos abaixo são **parciais** — você completa métodos, UI e testes.
+
+## Verificações progressivas
+
+| Etapa | O que fazer | Sucesso | Erro comum |
+| --- | --- | --- | --- |
+| Projeto Ant | Copiar `plugins/chat` → `plugins/meuPlugin`, ajustar JAR | `ant jar` OK | Classpath sem `pitiupi.jar` |
+| Classe `Plugin` | Estender `Plugin`, metadados | Compila | `createPlugin` com assinatura antiga |
+| SPI | `META-INF/services/pitiupi.models.Plugin` | Classe listada no JAR | Arquivo fora de `src/` |
+| Mensagem | Uma classe `extends Message` | Em `getMessages()` | Tipo não registrado → ignorado na rede |
+| Instalação | JAR em `PITIUPI_HOME/plugins` + reinício | Plugin na galeria | Esqueceu reiniciar |
+| Rede | Duas instâncias, portas diferentes | Peer na lista | Portas iguais no mesmo PC ou firewall |
 
 ## 1. Novo projeto
 
-- Copie a pasta `plugins/chat` para `plugins/meuPlugin` (nome à escolha).
-- Ajuste `project.properties` / `build.xml` com o nome do JAR de saída.
-- Mantenha `javac.classpath` apontando para `../pitiupi/dist/pitiupi.jar`.
+- Copie `plugins/chat` para `plugins/meuPlugin`.
+- Ajuste `project.properties` / `build.xml` com o nome do JAR (`dist/pitiupi.meuplugin.jar`).
+- `javac.classpath` → `../../pitiupi/dist/pitiupi.jar` (ou caminho equivalente).
 
-## 2. Classe principal
+## 2. Classe principal (trecho)
 
 ```java
 public class MeuPlugin extends Plugin {
@@ -39,56 +52,72 @@ public class MeuPlugin extends Plugin {
 
     @Override
     public void receiveMessage(Message message) {
-        if (message instanceof MinhaMessage m) { /* ... */ }
+        if (message instanceof MinhaMessage m) {
+            // atualizar UI com SwingUtilities.invokeLater quando necessário
+        }
     }
-
-    // getName, getAuthor, getVersion, getIdentifier
 }
 ```
 
-## 3. Mensagem
+Implemente `getName()`, `getAuthor()`, `getVersion()`, `getIdentifier()` (identificador único na sala).
+
+## 3. Mensagem e envio
 
 ```java
 public class MinhaMessage extends Message implements Serializable {
-    // campos + serialVersionUID recomendado
+    private static final long serialVersionUID = 1L;
+    private final String texto;
+    // construtor, getters
 }
 ```
 
-Envio típico via `ConnectionManager` (multicast ou unicast UDP, ou TCP conforme o caso).
+Envio típico via `MessageDispatcher` (modo `TransportMode` + destino). Exemplo conceitual:
 
-## 4. Service Provider Interface
+```java
+// dentro do painel ou controller, com ConnectionManager injetado:
+dispatcher.send(minhaMsg, TransportMode.UNICAST_UDP, SendTarget.forPeer(ip));
+```
 
-Arquivo `src/META-INF/services/pitiupi.models.Plugin`:
+Detalhes: [07_mensagens_e_serializacao.md](07_mensagens_e_serializacao.md), [12_menus_unicast_multicast.md](12_menus_unicast_multicast.md).
+
+## 4. SPI
+
+`src/META-INF/services/pitiupi.models.Plugin`:
 
 ```
 pacote.MeuPlugin
 ```
 
-## 5. Registrar no catálogo
+Confirme com `jar tf dist/seu.jar | grep META-INF/services`.
 
-Adicione uma entrada em [`plugins.registry.json`](../../plugins.registry.json):
+## 5. Catálogo (opcional para TP)
 
-```json
-{
-  "id": "xadrez",
-  "dir": "pitiupi.xadrez",
-  "build": "ant",
-  "jar": "dist/pitiupi.xadrez.jar",
-  "menuCategory": "Jogos"
-}
-```
-
-O `id` é o que você passa para `./scripts/pitiupi.sh run --plugins xadrez`.
+Para build com `./scripts/pitiupi.sh`, adicione entrada em [`plugins.registry.json`](../../plugins.registry.json). Exercícios locais podem instalar só o JAR pela aba **Configurações**.
 
 ## 6. Build e instalação
 
 ```bash
-./scripts/pitiupi.sh build --plugins xadrez
+cd plugins/meuPlugin && ant jar
+# copiar ou Instalar JAR… na UI; reiniciar o app
 ```
 
-JARs de runtime ficam em `PITIUPI_HOME/plugins` (ver [00_quickstart.md](00_quickstart.md)).
+## 7. Dois cenários de teste
 
-## 7. Próximos passos
+**A — Mesmo computador:** duas instâncias, portas `5000` e `5001`, nomes distintos, mesma versão do JAR.
 
-- [11_plugins_referencia.md](11_plugins_referencia.md) — chat e screenCast
-- [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md) — plugin didático Ping (opcional, fora do commit)
+**B — Dois PCs:** mesma porta (ex. `5000`), mesma sub-rede Wi‑Fi ou cabo, firewall UDP/TCP liberado, mesmo plugin instalado. Ver [appendix_portas_e_multicast.md](appendix_portas_e_multicast.md).
+
+## Problemas comuns
+
+| Sintoma | Causa provável | O que fazer |
+| --- | --- | --- |
+| Plugin não aparece | SPI ausente ou sem reinício | Verificar JAR, reiniciar |
+| `ClassNotFoundException` na rede | Classe de mensagem não em `getMessages()` ou JAR diferente no peer | Alinhar tipos e reinstalar nos dois |
+| Peers não se veem | Porta/sub-rede/multicast | Appendix Wi‑Fi |
+| UI não atualiza | Rede na EDT | `SwingUtilities.invokeLater` |
+| TCP falha | Peer offline ou IP errado | Conferir lista lateral e `PeerIpv4` |
+
+## Próximos passos
+
+- [17_tutorial_ping_aula.md](17_tutorial_ping_aula.md) — exercício Ping (RTT, UDP)
+- [11_plugins_referencia.md](11_plugins_referencia.md) — chat e screencast

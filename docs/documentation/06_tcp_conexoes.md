@@ -1,7 +1,8 @@
 # Comunicação TCP
 
+**Teoria:** TCP oferece fluxo confiável e ordenado entre dois sockets; a aplicação ainda precisa definir **limites de mensagem**. **No Pitiupi:** framing `int` tamanho + bytes serializados. **Limitação:** uma conexão por endereço IP de peer no mapa gerenciado por `TcpConnectionManager`.
 
-A comunicação TCP é implementada pela classe `SocketTCP`.
+A comunicação TCP é implementada principalmente por `SocketTCP`, com o mapa de conexões em `TcpConnectionManager`.
 
 Diferentemente do UDP, o TCP estabelece conexões entre dois peers. Essas conexões 
 são mantidas enquanto forem necessárias e podem ser reutilizadas para o envio de 
@@ -9,12 +10,7 @@ múltiplas mensagens.
 
 A arquitetura utiliza uma conexão TCP persistente por endereço de peer.
 
-O SocketTCP possui um mapa de conexões:
-
-`InetAddress` -> `TcpConnection`
-
-Esse mapa permite localizar rapidamente uma conexão existente para determinado peer e 
-reutilizá-la durante novos envios.
+O `TcpConnectionManager` mantém um mapa `InetAddress` → `TcpConnection`, permitindo reutilizar a mesma conexão para vários envios ao mesmo peer.
 
 ### SocketTCP
 
@@ -85,11 +81,9 @@ SocketTCP
 Dessa forma, uma conexão bloqueada ou aguardando dados não impede que outras conexões
 continuem sendo processadas.
 
-Quando uma mensagem é recebida por uma `TcpConnection`, ela é encaminhada para todos os
-plugins registrados na `MainWindow`.
+Quando uma mensagem é recebida por uma `TcpConnection`, ela é encaminhada ao `PluginManager`, que despacha para os plugins cujo `getMessages()` inclui o tipo.
 
-O plugin responsável pela funcionalidade deve identificar o tipo da mensagem e
-realizar o processamento correspondente.
+O plugin identifica o tipo em `receiveMessage()` e processa na thread adequada (UI via `SwingUtilities.invokeLater` quando necessário).
 
 ### TcpConnection
 
@@ -190,3 +184,20 @@ v
 |
 +---- peer inativo ----> fecha conexão
 ```
+
+```mermaid
+sequenceDiagram
+    participant Sender as TcpConnection_envio
+    participant Stream as DataOutputStream
+    participant Net as TCP
+    participant Recv as TcpConnection_recepção
+
+    Sender->>Stream: writeInt(tamanho)
+    Sender->>Stream: write(bytes)
+    Stream->>Net: fluxo de bytes
+    Net->>Recv: readInt()
+    Recv->>Recv: readFully(N bytes)
+    Recv->>Recv: PluginManager.dispatch
+```
+
+Quando usar TCP no Pitiupi: chat e screencast oferecem TCP na UI; presença continua em UDP. Compare com [05_udp_multicast.md](05_udp_multicast.md) e [16_fundamentacao_redes.md](16_fundamentacao_redes.md).

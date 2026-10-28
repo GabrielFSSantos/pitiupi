@@ -15,16 +15,36 @@ Dois módulos buildáveis no catálogo; o chat unifica o antigo mpChat (multicas
 
 ## plugins/chat
 
-- Sala geral ou um peer (lista + IP).
-- Transportes: multicast UDP, unicast UDP, TCP via `MessageDispatcher`.
-- Peer actions: abrir sala geral; conversar com peer; canal TCP privado.
-- Caminho: `plugins/chat/src/pitiupi/chat/plugin/ChatPlugin.java`.
+Fluxo resumido:
+
+1. `ChatPlugin.createPlugin` registra `ChatPanel` e peer actions (sala, peer, TCP privado).
+2. Envio: usuário escolhe destino e `TransportMode` → `MessageDispatcher` → UDP ou TCP do núcleo.
+3. Recepção: `ChatMessage` em `receiveMessage` → histórico na aba correta (sala, IP ou canal privado).
+4. TCP privado: toggle desliga o combo de transporte e usa bytes dedicados ao plugin.
+
+Código de entrada: `plugins/chat/src/pitiupi/chat/plugin/ChatPlugin.java`.
+
+```mermaid
+flowchart LR
+    UI[ChatPanel] --> Disp[MessageDispatcher]
+    Disp --> CM[ConnectionManager]
+    CM --> Net[UDP ou TCP]
+    Net --> CM2[ConnectionManager peer]
+    CM2 --> CP[ChatPlugin.receiveMessage]
+    CP --> UI2[ChatPanel peer]
+```
 
 ## plugins/screencast
 
-- Compartilhamento contínuo com destino geral (multicast recomendado) ou um peer (unicast/TCP).
-- Peer actions: compartilhar na rede; compartilhar com este peer.
-- Caminho: `plugins/screencast/src/pitiupi/screenCast/plugin/ScreenCastPlugin.java`.
+Fluxo resumido:
+
+1. Captura de tela em loop (com throttling) → `ScreenCastMessage` com imagem serializada.
+2. Destino geral: multicast; um peer: unicast/TCP conforme painel.
+3. `SessionNoticeMessage` (núcleo) marca início/fim de sessão para fechar abas de recepção.
+
+Código de entrada: `plugins/screencast/src/pitiupi/screenCast/plugin/ScreenCastPlugin.java`.
+
+**Limitação:** largura de banda e MTU — frames grandes podem sofrer perda em UDP; adequado para demonstração, não para produção.
 
 ## Exercício Ping
 

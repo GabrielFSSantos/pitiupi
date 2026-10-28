@@ -31,6 +31,22 @@ Ou na raiz: `./scripts/pitiupi.sh build --all`.
 
 Testes manuais em rede: [15_testes_e_gate.md](15_testes_e_gate.md).
 
+## Documentação viva
+
+Ao alterar comportamento visível ou protocolo:
+
+| Mudou | Atualizar |
+| --- | --- |
+| Boot, shell, abas | `04`, `14` |
+| UDP/multicast/portas | `05`, `appendix` |
+| TCP/framing | `06` |
+| Mensagens/despacho | `07` |
+| Heartbeat/presença | `08`, `decision-register` se constante |
+| SPI / API plugin | `09`, `10` |
+| Plugin de referência | `11` |
+
+Convenções de escrita: [00_convencoes.md](00_convencoes.md).
+
 ## Convenções
 
 - Código e identificadores em inglês (pacotes `pitiupi.*`).
