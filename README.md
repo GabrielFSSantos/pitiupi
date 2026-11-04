@@ -6,20 +6,64 @@ Ferramenta **P2P** para práticas de Redes de Computadores: núcleo em Java com 
 
 ---
 
-## Início rápido (um comando)
+## Como rodar
 
-Na **raiz do repositório**:
+O comando compila o núcleo, os plugins do [catálogo](plugins.registry.json) e abre a janela. Plugins, cache e logs ficam em **`.pitiupi/`** dentro da pasta do projeto.
+
+Depois que a janela abrir: informe **nome** e **porta** (na sala, em geral `5000`). Os dois colegas usam a mesma porta. Abra os plugins na aba **Plugins**.
+
+### Linux (Ubuntu instalado na máquina)
+
+Abra o terminal, entre na pasta do projeto e rode:
 
 ```bash
-chmod +x scripts/pitiupi.sh   # só na primeira vez
+sudo apt install openjdk-21-jdk ant python3
+chmod +x scripts/pitiupi.sh
 ./scripts/pitiupi.sh run --all
 ```
 
-Compila o núcleo, os plugins do [catálogo](plugins.registry.json), cria symlinks em **`PITIUPI_HOME/plugins`** (padrão `~/pitiupi/plugins`) e abre a aplicação.
+A janela é a do Java do Linux. Cabo e Wi-Fi são as placas deste computador.
 
-1. Login: **nome** e **porta** (ex.: `5000`).
-2. Abra plugins na aba **Plugins** (galeria) ou pelas ações na lista **Usuários nesta rede** (peer actions).
-3. P2P no mesmo PC: segunda instância com **porta diferente** (ex.: `5001`).
+### Windows
+
+Abra o **Prompt de Comando**: tecla Windows, digite `cmd` e pressione Enter. Entre na pasta em que o projeto foi baixado e rode:
+
+```bat
+cd %USERPROFILE%\Downloads\pitiupi
+scripts\pitiupi.cmd run --all
+```
+
+Se a pasta for outra, troque o `cd`. No PowerShell o comando é o mesmo: `scripts\pitiupi.cmd run --all`.
+
+`java`, `javac` e `ant` precisam estar no PATH. No PowerShell, o JDK:
+
+```powershell
+winget install Microsoft.OpenJDK.17
+```
+
+O Apache Ant é o zip de <https://ant.apache.org/bindownload.cgi>: extraia e acrescente a pasta `bin` ao PATH. Feche o cmd e abra de novo.
+
+A janela é a do Java do Windows. Cabo e Wi-Fi são as placas deste computador.
+
+### WSL
+
+Abra o **Ubuntu** do WSL (não o cmd). Entre na pasta do projeto e use o comando do Linux:
+
+```bash
+sudo apt install openjdk-21-jdk ant python3
+chmod +x scripts/pitiupi.sh
+./scripts/pitiupi.sh run --all
+```
+
+Se o projeto foi baixado no Windows, por exemplo em Downloads:
+
+```bash
+cd /mnt/c/Users/SEU_USUARIO/Downloads/pitiupi
+chmod +x scripts/pitiupi.sh
+./scripts/pitiupi.sh run --all
+```
+
+A compilação usa o `javac` e o `ant` do Ubuntu. A janela abre no Windows, com as placas reais. O JDK 17 do Windows também precisa estar instalado (`winget install Microsoft.OpenJDK.17` no PowerShell).
 
 ```bash
 ./scripts/pitiupi.sh list      # ids, categorias, JAR buildado?
@@ -71,19 +115,12 @@ O núcleo carrega **todos os `*.jar`** em `PITIUPI_HOME/plugins`. Detalhes: [pit
 
 ## Pré-requisitos
 
-| Ferramenta | Uso |
+| Onde | O que instalar |
 | --- | --- |
-| **JDK** com `javac` | Compilação **Java 17+** (núcleo e plugins usam bytecode 17) |
-| **Apache Ant** | Módulos NetBeans |
-| **python3** | Script `scripts/pitiupi.sh` (ler o catálogo) |
+| Linux e Ubuntu do WSL | `sudo apt install openjdk-21-jdk ant python3` |
+| Windows (e o Windows ao lado do WSL) | JDK 17 (`winget install Microsoft.OpenJDK.17`) e Apache Ant no PATH |
 
-```bash
-sudo apt install openjdk-21-jdk ant
-./scripts/pitiupi.sh check
-cd pitiupi && ant test    # testes JUnit do núcleo
-```
-
-**GUI:** Swing — WSLg / `DISPLAY=:0`.
+Conferir no Linux ou no WSL: `./scripts/pitiupi.sh check`. Testes do núcleo: `cd pitiupi && ant test`.
 
 ---
 
@@ -105,9 +142,9 @@ Opções: `--all` (padrão), `--plugins ids`, `--category Social|Jogos|Streaming
 ## Teste em rede
 
 - **Mesmo PC:** duas instâncias, portas distintas (ex. 5000 e 5001).
-- **Dois PCs na mesma Wi‑Fi:** mesma porta (ex. 5000), nomes diferentes, mesmos JARs em `~/pitiupi/plugins` em cada máquina.
+- **Dois PCs na mesma Wi‑Fi:** mesma porta (ex. 5000), nomes diferentes. Cada um segue o caso da própria máquina em [Como rodar](#como-rodar). Linux abre o Java do Linux; Windows e WSL abrem o Java do Windows.
 
-Ver [docs/documentation/15_testes_e_gate.md](docs/documentation/15_testes_e_gate.md) e [appendix_portas_e_multicast.md](docs/documentation/appendix_portas_e_multicast.md).
+Ver [docs/documentation/15_testes_e_gate.md](docs/documentation/15_testes_e_gate.md), [appendix_portas_e_multicast.md](docs/documentation/appendix_portas_e_multicast.md) e [17_teste_com_colega.md](docs/documentation/17_teste_com_colega.md).
 
 ---
 

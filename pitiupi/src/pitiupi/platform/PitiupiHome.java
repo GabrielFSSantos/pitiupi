@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Raiz de dados do usuário ({@code PITIUPI_HOME} ou {@code ~/pitiupi}).
+ * Raiz dos dados de execução ({@code PITIUPI_HOME}, ou {@code .pitiupi} na raiz do clone).
  */
 public final class PitiupiHome {
 
@@ -35,7 +35,36 @@ public final class PitiupiHome {
         if (env != null && !env.isBlank()) {
             return expandUserHome(env.trim());
         }
+        Path inRepo = dataDirNextToClone();
+        if (inRepo != null) {
+            return inRepo;
+        }
         return Paths.get(System.getProperty("user.home"), "pitiupi");
+    }
+
+    /**
+     * {@code .pitiupi} ao lado de {@code plugins.registry.json}, subindo a partir do JAR ou das classes.
+     */
+    private static Path dataDirNextToClone() {
+        try {
+            var source = PitiupiHome.class.getProtectionDomain().getCodeSource();
+            if (source == null || source.getLocation() == null) {
+                return null;
+            }
+            Path dir = Paths.get(source.getLocation().toURI());
+            if (Files.isRegularFile(dir)) {
+                dir = dir.getParent();
+            }
+            for (int i = 0; i < 6 && dir != null; i++) {
+                if (Files.isRegularFile(dir.resolve("plugins.registry.json"))) {
+                    return dir.resolve(".pitiupi");
+                }
+                dir = dir.getParent();
+            }
+        } catch (Exception ignored) {
+            return null;
+        }
+        return null;
     }
 
     private static Path expandUserHome(String path) {

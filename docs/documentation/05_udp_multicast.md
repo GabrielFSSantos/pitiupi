@@ -111,4 +111,4 @@ sequenceDiagram
     PM->>UI: receiveMessage no plugin
 ```
 
-**Falhas comuns:** firewall bloqueando UDP na porta do login; portas diferentes entre peers; isolamento de clientes no Wi‑Fi; WSL num lado e Windows nativo no outro.
+**Falhas comuns:** firewall bloqueando UDP na porta do login; portas diferentes entre peers; isolamento de clientes no Wi‑Fi; um processo dentro do WSL e o outro no Java do Windows. Onde abrir a janela: [appendix_portas_e_multicast.md](appendix_portas_e_multicast.md).

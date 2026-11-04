@@ -1,6 +1,6 @@
 # Plugins instalados (runtime)
 
-O núcleo carrega **todos os arquivos `.jar`** de `PITIUPI_HOME/plugins` ao iniciar (padrão `~/pitiupi/plugins`). Variável de ambiente opcional: `PITIUPI_HOME`.
+O núcleo carrega **todos os arquivos `.jar`** de `PITIUPI_HOME/plugins`. O script de execução usa **`.pitiupi/plugins`** na raiz do clone. Variável de ambiente opcional: `PITIUPI_HOME`.
 
 ## Instalação automática (recomendado)
 
@@ -11,12 +11,12 @@ Na raiz do repositório, o catálogo [`plugins.registry.json`](../../plugins.reg
 ./scripts/pitiupi.sh link --all
 ```
 
-Symlinks: `{PITIUPI_HOME}/plugins/{id}.jar` → JAR buildado em `plugins/{módulo}/dist/` no clone.
+Symlinks: `{raiz-do-clone}/.pitiupi/plugins/{id}.jar` → JAR buildado em `plugins/{módulo}/dist/` no clone.
 
 ## Manual
 
 ```bash
-ln -sf /caminho/ao/clone/plugins/chat/dist/pitiupi.chat.jar ~/pitiupi/plugins/chat.jar
+ln -sf /caminho/ao/clone/plugins/chat/dist/pitiupi.chat.jar /caminho/ao/clone/.pitiupi/plugins/chat.jar
 ```
 
 Não commite `.jar` binários no Git — apenas este README.

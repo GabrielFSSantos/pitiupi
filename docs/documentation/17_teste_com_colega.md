@@ -35,11 +35,15 @@ Substitua `5000` e o IP do colega pelos valores da aba Configurações.
 - Caminho: `traceroute IP` ou `tracepath IP`. Conte os saltos até o IP do colega: esse número é o TTL mínimo.
 - Porta TCP do aplicativo: `nc -vz -w 3 IP 5000` (ou `ncat`)
 
+## WSL na sala
+
+Cada um abre o programa pelo caso da própria máquina, descrito no [quickstart](00_quickstart.md). No Linux, o terminal e `./scripts/pitiupi.sh run --all` (Java do Linux). No Windows, o cmd e `scripts\pitiupi.cmd run --all` (Java do Windows). No WSL, o terminal do Ubuntu e `./scripts/pitiupi.sh run --all` (a janela abre no Java do Windows). Os dois lados se veem. Abrir o `java` de dentro do WSL, sem esse comando, mostra só `eth0` ou `eth1`. Detalhe: [appendix_portas_e_multicast.md](appendix_portas_e_multicast.md).
+
 ## Como ler o resultado
 
 - **O ping falha.** O problema está na rede entre os PCs: sub-rede diferente, cabo, Wi-Fi ou isolamento de clientes no roteador. O Pitiupi não contorna isso.
 - **O ping funciona e a porta TCP não abre.** Firewall, porta errada ou o outro Pitiupi não está escutando. Confira a porta na aba Configurações e libere UDP e TCP nessa porta.
-- **O ping com TTL 1 responde e a lista só mostra Todos.** A descoberta é multicast, e um TTL baixo não é a causa quando o `tracert` tem um salto só. Confira porta igual, a mesma saída (os dois no cabo ou os dois no Wi-Fi; `169.254` e `192.168` ao mesmo tempo não se veem), firewall de UDP e isolamento de clientes. Um lado no WSL e o outro no Windows costuma impedir o multicast: os dois peers precisam estar no mesmo tipo de ambiente.
+- **O ping com TTL 1 responde e a lista só mostra Todos.** A descoberta é multicast, e um TTL baixo não é a causa quando o `tracert` tem um salto só. Confira porta igual, a mesma saída (os dois no cabo ou os dois no Wi-Fi; `169.254` e `192.168` ao mesmo tempo não se veem), firewall de UDP e isolamento de clientes. Um processo aberto dentro do WSL e o outro no Java do Windows não compartilham a mesma placa: os dois precisam estar no Java do Windows ou os dois no Ubuntu instalado na máquina. Ver [appendix_portas_e_multicast.md](appendix_portas_e_multicast.md).
 - **O `tracert` tem mais de um salto e a lista fica vazia.** Suba o TTL em Configurações até o número de saltos (máximo 32) e aplique nos dois. Um roteador no meio só entrega o multicast se estiver disposto a encaminhar o grupo.
 - **O colega está na lista e o TCP avisa que não conectou.** A tentativa de abrir o socket espera no máximo cerca de **5 s** e a janela continua utilizável. Veja firewall de TCP ou se a porta mudou no meio do caminho.
 

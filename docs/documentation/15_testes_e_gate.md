@@ -45,7 +45,7 @@ Depois, para runtime local:
 
 ## Testes manuais — dois PCs (mesma Wi‑Fi)
 
-Mesma **porta** em ambos (ex. 5000), **mesmos JARs** em `~/pitiupi/plugins` em cada máquina:
+Mesma **porta** em ambos (ex. 5000), **mesmos JARs** em `.pitiupi/plugins` na raiz do clone de cada máquina:
 
 - [ ] Presença e linha **Todos**
 - [ ] Troca de mensagens no chat (multicast e, se possível, unicast/TCP)

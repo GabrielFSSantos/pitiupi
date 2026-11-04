@@ -4,7 +4,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CORE="${REPO_ROOT}/pitiupi"
-PITIUPI_HOME="${PITIUPI_HOME:-$HOME/pitiupi}"
+PITIUPI_HOME="${PITIUPI_HOME:-${REPO_ROOT}/.pitiupi}"
 PLUGINS_DIR="${PITIUPI_HOME}/plugins"
 REGISTRY="${REPO_ROOT}/plugins.registry.json"
 export PITIUPI_HOME
@@ -31,6 +31,10 @@ Exemplos:
   ./scripts/pitiupi.sh run --all
   ./scripts/pitiupi.sh run --category Social
   ./scripts/pitiupi.sh run --plugins chat
+
+Linux: no terminal, ./scripts/pitiupi.sh run --all (Java do Linux).
+WSL: no terminal do Ubuntu, o mesmo comando (a janela abre no Java do Windows).
+Windows: no cmd, scripts\pitiupi.cmd run --all (Java do Windows).
 EOF
 }
 
@@ -196,7 +200,27 @@ build_plugins_from_selection() {
   done < <(selected_ids)
 }
 
+running_on_wsl() {
+  [[ -r /proc/version ]] && grep -qi microsoft /proc/version
+}
+
+running_on_git_bash() {
+  [[ "${OSTYPE:-}" == msys* || "${OSTYPE:-}" == mingw* ]]
+}
+
+to_windows_path() {
+  if running_on_wsl && command -v wslpath >/dev/null 2>&1; then
+    wslpath -w "$1"
+  elif command -v cygpath >/dev/null 2>&1; then
+    cygpath -w "$1"
+  else
+    printf 'ERRO: não sei converter o caminho para o Windows: %s\n' "$1" >&2
+    exit 1
+  fi
+}
+
 link_plugins_from_selection() {
+  local mode="${1:-link}"
   local id dir jar_rel link_name src_abs
   mkdir -p "${PLUGINS_DIR}"
   rm -f "${PLUGINS_DIR}/"*.jar
@@ -207,7 +231,15 @@ link_plugins_from_selection() {
     jar_rel="$(registry_python field "$id" jar)"
     link_name="${id}.jar"
     src_abs="${REPO_ROOT}/${dir}/${jar_rel}"
-    ln -sf "${src_abs}" "${PLUGINS_DIR}/${link_name}"
+    if [[ ! -f "${src_abs}" ]]; then
+      printf 'ERRO: JAR ausente: %s\n' "${src_abs}" >&2
+      exit 1
+    fi
+    if [[ "${mode}" == "copy" ]]; then
+      cp -L "${src_abs}" "${PLUGINS_DIR}/${link_name}"
+    else
+      ln -sf "${src_abs}" "${PLUGINS_DIR}/${link_name}"
+    fi
   done < <(selected_ids)
 
   local count
@@ -217,10 +249,25 @@ link_plugins_from_selection() {
   else
     printf 'Plugins ativos em %s:\n' "${PLUGINS_DIR}"
     ls -1 "${PLUGINS_DIR}"/*.jar
-    for jar in "${PLUGINS_DIR}"/*.jar; do
-      [[ -L "$jar" ]] && printf '  -> %s\n' "$(readlink -f "$jar")"
-    done
+    if [[ "${mode}" != "copy" ]]; then
+      local jar
+      for jar in "${PLUGINS_DIR}"/*.jar; do
+        [[ -L "$jar" ]] && printf '  -> %s\n' "$(readlink -f "$jar")"
+      done
+    fi
   fi
+}
+
+launch_windows_java() {
+  local home_win jar_win ps1
+  if ! command -v powershell.exe >/dev/null 2>&1; then
+    printf 'ERRO: o PowerShell do Windows não está no PATH.\n' >&2
+    exit 1
+  fi
+  home_win="$(to_windows_path "${PITIUPI_HOME}")"
+  jar_win="$(to_windows_path "${CORE}/dist/pitiupi.jar")"
+  ps1="$(to_windows_path "${REPO_ROOT}/scripts/run-windows.ps1")"
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "${ps1}" -PitiupiHome "${home_win}" -Jar "${jar_win}"
 }
 
 check_tools() {
@@ -323,7 +370,14 @@ case "${CMD}" in
     check_tools || exit 1
     build_core
     build_plugins_from_selection
-    link_plugins_from_selection
-    exec java -jar "${CORE}/dist/pitiupi.jar"
+    if running_on_wsl || running_on_git_bash; then
+      link_plugins_from_selection copy
+      launch_windows_java
+      printf 'Janela aberta no Windows. Cabo e Wi-Fi são as placas desta máquina.\n'
+      printf 'Plugins em %s\n' "${PLUGINS_DIR}"
+    else
+      link_plugins_from_selection link
+      exec java -jar "${CORE}/dist/pitiupi.jar"
+    fi
     ;;
 esac

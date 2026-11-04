@@ -118,7 +118,7 @@ O envio fica nos botões do painel.
 ## Passo 7 — Instalar e testar
 
 1. `ant jar` → `dist/pitiupi.ping.jar`.
-2. Aba **Configurações** → **Instalar JAR…** (ou copie para `~/pitiupi/plugins/`).
+2. Aba **Configurações** → **Instalar JAR…** (ou copie para `.pitiupi/plugins/` na raiz do clone).
 3. **Reinicie** o Pitiupi (obrigatório após mudar plugins).
 4. Dois processos no mesmo PC: portas **5000** e **5001**, nomes diferentes.
 5. Lista lateral → **Enviar ping para esta pessoa** → aba `↑` com IP; clique **Enviar ping** → RTT no log.

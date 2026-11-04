@@ -52,7 +52,7 @@ cd plugins/chat && ant clean jar
 ./scripts/pitiupi.sh link --all
 ```
 
-Isso recria o symlink `~/pitiupi/plugins/chat.jar` → o JAR buildado. O comando `link` lista o destino real de cada `.jar`.
+Isso recria o symlink `.pitiupi/plugins/chat.jar` → o JAR buildado, na raiz do clone. O comando `link` lista o destino real de cada `.jar`.
 
 # Interface gráfica
 
