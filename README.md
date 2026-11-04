@@ -2,7 +2,7 @@
 
 Ferramenta **P2P** para práticas de Redes de Computadores: núcleo em Java com arquitetura de **plugins** (conversa na rede e compartilhamento de tela).
 
-**Documentação técnica:** [docs/README.md](docs/README.md) · **Quickstart:** [docs/documentation/00_quickstart.md](docs/documentation/00_quickstart.md) · **Convenções:** [docs/documentation/00_convencoes.md](docs/documentation/00_convencoes.md)
+**Documentação:** [docs/README.md](docs/README.md) · **Quickstart:** [docs/comecar.md](docs/comecar.md)
 
 ---
 
@@ -80,7 +80,7 @@ Novos módulos entram no repositório adicionando uma entrada no JSON (não é p
 | --- | --- |
 | `id` | Usado em `--plugins chat,meuJogo` |
 | `dir` | Pasta do módulo (ex.: `plugins/xadrez`) |
-| `build` | `ant` ou `make` |
+| `build` | `ant`, `make` ou `jar` (arquivo já pronto, sem compilar) |
 | `jar` | Caminho do JAR relativo a `dir` |
 | `menuCategory` | `Social`, `Jogos` ou `Streaming` — filtro CLI e documentação |
 
@@ -104,9 +104,9 @@ Na interface, o texto das abas vem de `getDisplayName()` em cada plugin. O campo
 
 ## Novo plugin (resumo)
 
-1. Copiar estrutura de `plugins/chat` → `plugins/meuPlugin` ([tutorial](docs/documentation/10_tutorial_plugin.md)).
-2. Em `createPlugin`, registrar painel com `PluginWorkspace` / `bindShellWorkspaceContent` e, se fizer sentido, **peer actions** na lista lateral.
-3. Adicionar entrada em [`plugins.registry.json`](plugins.registry.json).
+1. Copiar a estrutura de `plugins/chat` para `plugins/meuPlugin` ([plugins](docs/plugins.md), [funções do núcleo](docs/nucleo-para-plugins.md)).
+2. Em `createPlugin`, registrar o painel com `bindShellWorkspaceContent` e, se fizer sentido, peer actions na lista lateral.
+3. Adicionar entrada em [`plugins.registry.json`](plugins.registry.json), ou instalar o JAR pela aba **Configurações** (a instalação grava o catálogo).
 4. `./scripts/pitiupi.sh link --all` e reiniciar o app.
 
 O núcleo carrega **todos os `*.jar`** em `PITIUPI_HOME/plugins`. Detalhes: [pitiupi/plugins/README.md](pitiupi/plugins/README.md).
@@ -144,7 +144,7 @@ Opções: `--all` (padrão), `--plugins ids`, `--category Social|Jogos|Streaming
 - **Mesmo PC:** duas instâncias, portas distintas (ex. 5000 e 5001).
 - **Dois PCs na mesma Wi‑Fi:** mesma porta (ex. 5000), nomes diferentes. Cada um segue o caso da própria máquina em [Como rodar](#como-rodar). Linux abre o Java do Linux; Windows e WSL abrem o Java do Windows.
 
-Ver [docs/documentation/15_testes_e_gate.md](docs/documentation/15_testes_e_gate.md), [appendix_portas_e_multicast.md](docs/documentation/appendix_portas_e_multicast.md) e [17_teste_com_colega.md](docs/documentation/17_teste_com_colega.md).
+Ver [docs/usar.md](docs/usar.md) e [docs/rede.md](docs/rede.md).
 
 ---
 

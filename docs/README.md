@@ -1,30 +1,15 @@
 # Documentação — Pitiupi
 
-Entrada no repositório: [README.md](../README.md) (quickstart e comandos).
+O Pitiupi é uma aplicação P2P em Java: o núcleo descobre colegas na rede local, troca mensagens e carrega plugins em JAR. Esta pasta descreve o programa como ele está no repositório.
 
-Convenções editoriais: [documentation/00_convencoes.md](documentation/00_convencoes.md).
-
-## Pilares
-
-| Pasta / arquivo | Papel |
+| Leitor | Comece por |
 | --- | --- |
-| **[documentation/](documentation/README.md)** | Código, rede, plugins, operação e tutoriais |
-| **[references/](references/README.md)** | Bibliografia e notas (UDP, TCP, SPI, multicast) |
-| **[decision-register.md](decision-register.md)** | Decisões de desenho da plataforma |
+| Primeira execução | [comecar.md](comecar.md) |
+| Usar a janela e testar com um colega | [usar.md](usar.md) |
+| Entender UDP, TCP e presença | [rede.md](rede.md) |
+| Escrever um plugin | [nucleo-para-plugins.md](nucleo-para-plugins.md) e [plugins.md](plugins.md) |
+| Ler ou alterar o núcleo | [nucleo.md](nucleo.md) |
+| Decisões estáveis do desenho | [decision-register.md](decision-register.md) |
+| Livros e RFCs | [referencias.md](referencias.md) |
 
-## Jornadas
-
-| Leitor | Trilha |
-| --- | --- |
-| **Primeiro uso** | [00_quickstart](documentation/00_quickstart.md) → [09_sistema_de_plugins](documentation/09_sistema_de_plugins.md) → [10_tutorial_plugin](documentation/10_tutorial_plugin.md) → [11_plugins_referencia](documentation/11_plugins_referencia.md) |
-| **Redes (conceito + código)** | [16_fundamentacao_redes](documentation/16_fundamentacao_redes.md) → [05](documentation/05_udp_multicast.md)–[08](documentation/08_heartbeat_e_presenca.md) → [appendix_portas_e_multicast](documentation/appendix_portas_e_multicast.md) → [17_teste_com_colega](documentation/17_teste_com_colega.md) |
-| **Desenvolvedor núcleo** | [13_guia_desenvolvimento](documentation/13_guia_desenvolvimento.md) → [14_arquitetura_e_manutencao](documentation/14_arquitetura_e_manutencao.md) → [04_inicializacao_e_gui](documentation/04_inicializacao_e_gui.md) |
-
-## Manutenção rápida
-
-| Mudança | Onde documentar |
-| --- | --- |
-| UDP/TCP, multicast, portas | 05, 06, appendix, 17 |
-| SPI / plugins | 09, 10 |
-| Decisão de arquitetura | decision-register |
-| Débito técnico | engineering_backlog |
+O código do núcleo está em `pitiupi/`. Os plugins de referência estão em `plugins/chat`, `plugins/screencast` e `plugins/ping`.

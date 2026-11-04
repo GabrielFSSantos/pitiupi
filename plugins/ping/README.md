@@ -1,17 +1,5 @@
-# Plugin Ping (exercício local)
+# Plugin Ping
 
-Pasta opcional para desenvolver um módulo de Ping/Pong com medição de RTT. O código de solução **não** faz parte do gate CI do repositório.
+Módulo de referência que mede RTT com mensagens `Ping` / `Pong` na rede local. O código desta pasta é a implementação pronta. O passo a passo de como ela foi montada está em [docs/tp/02_tutorial_ping_aula.md](../../docs/tp/02_tutorial_ping_aula.md).
 
-Tutorial passo a passo: [docs/tp/02_tutorial_ping_aula.md](../../docs/tp/02_tutorial_ping_aula.md).
-
-## Fluxo de trabalho
-
-1. Copiar a estrutura de [`plugins/chat`](../chat) para `plugins/ping` (local).
-2. Implementar `PingPlugin`, mensagens e painel (`bindShellWorkspaceContent`).
-3. `ant jar` → instalar JAR em `PITIUPI_HOME/plugins/` e reiniciar o Pitiupi.
-4. Abrir o plugin pela galeria **Plugins**.
-
-## Pré-requisitos
-
-- Núcleo: `../../pitiupi/dist/pitiupi.jar`
-- SPI e mensagens: [09_sistema_de_plugins.md](../../docs/documentation/09_sistema_de_plugins.md)
+Contrato do núcleo: [docs/nucleo-para-plugins.md](../../docs/nucleo-para-plugins.md). Descoberta do JAR: [docs/plugins.md](../../docs/plugins.md).

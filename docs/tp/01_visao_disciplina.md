@@ -1,29 +1,17 @@
 # Visão da disciplina
 
-## Papel do Pitiupi
+O Pitiupi é uma plataforma P2P com plugins para praticar, na mesma aplicação:
 
-O Pitiupi é uma **plataforma P2P com plugins** usada em Redes de Computadores para:
+- UDP multicast e unicast, e TCP com mensagem delimitada por tamanho.
+- Presença por heartbeat, sem servidor central.
+- Uma extensão em JAR que usa o núcleo em vez de abrir o próprio socket.
 
-- Experimentar UDP (multicast/unicast) e TCP na mesma aplicação.
-- Observar **presença** de peers (heartbeat) sem servidor central de aplicação.
-- Relacionar conceitos de redes com código Java executável na LAN.
+O código do programa está descrito em [comecar.md](../comecar.md), [rede.md](../rede.md) e [plugins.md](../plugins.md). As funções que um plugin chama estão em [nucleo-para-plugins.md](../nucleo-para-plugins.md).
 
-O núcleo concentra rede, presença e interface; extensões entram como plugins em JAR.
-
-## Plugins de referência no repositório
-
-| Módulo | Ideia |
+| Módulo no repositório | O que exercita |
 | --- | --- |
-| `plugins/chat` | Mensagens e vários transportes (multicast, unicast, TCP) |
-| `plugins/screencast` | Payload maior / streaming de imagem |
+| `plugins/chat` | Sala, um IP, UDP e TCP |
+| `plugins/screencast` | Payload maior, multicast, unicast ou TCP |
+| `plugins/ping` | RTT com ping, pong e parada em UDP |
 
-Detalhes técnicos: [11_plugins_referencia.md](../documentation/11_plugins_referencia.md).
-
-## Exercício em sala
-
-O passo a passo do **Ping** (mensagens na rede, RTT, UI mínima) está em [02_tutorial_ping_aula.md](02_tutorial_ping_aula.md).
-
-## Aprofundamento técnico
-
-- Primeiro uso: [00_quickstart.md](../documentation/00_quickstart.md)
-- Rede e protocolos no código: [16_fundamentacao_redes.md](../documentation/16_fundamentacao_redes.md) e capítulos 05–08 em [documentation/](../documentation/README.md)
+O passo a passo para montar o ping — qual arquivo, qual linha e qual método do núcleo — está em [02_tutorial_ping_aula.md](02_tutorial_ping_aula.md). A pasta `plugins/ping` já contém essa implementação.

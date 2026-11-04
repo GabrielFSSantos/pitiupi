@@ -23,16 +23,23 @@ public final class PluginStore {
 
     private final Path pluginsDir;
     private final Path cacheDir;
+    private final Path registryFile;
 
     public PluginStore() {
         PitiupiHome home = PitiupiHome.get();
         this.pluginsDir = home.pluginsDirectory();
         this.cacheDir = home.cacheDirectory();
+        this.registryFile = PluginCatalog.locateFromHome(home.rootDirectory()).orElse(null);
     }
 
     public PluginStore(Path pluginsDir, Path cacheDir) {
+        this(pluginsDir, cacheDir, null);
+    }
+
+    public PluginStore(Path pluginsDir, Path cacheDir, Path registryFile) {
         this.pluginsDir = pluginsDir.normalize().toAbsolutePath();
         this.cacheDir = cacheDir.normalize().toAbsolutePath();
+        this.registryFile = registryFile == null ? null : registryFile.normalize().toAbsolutePath();
     }
 
     public List<InstalledPluginRef> listInstalled() throws IOException {
@@ -68,6 +75,7 @@ public final class PluginStore {
         try {
             Files.copy(sourceJar, tmp, StandardCopyOption.REPLACE_EXISTING);
             Files.move(tmp, dest, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            rememberInCatalog(sourceJar, fileName);
             return dest;
         } catch (IOException e) {
             try {
@@ -88,6 +96,7 @@ public final class PluginStore {
         try {
             Files.deleteIfExists(normalized);
             Files.deleteIfExists(PluginMetadataWriter.metaPathFor(normalized));
+            forgetFromCatalog(normalized.getFileName().toString());
         } catch (IOException e) {
             throw new PitiupiException(ErrorCode.PLUGIN_REMOVE_FAILED, e);
         }
@@ -143,5 +152,29 @@ public final class PluginStore {
             // listagem tolerante
         }
         return props;
+    }
+
+    private void rememberInCatalog(Path sourceJar, String fileName) throws IOException {
+        if (registryFile == null || !Files.isRegularFile(registryFile)) {
+            return;
+        }
+        Path catalogDir = PluginCatalog.catalogDirectory(registryFile);
+        Files.createDirectories(catalogDir);
+        Files.copy(sourceJar, catalogDir.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+        PluginCatalog.upsert(registryFile, new PluginCatalog.Entry(
+                PluginCatalog.stemOf(fileName),
+                PluginCatalog.CATALOG_DIR,
+                PluginCatalog.BUILD_JAR,
+                fileName,
+                PluginCatalog.DEFAULT_CATEGORY
+        ));
+    }
+
+    private void forgetFromCatalog(String fileName) throws IOException {
+        if (registryFile == null || !Files.isRegularFile(registryFile)) {
+            return;
+        }
+        Files.deleteIfExists(PluginCatalog.catalogDirectory(registryFile).resolve(fileName));
+        PluginCatalog.removeMatchingJar(registryFile, fileName);
     }
 }

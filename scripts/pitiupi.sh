@@ -70,6 +70,9 @@ if mode == "validate":
             if key not in p:
                 print(f"ERRO: campo ausente {key} em {p}", file=sys.stderr)
                 sys.exit(1)
+        if p["build"] not in ("ant", "make", "jar"):
+            print(f"ERRO: build desconhecido {p['build']} em {p['id']}", file=sys.stderr)
+            sys.exit(1)
     sys.exit(0)
 
 if mode == "list":
@@ -183,6 +186,9 @@ build_one_plugin() {
   local dir build_cmd marker
   dir="$(registry_python field "$id" dir)"
   build_cmd="$(registry_python field "$id" build)"
+  if [[ "$build_cmd" == "jar" ]]; then
+    return 0
+  fi
   case "$build_cmd" in
     ant) marker="${REPO_ROOT}/${dir}/build.xml" ;;
     make) marker="${REPO_ROOT}/${dir}/Makefile" ;;
@@ -244,6 +250,10 @@ link_plugins_from_selection() {
       local marker=""
       local build_cmd
       build_cmd="$(registry_python field "$id" build)"
+      if [[ "$build_cmd" == "jar" ]]; then
+        printf 'ERRO: JAR ausente: %s\n' "${src_abs}" >&2
+        exit 1
+      fi
       case "$build_cmd" in
         ant) marker="${REPO_ROOT}/${dir}/build.xml" ;;
         make) marker="${REPO_ROOT}/${dir}/Makefile" ;;

@@ -21,4 +21,4 @@ ln -sf /caminho/ao/clone/plugins/chat/dist/pitiupi.chat.jar /caminho/ao/clone/.p
 
 Não commite `.jar` binários no Git — apenas este README.
 
-Novo módulo: registrar no catálogo e ver [docs/documentation/10_tutorial_plugin.md](../../docs/documentation/10_tutorial_plugin.md).
+Novo módulo: [docs/plugins.md](../../docs/plugins.md). A instalação pela janela também grava [`plugins.registry.json`](../../plugins.registry.json).
