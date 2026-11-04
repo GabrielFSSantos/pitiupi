@@ -1,4 +1,5 @@
-# Chamado por scripts/pitiupi.sh (WSL ou Git Bash) e por scripts/pitiupi.cmd.
+# Chamado por scripts/pitiupi.sh e por scripts/pitiupi.cmd.
+# Não é um comando de quem baixa o projeto.
 # Não copia plugins: quem chama já deixou o JAR e o PITIUPI_HOME prontos.
 param(
     [Parameter(Mandatory = $true)][string]$PitiupiHome,

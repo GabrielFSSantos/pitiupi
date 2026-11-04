@@ -266,7 +266,7 @@ launch_windows_java() {
   fi
   home_win="$(to_windows_path "${PITIUPI_HOME}")"
   jar_win="$(to_windows_path "${CORE}/dist/pitiupi.jar")"
-  ps1="$(to_windows_path "${REPO_ROOT}/scripts/run-windows.ps1")"
+  ps1="$(to_windows_path "${REPO_ROOT}/scripts/lib/launch-windows.ps1")"
   powershell.exe -NoProfile -ExecutionPolicy Bypass -File "${ps1}" -PitiupiHome "${home_win}" -Jar "${jar_win}"
 }
 
