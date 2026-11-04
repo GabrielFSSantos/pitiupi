@@ -3,6 +3,8 @@ package pitiupi.presentation.shell;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.JPanel;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -77,5 +79,23 @@ class SessionTabBarStripTest {
 
         assertEquals(1, bar.getTabCount());
         assertEquals(false, bar.hasTab(wifi));
+    }
+
+    @Test
+    void closingPeerTabNotifiesRoomEvenWhenItWasAlreadyUnderneath() {
+        SessionTabBar bar = new SessionTabBar();
+        List<String> selected = new ArrayList<>();
+        bar.setOnTabSelected(selected::add);
+        bar.addOrSelectTab(PluginSessionKeys.ROOM, "Sala geral", new JPanel(), false);
+        String peer = PluginSessionKeys.peer("192.168.3.131");
+        bar.addOrSelectTab(peer, "Vostro", "192.168.3.131", new JPanel(), true);
+        bar.selectTab(PluginSessionKeys.ROOM);
+        bar.selectTab(peer);
+        selected.clear();
+
+        bar.closeTab(peer);
+
+        assertEquals(PluginSessionKeys.ROOM, bar.selectedKey());
+        assertEquals(List.of(PluginSessionKeys.ROOM), selected);
     }
 }

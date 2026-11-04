@@ -201,7 +201,8 @@ public final class ClosableTabbedPane {
             next = firstTabKey();
         }
         if (next != null) {
-            selectTab(next);
+            selectTabSilently(next);
+            onTabSelected.accept(next);
         } else if (!suppressSelectionEvents) {
             onTabSelected.accept(null);
         }
