@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Build, instala plugins em PITIUPI_HOME/plugins e executa o núcleo (catálogo: plugins.registry.json).
+# Plugin do catálogo sem build.xml ou Makefile nesta máquina é ignorado.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -49,7 +50,7 @@ repo = Path(sys.argv[2])
 mode = sys.argv[3]
 
 data = json.loads(registry_path.read_text(encoding="utf-8"))
-plugins = data.get("plugins", [])
+plugins = list(data.get("plugins", []))
 
 def by_id(pid):
     for p in plugins:
@@ -179,16 +180,24 @@ build_core() {
 
 build_one_plugin() {
   local id="$1"
-  local dir build_cmd
+  local dir build_cmd marker
   dir="$(registry_python field "$id" dir)"
   build_cmd="$(registry_python field "$id" build)"
   case "$build_cmd" in
-    ant) (cd "${REPO_ROOT}/${dir}" && ant jar) ;;
-    make) (cd "${REPO_ROOT}/${dir}" && make) ;;
+    ant) marker="${REPO_ROOT}/${dir}/build.xml" ;;
+    make) marker="${REPO_ROOT}/${dir}/Makefile" ;;
     *)
       printf 'ERRO: build desconhecido para %s: %s\n' "$id" "$build_cmd" >&2
       exit 1
       ;;
+  esac
+  if [[ ! -f "${marker}" ]]; then
+    printf 'Plugin %s ausente nesta máquina; não será carregado.\n' "$id"
+    return 0
+  fi
+  case "$build_cmd" in
+    ant) (cd "${REPO_ROOT}/${dir}" && ant jar) ;;
+    make) (cd "${REPO_ROOT}/${dir}" && make) ;;
   esac
 }
 
@@ -232,6 +241,17 @@ link_plugins_from_selection() {
     link_name="${id}.jar"
     src_abs="${REPO_ROOT}/${dir}/${jar_rel}"
     if [[ ! -f "${src_abs}" ]]; then
+      local marker=""
+      local build_cmd
+      build_cmd="$(registry_python field "$id" build)"
+      case "$build_cmd" in
+        ant) marker="${REPO_ROOT}/${dir}/build.xml" ;;
+        make) marker="${REPO_ROOT}/${dir}/Makefile" ;;
+      esac
+      if [[ -z "${marker}" || ! -f "${marker}" ]]; then
+        printf 'Plugin %s ausente nesta máquina; não será carregado.\n' "$id"
+        continue
+      fi
       printf 'ERRO: JAR ausente: %s\n' "${src_abs}" >&2
       exit 1
     fi

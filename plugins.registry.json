@@ -13,6 +13,13 @@
       "build": "ant",
       "jar": "dist/pitiupi.screenCast.jar",
       "menuCategory": "Streaming"
+    },
+    {
+      "id": "ping",
+      "dir": "plugins/ping",
+      "build": "ant",
+      "jar": "dist/pitiupi.ping.jar",
+      "menuCategory": "Social"
     }
   ]
 }
