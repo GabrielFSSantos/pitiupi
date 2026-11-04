@@ -22,5 +22,10 @@
 | D22 | `PeerIpv4` para IP de peer na UI | No Windows, `InetAddress.getHostAddress()` pode devolver IPv6-mapeado e sufixo de zona (`%n`); chat e roteamento usam IPv4 pontilhado | [appendix_portas_e_multicast.md](documentation/appendix_portas_e_multicast.md) |
 | D23 | Foco de atividade e badges | **Adiado na v1** — núcleo (`PeerActivityFocus` / `PeerActivityInbox`) mantido; UI sem badges; recebimento passivo em sub-abas (`addTabIfAbsent`) | [09_sistema_de_plugins.md](documentation/09_sistema_de_plugins.md) |
 | D24 | Avisos de sessão (`SessionNoticeMessage`) | Início/fim de atividades (ex. `screen_cast` END ao parar share); extensível por plugin/canal | [09_sistema_de_plugins.md](documentation/09_sistema_de_plugins.md) |
+| D25 | Nome novo no heartbeat já existente | A lista do colega atualiza o `User` quando o `userName` muda | [08_heartbeat_e_presenca.md](documentation/08_heartbeat_e_presenca.md) |
+| D26 | Troca de porta sai da sala | Goodbye na porta antiga, lista local zerada, anúncio na porta nova | [appendix_portas_e_multicast.md](documentation/appendix_portas_e_multicast.md) |
+| D27 | TTL padrão 1, ajustável de 1 a 32 | 1 permanece na sub-rede local; valor maior é opção de configuração | [appendix_portas_e_multicast.md](documentation/appendix_portas_e_multicast.md) |
+| D28 | Saída Automático, Cabo ou Wi-Fi | Multicast, IP exibido e TCP de saída usam a interface escolhida | [appendix_portas_e_multicast.md](documentation/appendix_portas_e_multicast.md) |
+| D29 | Connect TCP com prazo de 5 s fora da EDT | Aviso só enquanto não há socket aberto para aquele IP | [06_tcp_conexoes.md](documentation/06_tcp_conexoes.md) |
 
 Novas decisões: adicionar linha nesta tabela e detalhar no arquivo técnico correspondente.

@@ -17,14 +17,14 @@ Convenções editoriais: [documentation/00_convencoes.md](documentation/00_conve
 | Leitor | Trilha |
 | --- | --- |
 | **Primeiro uso** | [00_quickstart](documentation/00_quickstart.md) → [09_sistema_de_plugins](documentation/09_sistema_de_plugins.md) → [10_tutorial_plugin](documentation/10_tutorial_plugin.md) → [11_plugins_referencia](documentation/11_plugins_referencia.md) |
-| **Redes (conceito + código)** | [16_fundamentacao_redes](documentation/16_fundamentacao_redes.md) → [05](documentation/05_udp_multicast.md)–[08](documentation/08_heartbeat_e_presenca.md) → [appendix_portas_e_multicast](documentation/appendix_portas_e_multicast.md) |
+| **Redes (conceito + código)** | [16_fundamentacao_redes](documentation/16_fundamentacao_redes.md) → [05](documentation/05_udp_multicast.md)–[08](documentation/08_heartbeat_e_presenca.md) → [appendix_portas_e_multicast](documentation/appendix_portas_e_multicast.md) → [17_teste_com_colega](documentation/17_teste_com_colega.md) |
 | **Desenvolvedor núcleo** | [13_guia_desenvolvimento](documentation/13_guia_desenvolvimento.md) → [14_arquitetura_e_manutencao](documentation/14_arquitetura_e_manutencao.md) → [04_inicializacao_e_gui](documentation/04_inicializacao_e_gui.md) |
 
 ## Manutenção rápida
 
 | Mudança | Onde documentar |
 | --- | --- |
-| UDP/TCP, multicast, portas | 05, 06, appendix |
+| UDP/TCP, multicast, portas | 05, 06, appendix, 17 |
 | SPI / plugins | 09, 10 |
 | Decisão de arquitetura | decision-register |
 | Débito técnico | engineering_backlog |

@@ -2,9 +2,11 @@
 
 ## Configuração
 
-- **Nome** e **porta** definidos no diálogo de login (`Login`).
-- A mesma porta é usada para UDP (multicast socket) e TCP (`ServerSocket`).
-- Preferências persistidas localmente (`java.util.prefs`).
+- **Nome** e **porta** começam no diálogo de login e podem ser alterados na aba **Configurações** sem reiniciar. A alteração vale na hora.
+- A mesma porta é usada para UDP (multicast socket) e TCP (`ServerSocket`). Trocar a porta sai da sala antiga (goodbye) e passa a procurar colegas na porta nova.
+- **Saída:** Automático (cabo antes de Wi-Fi), só Cabo ou só Wi-Fi. O multicast e o IP exibido seguem essa escolha. O TCP de saída também sai pelo IPv4 dessa interface.
+- **TTL** do multicast: padrão **1** (só a rede local). Na Configurações, de 1 a 32.
+- Preferências persistidas localmente (`java.util.prefs`): nome, porta, TTL e saída. `config.properties` não guarda esses campos.
 
 ## Multicast
 
@@ -31,7 +33,9 @@ Executar o Pitiupi no WSL e peers no Windows (ou vice-versa) pode falhar em mult
 
 ## Escolha de interface (multicast)
 
-O núcleo associa o socket multicast à interface de rede preferida: **cabo (Ethernet) antes de Wi‑Fi**; em cabo com link-local APIPA, prioriza IPv4 **`169.254.*`**. Isso não substitui a exigência de **mesma sub-rede** entre os dois PCs — `169.254.x` e `192.168.x` ao mesmo tempo em hosts diferentes não compartilham heartbeat.
+No modo **Automático**, o núcleo associa o socket multicast à interface preferida: **cabo (Ethernet) antes de Wi‑Fi**; em cabo com link-local APIPA, prioriza IPv4 **`169.254.*`**. **Cabo** ou **Wi-Fi** na aba Configurações restringe a essa família (nome da interface ou rótulo `Ethernet` / `Wi-Fi`). Isso não substitui a exigência de **mesma sub-rede** entre os dois PCs — `169.254.x` e `192.168.x` ao mesmo tempo em hosts diferentes não compartilham heartbeat.
+
+Roteiro para achar o próprio IP, a porta e o motivo de a lista ficar vazia: [17_teste_com_colega.md](17_teste_com_colega.md).
 
 ## IP do peer na UI (Windows)
 
@@ -51,4 +55,4 @@ Ao abrir conversa pela lista de presença, o campo de destino usa **`PeerIpv4`**
 | --- | --- |
 | Lista só com **Todos**, sem peers | Porta igual? Mesma sub-rede? Firewall UDP? AP isolation? WSL num dos PCs? |
 | Plugin não recebe | Desserialização / SPI / JAR em `PITIUPI_HOME/plugins` |
-| TCP falha | Peer visível na lista? IP correto? |
+| TCP falha | Peer visível na lista? IP correto? A tentativa avisa em cerca de 5 s e não trava a janela |

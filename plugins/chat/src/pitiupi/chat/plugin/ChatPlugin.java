@@ -15,6 +15,7 @@ import pitiupi.control.ConnectionManager;
 import pitiupi.models.Messages.Message;
 import pitiupi.models.Plugin;
 import pitiupi.models.User;
+import pitiupi.net.tcp.TcpAttemptListener;
 import pitiupi.net.tcp.TcpConnection;
 
 import javax.swing.SwingUtilities;
@@ -133,16 +134,30 @@ public class ChatPlugin extends Plugin implements PrivateChatHost {
 
     @Override
     public void openConnection(String ip) {
-        try {
-            TcpConnection connection = connectionManager.connectPluginTcp(
-                    InetAddress.getByName(ip),
-                    getIdentifier(),
-                    getIdentifier()
-            );
-            privateChatController.registerOutgoingConnection(ip, connection);
-        } catch (Exception e) {
-            System.out.println("Error opening connection: " + e.getMessage());
-        }
+        connectionManager.connectPluginTcpAsync(ip, getIdentifier(), getIdentifier(), new TcpAttemptListener() {
+            @Override
+            public void onConnecting(String endpoint) {
+                if (chatPanel != null) {
+                    chatPanel.showTcpAttempt("Conectando em " + endpoint + "…");
+                }
+            }
+
+            @Override
+            public void onSuccess(TcpConnection connection) {
+                if (chatPanel != null) {
+                    chatPanel.clearTcpAttempt();
+                }
+                privateChatController.registerOutgoingConnection(ip, connection);
+            }
+
+            @Override
+            public void onFailure(String message) {
+                privateChatController.abortOutgoing(ip);
+                if (chatPanel != null) {
+                    chatPanel.failTcpAttempt(message);
+                }
+            }
+        });
     }
 
     @Override

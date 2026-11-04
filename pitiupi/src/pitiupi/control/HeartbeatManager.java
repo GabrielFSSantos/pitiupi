@@ -78,12 +78,30 @@ public class HeartbeatManager {
         connectionManager.sendUdpMulticast(msg);
     }
 
-    public void sendGoodbyeAndStop() {
-        if (connectionManager != null) {
-            GoodbyeMessage msg = new GoodbyeMessage(connectionManager.getUserName(), instanceId);
-            connectionManager.sendUdpMulticast(msg);
+    public void announceNow() {
+        announce();
+    }
+
+    public void sendGoodbye() {
+        if (connectionManager == null) {
+            return;
         }
+        GoodbyeMessage msg = new GoodbyeMessage(connectionManager.getUserName(), instanceId);
+        connectionManager.sendUdpMulticast(msg);
+    }
+
+    public void sendGoodbyeAndStop() {
+        sendGoodbye();
         stop();
+    }
+
+    public void clearPeers() {
+        if (peers.isEmpty()) {
+            notifyListeners();
+            return;
+        }
+        peers.clear();
+        notifyListeners();
     }
 
     public void receiveGoodbye(GoodbyeMessage msg) {
@@ -115,13 +133,15 @@ public class HeartbeatManager {
             return;
         }
 
-        String key =  msg.getInstanceId();
-        boolean isNew = !peers.containsKey(key);
-
-        User peer = peers.computeIfAbsent(key, k -> new User(msg.getUserName(), from, msg.getTimestamp(), msg.getInstanceId()));
+        String key = msg.getInstanceId();
+        User peer = peers.get(key);
+        if (peer == null) {
+            peers.put(key, new User(msg.getUserName(), from, msg.getTimestamp(), msg.getInstanceId()));
+            notifyListeners();
+            return;
+        }
         peer.touch(System.currentTimeMillis());
-
-        if (isNew) {
+        if (peer.updateIdentity(msg.getUserName(), from)) {
             notifyListeners();
         }
     }

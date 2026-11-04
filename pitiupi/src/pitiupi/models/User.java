@@ -16,8 +16,8 @@ public class User {
 
     public static final String BROADCAST_INSTANCE_ID = "__broadcast__";
 
-    private final String userName;
-    private final InetAddress address;
+    private String userName;
+    private InetAddress address;
     private volatile long lastSeen;
     private final String instanceId;
 
@@ -63,6 +63,24 @@ public class User {
      */
     public void touch(long timestamp) {
         this.lastSeen = timestamp;
+    }
+
+    /**
+     * Atualiza nome e endereço quando um heartbeat mais novo traz identidade diferente.
+     *
+     * @return {@code true} se nome ou endereço mudou.
+     */
+    public boolean updateIdentity(String newName, InetAddress newAddress) {
+        boolean changed = false;
+        if (newName != null && !newName.equals(userName)) {
+            this.userName = newName;
+            changed = true;
+        }
+        if (newAddress != null && !newAddress.equals(address)) {
+            this.address = newAddress;
+            changed = true;
+        }
+        return changed;
     }
 
     @Override

@@ -72,7 +72,13 @@ Lista de peers ativos
 | Timeout de ausência | ~15 s | Peer some após queda ou fechamento sem goodbye |
 | Goodbye | multicast ao sair | Remove peer mais rápido que só timeout |
 
-Em **Wi‑Fi de laboratório**, heartbeat usa o mesmo multicast que o chat na sala geral — mesma porta no login, mesma sub-rede, sem isolamento AP→AP. Ver [appendix_portas_e_multicast.md](appendix_portas_e_multicast.md).
+Em **Wi‑Fi de laboratório**, heartbeat usa o mesmo multicast que o chat na sala geral — mesma porta, mesma sub-rede, sem isolamento AP→AP. Ver [appendix_portas_e_multicast.md](appendix_portas_e_multicast.md) e [17_teste_com_colega.md](17_teste_com_colega.md).
+
+### Nome e troca de sala
+
+O nome vai dentro do `HeartbeatMessage` que já existe. Se o nome mudar, o receptor atualiza o peer na lista e avisa a interface; não há outra mensagem só para isso.
+
+Trocar a porta (ou a saída, ou o TTL) envia `GoodbyeMessage` na sala atual, esvazia a lista local e anuncia de imediato depois do novo socket. Quem ficou na porta antiga deixa de ver esta instância. Quem já está na porta nova aparece no anúncio seguinte. Se o goodbye se perder, o timeout de cerca de 15 s ainda remove o peer.
 
 ```mermaid
 flowchart LR

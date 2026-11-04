@@ -67,20 +67,20 @@ A interface gráfica é Swing, organizada em shell (`pitiupi.presentation.shell`
 
 Plugins expõem `getName()` (técnico), `getIdentifier()` (SPI) e `getDisplayName()` (texto na galeria e nas abas).
 
-A aba **Configurações** mostra em cima **Sua conexão** (nome, porta, IP local, ID da instância, contagem de peers; campos selecionáveis para copiar manualmente) e embaixo a tabela de JARs instalados (altura reduzida).
+A aba **Configurações** mostra em cima **Sua conexão**: nome e porta editáveis, saída (Automático, Cabo ou Wi-Fi), TTL, IP local, interface em uso, ID da instância e contagem de peers. **Aplicar** grava a preferência e, se porta, saída ou TTL mudaram, reabre a rede na hora. IP e ID continuam somente leitura. Embaixo fica a tabela de JARs instalados.
 
 Durante a inicialização, cada plugin recebe `ConnectionManager` e `PluginWorkspace`
 no método `createPlugin()`. Menus multicast na barra superior não são mais usados;
 ações para todos os peers migram para **peer actions** (contexto na lista lateral).
 Ao iniciar, só as abas **Plugins** e **Configurações** ficam visíveis. Cada plugin registra um painel com `bindShellWorkspaceContent`; a aba abre ao clicar na galeria ou via peer action. Referência: **Conversa na rede** (`ChatPanel`) e **Compartilhar tela** (`ScreenCastPanel`).
 
-O **chat** usa campo de mensagem compacto (~2 linhas, quebra de linha; barra de rolagem vertical só se o texto não couber). O histórico ocupa a maior parte da altura da aba (divisor proporcional ao abrir a janela).
+O **chat** usa campo de mensagem compacto (~2 linhas, quebra de linha; barra de rolagem vertical só se o texto não couber). O histórico ocupa a maior parte da altura da aba (divisor proporcional ao abrir a janela). Cada pessoa tem uma sub-aba; o × fecha essa sub-aba mesmo com outras ao lado. Se a pessoa muda de cabo para Wi-Fi, a sub-aba já aberta passa a usar o IP novo em vez de aparecer uma segunda vez com o mesmo nome.
 
 Canal TCP privado do chat fica no mesmo `ChatPanel` (histórico separado por conversa: sala geral, peer por IP, privado com toggle). O núcleo mantém `PeerActivityInbox` para atividade por peer; indicadores visuais completos na lista lateral ainda não fazem parte da v1 (**D23**).
 
 Ao fechar a aba superior de **Compartilhar tela** (×), o núcleo chama `Plugin.onShellTabClosed()` — o plugin interrompe captura e envio (toggle desligado). Reabrir pela galeria deve mostrar compartilhamento inativo.
 
-**TCP (transporte)** envia uma mensagem serializada pelo núcleo (`sendTcp`), na porta do login. **TCP privado** (toggle) abre conexão dedicada ao plugin entre dois peers; com o toggle ativo, o combo de transporte fica desabilitado e o envio usa esse canal. Na UI só se informa o **IP** do peer: UDP/TCP unicast do Pitiupi usa sempre a **mesma porta** que você escolheu no login (convenção de sala: todos com a mesma porta, ex. 5000 e 5001 em testes no mesmo PC).
+**TCP (transporte)** envia uma mensagem serializada pelo núcleo, na porta desta instância. A primeira conexão com um IP que ainda não tem socket aberto corre fora da thread da janela: o chat mostra “Conectando em …”, espera no máximo cerca de 5 s e, se falhar, avisa uma vez. Mensagens seguintes no mesmo socket não repetem esse aviso. **TCP privado** (toggle) abre conexão dedicada ao plugin entre dois peers, com o mesmo aviso só na abertura. Na UI só se informa o **IP** do peer: UDP/TCP unicast do Pitiupi usa sempre a **mesma porta** desta instância (convenção de sala: todos com a mesma porta, ex. 5000 e 5001 em testes no mesmo PC).
 
 Textos da UI (destino, combo de forma de envio e linha **“Como esta mensagem vai”**) usam linguagem simples e o termo técnico entre parênteses (multicast UDP, UDP unicast, TCP). Na sala, o transporte não é só multicast: o combo pode escolher cópias unicast ou TCP para cada pessoa, conforme o plugin.
 

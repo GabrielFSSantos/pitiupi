@@ -64,7 +64,10 @@ public class SocketTCP extends Thread {
         tcpConnectionManager = new TcpConnectionManager();
 
         try {
-            serverSocket = new ServerSocket(connectionManager.getPort());
+            ServerSocket listening = new ServerSocket();
+            listening.setReuseAddress(true);
+            listening.bind(new InetSocketAddress(connectionManager.getPort()));
+            serverSocket = listening;
             address = InetAddress.getByName(InetAddress.getLocalHost().getHostAddress());
         } catch (IOException ex) {
             System.out.println("There is no socket connection. Sorry.");
@@ -83,6 +86,18 @@ public class SocketTCP extends Thread {
      * @param msg mensagem que será enviada.
      * @param destinationAddress endereço IP do peer que receberá a mensagem.
      */
+    public boolean isAccepting() {
+        return serverSocket != null && serverSocket.isBound() && !serverSocket.isClosed();
+    }
+
+    public boolean hasOpenPublicConnection(InetAddress destinationAddress) {
+        if (destinationAddress == null) {
+            return false;
+        }
+        TcpConnection connection = tcpConnectionManager.getPublicConnection(destinationAddress);
+        return connection != null && !connection.isClosed();
+    }
+
     public boolean send(Message msg, InetAddress destinationAddress) {
         try {
             TcpConnection connection = getPublicConnection(

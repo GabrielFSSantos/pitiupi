@@ -10,6 +10,10 @@ múltiplas mensagens.
 
 A arquitetura utiliza uma conexão TCP persistente por endereço de peer.
 
+**Teoria:** `connect` sem prazo pode ficar parado até o sistema operacional desistir. **No Pitiupi:** `ConnectionFactory` usa `Socket.connect` com prazo de **5 s** (`CONNECT_TIMEOUT_MS`). O chat dispara essa abertura numa thread do núcleo (`sendTcpAsync` / `connectPluginTcpAsync`) e só mostra “Conectando em …” quando ainda não existe socket aberto para aquele IP. **Limitação:** o prazo não é configurável na tela; o timeout de leitura depois do handshake continua longo (minutos).
+
+Ao mudar porta, saída ou TTL, o `ConnectionManager` envia goodbye, fecha as TCP locais e reabre o `ServerSocket`. Se a porta nova não abre, a sala anterior é restaurada.
+
 O `TcpConnectionManager` mantém um mapa `InetAddress` → `TcpConnection`, permitindo reutilizar a mesma conexão para vários envios ao mesmo peer.
 
 ### SocketTCP

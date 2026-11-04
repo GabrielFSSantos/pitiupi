@@ -131,6 +131,10 @@ public final class SessionTabBar {
         tabs.setTabTitle(key, title, tooltip);
     }
 
+    public boolean replaceKey(String oldKey, String newKey, String title, String tooltip, boolean closable) {
+        return tabs.replaceKey(oldKey, newKey, title, tooltip, closable);
+    }
+
     public String selectedKey() {
         return tabs.selectedKey();
     }

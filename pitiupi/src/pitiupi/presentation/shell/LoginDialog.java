@@ -13,16 +13,10 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.prefs.Preferences;
-
 /**
  * Login modal centralizado (~30% da área útil do monitor).
  */
 public final class LoginDialog extends JDialog {
-
-    private static final Preferences prefs = Preferences.userNodeForPackage(LoginDialog.class);
-    private static final String PREF_NOME = "lastUserName";
-    private static final String PREF_PORTA = "lastPort";
 
     private final JTextField nameField = new JTextField(24);
     private final JSpinner portField = new JSpinner();
@@ -37,8 +31,8 @@ public final class LoginDialog extends JDialog {
     }
 
     private void buildUi() {
-        String nomeSalvo = prefs.get(PREF_NOME, System.getProperty("user.name"));
-        int portaSalva = prefs.getInt(PREF_PORTA, 5000);
+        String nomeSalvo = NetworkPreferences.loadName();
+        int portaSalva = NetworkPreferences.loadPort();
         portField.setModel(new javax.swing.SpinnerNumberModel(portaSalva, 1, 65535, 1));
         nameField.setText(nomeSalvo);
 
@@ -104,8 +98,8 @@ public final class LoginDialog extends JDialog {
         if (port <= 0) {
             return;
         }
-        prefs.put(PREF_NOME, name);
-        prefs.putInt(PREF_PORTA, port);
+        NetworkPreferences.saveName(name);
+        NetworkPreferences.savePort(port);
         accepted = true;
         setVisible(false);
         dispose();

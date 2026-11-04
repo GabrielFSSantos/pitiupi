@@ -35,4 +35,47 @@ class SessionTabBarStripTest {
         assertEquals(PluginSessionKeys.ROOM, bar.selectedKey());
         assertEquals(2, bar.getTabCount());
     }
+
+    @Test
+    void closingMiddleTabKeepsTheTabOnItsRightClosable() {
+        SessionTabBar bar = new SessionTabBar();
+        bar.addOrSelectTab(PluginSessionKeys.ROOM, "Sala geral", new JPanel(), false);
+        String firstPeer = PluginSessionKeys.peer("169.254.165.248");
+        String secondPeer = PluginSessionKeys.peer("192.168.3.131");
+        bar.addOrSelectTab(firstPeer, "Afrodite", "169.254.165.248", new JPanel(), true);
+        bar.addOrSelectTab(secondPeer, "Afrodite", "192.168.3.131", new JPanel(), true);
+        bar.selectTab(PluginSessionKeys.ROOM);
+
+        bar.closeTab(firstPeer);
+
+        assertEquals(2, bar.getTabCount());
+        assertEquals(false, bar.hasTab(firstPeer));
+        assertEquals(true, bar.hasTab(secondPeer));
+        assertEquals(PluginSessionKeys.ROOM, bar.selectedKey());
+
+        bar.closeTab(secondPeer);
+
+        assertEquals(1, bar.getTabCount());
+        assertEquals(false, bar.hasTab(secondPeer));
+        assertEquals(PluginSessionKeys.ROOM, bar.selectedKey());
+    }
+
+    @Test
+    void replaceKeyKeepsTheSameTabClosableUnderTheNewAddress() {
+        SessionTabBar bar = new SessionTabBar();
+        bar.addOrSelectTab(PluginSessionKeys.ROOM, "Sala geral", new JPanel(), false);
+        String cable = PluginSessionKeys.peer("169.254.165.248");
+        String wifi = PluginSessionKeys.peer("192.168.3.131");
+        bar.addOrSelectTab(cable, "Afrodite", "169.254.165.248", new JPanel(), true);
+
+        assertEquals(true, bar.replaceKey(cable, wifi, "Afrodite", "192.168.3.131", true));
+        assertEquals(false, bar.hasTab(cable));
+        assertEquals(true, bar.hasTab(wifi));
+        assertEquals(2, bar.getTabCount());
+
+        bar.closeTab(wifi);
+
+        assertEquals(1, bar.getTabCount());
+        assertEquals(false, bar.hasTab(wifi));
+    }
 }

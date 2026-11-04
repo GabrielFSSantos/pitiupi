@@ -7,7 +7,10 @@ import pitiupi.models.Messages.InfoType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import pitiupi.presentation.shell.LocalNetworkInfo;
+
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.logging.Level;
@@ -28,6 +31,7 @@ import java.util.logging.Logger;
 public class ConnectionFactory {
     private static final int HANDSHAKE_TIMEOUT = 1000;
     private static final int STANDARD_TIMEOUT = 300_000;
+    public static final int CONNECT_TIMEOUT_MS = 5000;
 
     /**
      *  Cria uma conexão TCP de saída com o peer de destino e realiza o handshake
@@ -55,7 +59,12 @@ public class ConnectionFactory {
         try {
             TcpConnection connection;
 
-            Socket socket = new Socket(address, port);
+            Socket socket = new Socket();
+            InetAddress local = LocalNetworkInfo.bestLocalInet4Address();
+            if (local != null) {
+                socket.bind(new InetSocketAddress(local, 0));
+            }
+            socket.connect(new InetSocketAddress(address, port), CONNECT_TIMEOUT_MS);
             connection = new TcpConnection(socket);
             connection.setSender(sender);
             connection.setReceiver(receiver);

@@ -11,15 +11,45 @@ import java.util.Locale;
  */
 public final class LocalNetworkInfo {
 
+    public enum EgressMode {
+        AUTO,
+        WIRED,
+        WIRELESS
+    }
+
     private static final String APIPA_PREFIX = "169.254.";
+    private static volatile EgressMode egressMode = EgressMode.AUTO;
 
     private LocalNetworkInfo() {
     }
 
+    public static void setEgressMode(EgressMode mode) {
+        egressMode = mode == null ? EgressMode.AUTO : mode;
+    }
+
+    public static EgressMode getEgressMode() {
+        return egressMode;
+    }
+
     /**
-     * Interface preferida para LAN: cabo antes de Wi‑Fi; APIPA (169.254.x) antes de outro IPv4 no cabo.
+     * Modo automático sempre pode ser aplicado. Cabo e Wi-Fi exigem uma interface dessa família.
+     */
+    public static boolean canUse(EgressMode mode) {
+        if (mode == null || mode == EgressMode.AUTO) {
+            return true;
+        }
+        return selectInterface(mode) != null;
+    }
+
+    /**
+     * Interface preferida para LAN, respeitando o modo de saída configurado.
      */
     public static NetworkInterface preferredNetworkInterface() {
+        return selectInterface(egressMode);
+    }
+
+    public static NetworkInterface selectInterface(EgressMode mode) {
+        EgressMode effective = mode == null ? EgressMode.AUTO : mode;
         try {
             NetworkInterface wiredApipa = null;
             NetworkInterface wiredOther = null;
@@ -34,8 +64,8 @@ public final class LocalNetworkInfo {
                 if (fallback == null) {
                     fallback = ni;
                 }
-                String name = ni.getName();
-                if (isWiredLanInterfaceName(name)) {
+                Kind kind = classify(ni);
+                if (kind == Kind.WIRED) {
                     if (hasApipaIpv4(ni)) {
                         if (wiredApipa == null) {
                             wiredApipa = ni;
@@ -43,9 +73,18 @@ public final class LocalNetworkInfo {
                     } else if (wiredOther == null) {
                         wiredOther = ni;
                     }
-                } else if (isWirelessLanInterfaceName(name) && wireless == null) {
+                } else if (kind == Kind.WIRELESS && wireless == null) {
                     wireless = ni;
                 }
+            }
+            if (effective == EgressMode.WIRED) {
+                if (wiredApipa != null) {
+                    return wiredApipa;
+                }
+                return wiredOther;
+            }
+            if (effective == EgressMode.WIRELESS) {
+                return wireless;
             }
             if (wiredApipa != null) {
                 return wiredApipa;
@@ -60,6 +99,39 @@ public final class LocalNetworkInfo {
         } catch (Exception ex) {
             return null;
         }
+    }
+
+    public static String describeActiveInterface() {
+        NetworkInterface ni = preferredNetworkInterface();
+        if (ni == null) {
+            return "nenhuma interface";
+        }
+        String ip = bestIpv4OnInterface(ni);
+        return ni.getName() + " · " + (ip == null ? "—" : ip);
+    }
+
+    public static InetAddress bestLocalInet4Address() {
+        try {
+            NetworkInterface preferred = preferredNetworkInterface();
+            if (preferred == null) {
+                return null;
+            }
+            String ip = bestIpv4OnInterface(preferred);
+            if (ip == null) {
+                return null;
+            }
+            return InetAddress.getByName(ip);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    public static boolean isWiredInterface(String name, String displayName) {
+        return matchesWiredToken(name) || matchesWiredToken(displayName);
+    }
+
+    public static boolean isWirelessInterface(String name, String displayName) {
+        return matchesWirelessToken(name) || matchesWirelessToken(displayName);
     }
 
     public static String bestLocalIpv4() {
@@ -120,25 +192,52 @@ public final class LocalNetworkInfo {
                 || n.startsWith("tailscale");
     }
 
-    private static boolean isWiredLanInterfaceName(String name) {
-        if (name == null) {
+    private enum Kind {
+        WIRED,
+        WIRELESS,
+        OTHER
+    }
+
+    private static Kind classify(NetworkInterface ni) {
+        String name = ni.getName();
+        String display = ni.getDisplayName();
+        boolean wireless = isWirelessInterface(name, display);
+        boolean wired = isWiredInterface(name, display);
+        if (wireless && !wired) {
+            return Kind.WIRELESS;
+        }
+        if (wired && !wireless) {
+            return Kind.WIRED;
+        }
+        if (wireless) {
+            return Kind.WIRELESS;
+        }
+        return Kind.OTHER;
+    }
+
+    private static boolean matchesWiredToken(String value) {
+        if (value == null) {
             return false;
         }
-        String n = name.toLowerCase(Locale.ROOT);
+        String n = value.toLowerCase(Locale.ROOT);
         return n.startsWith("eth")
                 || n.startsWith("eno")
                 || n.startsWith("enp")
-                || n.startsWith("ens");
+                || n.startsWith("ens")
+                || n.contains("ethernet");
     }
 
-    private static boolean isWirelessLanInterfaceName(String name) {
-        if (name == null) {
+    private static boolean matchesWirelessToken(String value) {
+        if (value == null) {
             return false;
         }
-        String n = name.toLowerCase(Locale.ROOT);
+        String n = value.toLowerCase(Locale.ROOT);
         return n.startsWith("wlan")
                 || n.startsWith("wlp")
-                || n.startsWith("wl");
+                || n.startsWith("wl")
+                || n.contains("wi-fi")
+                || n.contains("wifi")
+                || n.contains("wireless");
     }
 
     private static boolean hasApipaIpv4(NetworkInterface ni) {

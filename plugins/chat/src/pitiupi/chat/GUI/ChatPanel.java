@@ -10,6 +10,7 @@ import pitiupi.chat.control.PrivateChatUiSink;
 import pitiupi.chat.net.ChatMessage;
 import pitiupi.chat.net.LegacyMpChatMessage;
 import pitiupi.control.ConnectionManager;
+import pitiupi.net.tcp.TcpAttemptListener;
 import pitiupi.models.User;
 import pitiupi.presentation.shell.LocalNetworkInfo;
 import pitiupi.presentation.shell.PeerIpv4;
@@ -25,6 +26,7 @@ import pitiupi.presentation.shell.ui.ShellUi;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -43,8 +45,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ChatPanel extends JPanel implements PrivateChatUiSink {
@@ -55,6 +59,7 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
 
     private final JEditorPane transcript = new JEditorPane();
     private final JTextArea input = new JTextArea();
+    private final JLabel tcpAttemptLabel = ShellUi.mutedLabel(" ");
     private final ConnectionManager connectionManager;
     private final PluginSessionWorkspace workspace;
     private final PluginRoutingPanel routingPanel;
@@ -87,6 +92,8 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
         buildUi();
         initSessionTabs();
         routingPanel.addRoutingListener(s -> applyConversationKeyFromRouting());
+        connectionManager.addPeerListener(peers ->
+                SwingUtilities.invokeLater(() -> adoptCurrentPeerAddresses(peers)));
         routingPanel.setPrivateTcpListener(selected -> {
             if (selected) {
                 User user = resolveUserForSingle();
@@ -119,7 +126,91 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
                 draftPanel.clearIpField();
             }
             SwingUtilities.invokeLater(this::restoreSessionAfterDraftClosed);
+            return;
         }
+        if (key != null && key.startsWith("peer:")) {
+            peerDisplayNames.remove(canonicalPeerIp(key.substring("peer:".length())));
+        }
+    }
+
+    /**
+     * Uma pessoa que troca de cabo para Wi-Fi muda de IP e manteria duas abas com o mesmo nome.
+     * A aba aberta no endereço antigo passa a ser a do endereço atual.
+     */
+    private void adoptCurrentPeerAddresses(List<User> peers) {
+        if (peers == null) {
+            return;
+        }
+        Map<String, User> byIp = new HashMap<>();
+        for (User peer : peers) {
+            if (peer == null || peer.isBroadcastTarget() || peer.getAddress() == null) {
+                continue;
+            }
+            byIp.put(canonicalPeerIp(PeerIpv4.fromInetAddress(peer.getAddress())), peer);
+        }
+        List<String> openIps = new ArrayList<>(peerDisplayNames.keySet());
+        for (User peer : byIp.values()) {
+            String newIp = canonicalPeerIp(PeerIpv4.fromInetAddress(peer.getAddress()));
+            long sameName = byIp.values().stream()
+                    .filter(other -> peer.getUserName().equals(other.getUserName()))
+                    .count();
+            if (sameName != 1) {
+                continue;
+            }
+            for (String oldIp : openIps) {
+                if (oldIp.equals(newIp) || byIp.containsKey(oldIp)) {
+                    continue;
+                }
+                String title = peerDisplayNames.get(oldIp);
+                if (title != null && title.equals(peer.getUserName())
+                        && sessionTabs.hasTab(PluginSessionKeys.peer(oldIp))) {
+                    retargetPeerSession(oldIp, newIp, peer.getUserName());
+                }
+            }
+        }
+    }
+
+    private void retargetPeerSession(String oldIp, String newIp, String name) {
+        String oldTab = PluginSessionKeys.peer(oldIp);
+        String newTab = PluginSessionKeys.peer(newIp);
+        mergeTranscript(peerKey(oldIp), peerKey(newIp));
+        mergeTranscript(privateKey(oldIp), privateKey(newIp));
+        String selectedBefore = sessionTabs.selectedKey();
+        boolean wasSelected = oldTab.equals(selectedBefore);
+        if (sessionTabs.hasTab(newTab)) {
+            sessionTabs.setTabTitle(newTab, name, newIp);
+            sessionTabs.closeTab(oldTab);
+            String restore = wasSelected ? newTab : selectedBefore;
+            if (restore != null && sessionTabs.hasTab(restore)) {
+                sessionTabs.selectTab(restore);
+            }
+        } else {
+            sessionTabs.replaceKey(oldTab, newTab, name, newIp, true);
+        }
+        peerDisplayNames.remove(oldIp);
+        peerDisplayNames.put(newIp, name);
+        if (oldTab.equals(lastSessionKey)) {
+            lastSessionKey = newTab;
+        }
+        if (peerKey(oldIp).equals(activeConversationKey)) {
+            activeConversationKey = peerKey(newIp);
+            flushTranscriptToPane();
+        } else if (privateKey(oldIp).equals(activeConversationKey)) {
+            activeConversationKey = privateKey(newIp);
+            flushTranscriptToPane();
+        }
+        if (wasSelected) {
+            routingPanel.bindPeerSession(newIp, name);
+        }
+    }
+
+    private void mergeTranscript(String oldBucket, String newBucket) {
+        StringBuilder oldBuf = transcripts.remove(oldBucket);
+        if (oldBuf == null || oldBuf.length() == 0) {
+            return;
+        }
+        StringBuilder current = transcripts.computeIfAbsent(newBucket, key -> new StringBuilder());
+        current.append(oldBuf);
     }
 
     private void applyConversationKeyFromRouting() {
@@ -364,8 +455,10 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
         inputScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         ShellUi.borderlessScroll(inputScroll);
 
+        tcpAttemptLabel.setVisible(false);
         JPanel compose = new JPanel(new BorderLayout(0, 4));
-        compose.setPreferredSize(new Dimension(0, 72));
+        compose.setPreferredSize(new Dimension(0, 88));
+        compose.add(tcpAttemptLabel, BorderLayout.NORTH);
         compose.add(inputScroll, BorderLayout.CENTER);
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
         actions.add(send);
@@ -420,19 +513,26 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
                     appendSystemLine(activeConversationKey, "Informe o IP do peer para o canal TCP privado.");
                     return;
                 }
-                if (privateChatController != null && privateChatController.sendText(user, text)) {
-                    input.setText("");
+                if (privateChatController != null && privateChatController.hasOpenChannel(user)) {
+                    if (privateChatController.sendText(user, text)) {
+                        input.setText("");
+                    }
                     return;
                 }
                 if (privateChatController != null) {
                     privateChatController.openChat(user);
+                    if (privateChatController.sendText(user, text)) {
+                        input.setText("");
+                    }
                 }
-                appendSystemLine(peerKey(canonicalPeerIp(PeerIpv4.fromInetAddress(user.getAddress()))),
-                        "Canal TCP privado conectando…");
                 return;
             }
 
             TransportMode mode = routing.transport();
+            if (mode == TransportMode.TCP) {
+                sendTcpOffEdt(text, routing);
+                return;
+            }
             SendTarget target = resolveSendTarget(routing);
             if (target == null || mode == null) {
                 appendSystemLine(activeConversationKey, "Informe um IP válido para enviar a um peer.");
@@ -467,6 +567,125 @@ public class ChatPanel extends JPanel implements PrivateChatUiSink {
         } catch (Exception ex) {
             appendSystemLine(activeConversationKey, "Erro ao enviar: " + ex.getMessage());
         }
+    }
+
+    public void showTcpAttempt(String text) {
+        tcpAttemptLabel.setText(text);
+        tcpAttemptLabel.setVisible(true);
+    }
+
+    public void clearTcpAttempt() {
+        tcpAttemptLabel.setText(" ");
+        tcpAttemptLabel.setVisible(false);
+    }
+
+    public void failTcpAttempt(String message) {
+        clearTcpAttempt();
+        appendSystemLine(activeConversationKey, message);
+        flushTranscriptToPane();
+    }
+
+    private void sendTcpOffEdt(String text, PluginRoutingPanel.RoutingSnapshot routing) {
+        String localIp = PeerIpv4.normalize(LocalNetworkInfo.bestLocalIpv4());
+        ChatMessage message = new ChatMessage(
+                connectionManager.getUserName(),
+                text,
+                TransportMode.TCP.getLabel(),
+                localIp
+        );
+        if (routing.everyoneInRoom()) {
+            sendTcpToRoom(message);
+            return;
+        }
+        String peerIp = canonicalPeerIp(routing.peerIp());
+        if (peerIp == null || peerIp.isEmpty()) {
+            appendSystemLine(activeConversationKey, "Informe um IP válido para enviar a um peer.");
+            return;
+        }
+        if (LocalNetworkInfo.isLocalIpv4(peerIp)) {
+            appendSystemLine(activeConversationKey, "TCP para o próprio host não é suportado; use sala geral ou UDP unicast.");
+            return;
+        }
+        connectionManager.sendTcpAsync(message, peerIp, new TcpAttemptListener() {
+            @Override
+            public void onConnecting(String endpoint) {
+                showTcpAttempt("Conectando em " + endpoint + "…");
+            }
+
+            @Override
+            public void onSuccess(pitiupi.net.tcp.TcpConnection connection) {
+                clearTcpAttempt();
+                appendChatLine(activeConversationKey, message);
+                input.setText("");
+                flushTranscriptToPane();
+            }
+
+            @Override
+            public void onFailure(String error) {
+                failTcpAttempt(error);
+            }
+        });
+    }
+
+    private void sendTcpToRoom(ChatMessage message) {
+        java.util.List<String> peers = new java.util.ArrayList<>();
+        for (UserPeerView view : connectionManager.getPresenceService().listPeerViews()) {
+            if (view.isBroadcastTarget() || view.isSelf()) {
+                continue;
+            }
+            view.getInetAddress().ifPresent(address -> peers.add(PeerIpv4.fromInetAddress(address)));
+        }
+        if (peers.isEmpty()) {
+            appendSystemLine(activeConversationKey, "Nenhum colega na sala para receber por TCP.");
+            return;
+        }
+        int total = peers.size();
+        int[] remaining = {total};
+        int[] succeeded = {0};
+        boolean[] announced = {false};
+        for (String ip : peers) {
+            connectionManager.sendTcpAsync(message, ip, new TcpAttemptListener() {
+                @Override
+                public void onConnecting(String endpoint) {
+                    if (!announced[0]) {
+                        announced[0] = true;
+                        showTcpAttempt("Conectando por TCP…");
+                    }
+                }
+
+                @Override
+                public void onSuccess(pitiupi.net.tcp.TcpConnection connection) {
+                    finishRoomTcp(message, total, remaining, succeeded, true);
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    finishRoomTcp(message, total, remaining, succeeded, false);
+                }
+            });
+        }
+    }
+
+    private void finishRoomTcp(ChatMessage message, int total, int[] remaining, int[] succeeded, boolean thisOk) {
+        if (thisOk) {
+            succeeded[0]++;
+        }
+        remaining[0]--;
+        if (remaining[0] > 0) {
+            return;
+        }
+        clearTcpAttempt();
+        if (succeeded[0] == 0) {
+            appendSystemLine(activeConversationKey, "Não foi possível conectar nos colegas por TCP.");
+            flushTranscriptToPane();
+            return;
+        }
+        if (succeeded[0] < total) {
+            appendSystemLine(activeConversationKey, "Não foi possível conectar em um ou mais colegas por TCP.");
+        }
+        appendChatLine(activeConversationKey, message);
+        input.setText("");
+        flushTranscriptToPane();
     }
 
     private SendTarget resolveSendTarget(PluginRoutingPanel.RoutingSnapshot routing) throws Exception {

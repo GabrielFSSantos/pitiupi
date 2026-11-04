@@ -153,18 +153,44 @@ public final class ClosableTabbedPane {
         closeTab(key, closeFallbackKey);
     }
 
+    /**
+     * Troca a chave de uma aba existente e recria o × com a chave nova.
+     *
+     * @return {@code false} se a aba antiga não existe ou a nova já está ocupada.
+     */
+    public boolean replaceKey(String oldKey, String newKey, String title, String tooltip, boolean closable) {
+        if (oldKey == null || newKey == null || oldKey.equals(newKey)) {
+            return false;
+        }
+        reconcileKeyListWithTabPane();
+        int index = indexOfKey(oldKey);
+        if (index < 0 || index >= tabbedPane.getTabCount() || hasTab(newKey)) {
+            return false;
+        }
+        orderedKeys.set(index, newKey);
+        reindex();
+        setTabHeader(index, title, tooltip, closable, newKey);
+        return true;
+    }
+
     public void closeTab(String key, String fallbackKey) {
         reconcileKeyListWithTabPane();
         int index = indexOfKey(key);
         if (index < 0 || index >= tabbedPane.getTabCount()) {
             return;
         }
-        tabbedPane.removeTabAt(index);
-        if (index < orderedKeys.size()) {
-            orderedKeys.remove(index);
+        boolean prev = suppressSelectionEvents;
+        suppressSelectionEvents = true;
+        try {
+            if (index < orderedKeys.size()) {
+                orderedKeys.remove(index);
+            }
+            keyToIndex.remove(key);
+            tabbedPane.removeTabAt(index);
+            reindex();
+        } finally {
+            suppressSelectionEvents = prev;
         }
-        keyToIndex.remove(key);
-        reindex();
         onTabClosed.accept(key);
         String next = null;
         if (fallbackKey != null && !fallbackKey.isBlank() && hasTab(fallbackKey)) {
@@ -251,16 +277,22 @@ public final class ClosableTabbedPane {
         if (indices.size() <= 1) {
             return;
         }
-        for (int i = indices.size() - 1; i >= 1; i--) {
-            int idx = indices.get(i);
-            if (idx >= 0 && idx < tabbedPane.getTabCount()) {
-                tabbedPane.removeTabAt(idx);
+        boolean prev = suppressSelectionEvents;
+        suppressSelectionEvents = true;
+        try {
+            for (int i = indices.size() - 1; i >= 1; i--) {
+                int idx = indices.get(i);
+                if (idx < orderedKeys.size()) {
+                    orderedKeys.remove(idx);
+                }
+                if (idx >= 0 && idx < tabbedPane.getTabCount()) {
+                    tabbedPane.removeTabAt(idx);
+                }
             }
-            if (idx < orderedKeys.size()) {
-                orderedKeys.remove(idx);
-            }
+            reindex();
+        } finally {
+            suppressSelectionEvents = prev;
         }
-        reindex();
     }
 
     private void setTabHeader(int tabIndex, String title, String tooltip, boolean closable, String key) {

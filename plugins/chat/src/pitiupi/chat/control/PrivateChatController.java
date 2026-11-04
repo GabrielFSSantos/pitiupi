@@ -86,6 +86,15 @@ public class PrivateChatController {
         }
     }
 
+    public void abortOutgoing(String address) {
+        if (address == null) {
+            return;
+        }
+        String canonical = PeerIpv4.normalize(address);
+        pendingConnections.remove(canonical);
+        pendingTextByAddress.remove(canonical);
+    }
+
     public void closeChat(TcpConnection connection) {
         String address = addressKey(connection);
         connections.remove(address);

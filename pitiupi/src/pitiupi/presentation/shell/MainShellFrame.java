@@ -38,6 +38,7 @@ public final class MainShellFrame extends JFrame implements ShellHost {
 
         connectionManager = new ConnectionManager(userName, pluginManager, port);
         settingsPanel = new SettingsPanel(connectionManager);
+        settingsPanel.setSettingsListener(this::onIdentityApplied);
         PluginGalleryPanel gallery = new PluginGalleryPanel((pluginId, title) -> { });
         tabWorkspace = new TabWorkspacePanel(gallery, settingsPanel);
         galleryPanel = gallery;
@@ -129,6 +130,11 @@ public final class MainShellFrame extends JFrame implements ShellHost {
         setVisible(false);
         dispose();
         System.exit(0);
+    }
+
+    private void onIdentityApplied(String userName, int port) {
+        setUserName(userName);
+        updateStatus(userName, port);
     }
 
     @Override

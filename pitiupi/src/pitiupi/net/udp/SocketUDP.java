@@ -46,6 +46,7 @@ public class SocketUDP extends Thread {
     private final PluginManager pluginManager;
 
     private volatile boolean running = true;
+    private volatile boolean joined;
     public final static String INET_ADDR = "224.0.0.3";
 
     /**
@@ -65,11 +66,12 @@ public class SocketUDP extends Thread {
             this.address = InetAddress.getByName(SocketUDP.INET_ADDR);
 
             int port = connectionManager.getPort();
-            multicastSocket = new MulticastSocket(port);
+            multicastSocket = new MulticastSocket(null);
+            multicastSocket.setReuseAddress(true);
+            multicastSocket.bind(new InetSocketAddress(port));
             multicastSocket.setSendBufferSize(256000);
             multicastSocket.setReceiveBufferSize(256000);
-            multicastSocket.setReuseAddress(true);
-            multicastSocket.setTimeToLive(1);
+            multicastSocket.setTimeToLive(connectionManager.getMulticastTtl());
             multicastInterface = LocalNetworkInfo.preferredNetworkInterface();
             if (multicastInterface != null) {
                 multicastSocket.setNetworkInterface(multicastInterface);
@@ -77,6 +79,7 @@ public class SocketUDP extends Thread {
             } else {
                 multicastSocket.joinGroup(address);
             }
+            joined = true;
         }
         catch (UnknownHostException ex) {
             System.getLogger(SocketUDP.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
@@ -124,8 +127,13 @@ public class SocketUDP extends Thread {
     /**
      * Encerra a comunicação multicast e interrompe a recepção de mensagens.
      */
+    public boolean isJoined() {
+        return joined && multicastSocket != null && !multicastSocket.isClosed();
+    }
+
     public void close() {
         running = false;
+        joined = false;
         if (multicastSocket != null) {
             try {
                 int port = connectionManager.getPort();

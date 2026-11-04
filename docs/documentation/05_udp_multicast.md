@@ -24,7 +24,8 @@ Durante sua inicialização, o `SocketUDP`:
 2. cria um `MulticastSocket` na **porta escolhida no login** (mesma porta TCP da sala);
 3. configura os buffers de envio e recepção;
 4. habilita o reuso do endereço;
-5. ingressa no grupo multicast.
+5. define o TTL (padrão **1**, alterável na aba Configurações) e a interface de saída;
+6. ingressa no grupo multicast.
 
 O tamanho dos buffers de comunicação é configurado para `256000` bytes.
 
